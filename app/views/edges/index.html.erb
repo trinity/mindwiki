@@ -1,0 +1,26 @@
+<h1>Listing edges</h1>
+
+<table>
+  <tr>
+    <th>Start</th>
+    <th>End</th>
+    <th>Directed</th>
+    <th>Name</th>
+  </tr>
+
+<% for edge in @edges %>
+  <tr>
+    <td><%=h edge.start %></td>
+    <td><%=h edge.end %></td>
+    <td><%=h edge.directed %></td>
+    <td><%=h edge.name %></td>
+    <td><%= link_to 'Show', edge %></td>
+    <td><%= link_to 'Edit', edit_edge_path(edge) %></td>
+    <td><%= link_to 'Destroy', edge, :confirm => 'Are you sure?', :method => :delete %></td>
+  </tr>
+<% end %>
+</table>
+
+<br />
+
+<%= link_to 'New edge', new_edge_path %>

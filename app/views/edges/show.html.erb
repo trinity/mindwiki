@@ -1,0 +1,23 @@
+<p>
+  <b>Start:</b>
+  <%=h @edge.start %>
+</p>
+
+<p>
+  <b>End:</b>
+  <%=h @edge.end %>
+</p>
+
+<p>
+  <b>Directed:</b>
+  <%=h @edge.directed %>
+</p>
+
+<p>
+  <b>Name:</b>
+  <%=h @edge.name %>
+</p>
+
+
+<%= link_to 'Edit', edit_edge_path(@edge) %> |
+<%= link_to 'Back', edges_path %>

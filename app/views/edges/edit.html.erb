@@ -1,0 +1,28 @@
+<h1>Editing edge</h1>
+
+<% form_for(@edge) do |f| %>
+  <%= f.error_messages %>
+
+  <p>
+    <%= f.label :start %><br />
+    <%= f.text_field :start %>
+  </p>
+  <p>
+    <%= f.label :end %><br />
+    <%= f.text_field :end %>
+  </p>
+  <p>
+    <%= f.label :directed %><br />
+    <%= f.check_box :directed %>
+  </p>
+  <p>
+    <%= f.label :name %><br />
+    <%= f.text_field :name %>
+  </p>
+  <p>
+    <%= f.submit "Update" %>
+  </p>
+<% end %>
+
+<%= link_to 'Show', @edge %> |
+<%= link_to 'Back', edges_path %>

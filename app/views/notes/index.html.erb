@@ -1,0 +1,30 @@
+<h1>Listing notes</h1>
+
+<table>
+  <tr>
+    <th>Name</th>
+    <th>X</th>
+    <th>Y</th>
+    <th>Width</th>
+    <th>Height</th>
+    <th>Color</th>
+  </tr>
+
+<% for note in @notes %>
+  <tr>
+    <td><%=h note.name %></td>
+    <td><%=h note.x %></td>
+    <td><%=h note.y %></td>
+    <td><%=h note.width %></td>
+    <td><%=h note.height %></td>
+    <td><%=h note.color %></td>
+    <td><%= link_to 'Show', note %></td>
+    <td><%= link_to 'Edit', edit_note_path(note) %></td>
+    <td><%= link_to 'Destroy', note, :confirm => 'Are you sure?', :method => :delete %></td>
+  </tr>
+<% end %>
+</table>
+
+<br />
+
+<%= link_to 'New note', new_note_path %>

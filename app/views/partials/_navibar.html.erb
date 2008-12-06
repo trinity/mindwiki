@@ -1,0 +1,24 @@
+<% if logged_in? %>
+<div class="navibar_container">
+	<table class="navibar">	
+	  <tr>
+		<td><%= link_to " Graphs", "/graphs" %></td>
+		<td><%= link_to " Log out", "/sessions/destroy" %></td>
+	
+		<td>
+			<span id="notice_container">
+				<%= render :partial => "/partials/notify" %>
+			</span>
+			<span id="warning_container">
+				<%= render :partial => "/partials/warning" %>
+			</span>
+			<span id="error_container">
+				<%= render :partial => "/partials/error" %>
+			</span>
+		</td>
+	  </tr>
+	</table>
+</div>
+<% else %>
+
+<% end %>

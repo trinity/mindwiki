@@ -1,0 +1,20 @@
+<p>
+  <b>Name:</b>
+  <%=h @graph.name %>
+</p>
+<div class="graphmenu_container">
+  <table class="graphmenu">
+    <td><%= link_to 'Back to graph list', graphs_path %></td>
+    <td><%= link_to " New note", "/notes/new/"+params[:id] %></td>
+  </table>
+</div>
+
+<% @graph.notes.each do |note| %>
+  <div style="background-color:<%= note.color %>; layer-background-color:<%= note.color %>;">
+    <h4><%= note.name %></h4>
+    <p><%= @wikiparser.parse note.article.content %></p>
+    <p><table><td>Edit note</td>
+              <td><%= link_to " Delete note", "/notes/destroy/#{note.id}?graph_id=#{params[:id]}" %></td>
+    </table></p>
+  </div>
+<% end %>

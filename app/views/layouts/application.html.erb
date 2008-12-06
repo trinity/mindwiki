@@ -1,0 +1,51 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+       "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+  <title><%= controller.controller_name %>: <%= controller.action_name %></title>
+  <%= stylesheet_link_tag 'scaffold' %>
+  <%= javascript_include_tag :defaults %> 
+  <%= javascript_include_tag "dojo/dojo/dojo.js"%>
+
+<!-- a little dojo test
+<script type="text/javascript">
+dojo.require("dojox.gfx");
+
+makeShapes = function(){
+	var surface = dojox.gfx.createSurface(document.getElementById("test"), 500, 500);
+	var styles = ["none", "Solid", "ShortDash", "ShortDot", "ShortDashDot", "ShortDashDotDot", 
+		"Dot", "Dash", "LongDash", "DashDot", "LongDashDot", "LongDashDotDot"];
+	var font = "normal normal normal 10pt Arial";	// CSS font style
+	var y_offset = dojox.gfx.normalizedLength("4pt");
+	for(var i = 0; i < styles.length; ++i){
+		var y = 20 + i * 20;
+		surface.createText({x: 140, y: y + y_offset, text: styles[i], align: "end"}).setFont(font).setFill("black");
+		surface.createLine({x1: 150, y1: y, x2: 490, y2: y}).setStroke({style: styles[i], width: 3, cap: "round"});
+	}
+};
+
+dojo.addOnLoad(makeShapes);
+
+
+</script>
+
+--> 
+</head>
+<body>
+
+<div id="world">
+	<%= render :partial => '/partials/navibar' %>
+	<div id="content">
+		<%= yield  %>
+	</div>
+	
+	<!-- 
+	<div id="test">
+		
+	</div> -->
+</div>
+
+</body>
+</html>
