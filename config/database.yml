@@ -5,9 +5,8 @@ development:
   database: mwiki_dev
   username: mwiki
   port: 3306
-  password:
+  password: h0lysch31ss3
   host: 127.0.0.1
-#  host: mindwiki.cs.uta.fi
 
 # Warning: The database defined as "test" will be erased and
 # re-generated from your development database when you run "rake".
@@ -17,15 +16,14 @@ test:
   database: mwiki_test
   username: mwiki
   port: 3306
-  password:
+  password: h0lysch31ss3
   host: 127.0.0.1                 
-#  host: mindwiki.cs.uta.fi
 
 production:
   adapter: mysql  
   database: mwiki_prod
   username: mwiki
   port: 3306
-  password:
+  password: h0lysch31ss3
   host: 127.0.0.1                 
-#  host: mindwiki.cs.uta.fi
+
