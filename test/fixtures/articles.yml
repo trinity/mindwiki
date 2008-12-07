@@ -1,7 +1,17 @@
 # Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
 
-one:
-  content: MyText
+paula_koivuniemi:
+  id: 1
+  content: Paula on suomalainen viihdetaiteilija. [[Image]http://www.huviopas.net/tampere/kuvat/aaatilap/paulakoivuniemi2007/paula1_300.jpg]
 
-two:
-  content: MyText
+hitit:
+  id: 2
+  content: Paulan hittejä
+
+tummat_silmat_ruskea_tukka:
+  id: 3
+  content: Tummat silmät ruskea tukka on levytetty 1980.
+
+moskova:
+  id: 4
+  content: Moskova on levytetty 2007.

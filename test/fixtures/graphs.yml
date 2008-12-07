@@ -1,7 +1,9 @@
 # Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
 
-one:
-  name: MyString
+paula_koivuniemi:
+  id: 1
+  name: Paula Koivuniemi
 
-two:
-  name: MyString
+random_empty_graph:
+  id: 2
+  name: MyGraph

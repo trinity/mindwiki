@@ -1,17 +1,42 @@
 # Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
 
-one:
-  name: MyString
+paula:
+  id: 1
+  name: Paula Koivuniemi
   x: 1
   y: 1
-  width: 1
-  height: 1
-  color: MyString
+  width: 300
+  height: 200
+  color: #abba10
+  article_id: 1
 
-two:
-  name: MyString
-  x: 1
+paulan_hitit:
+  id: 2
+  name: Hitit
+  x: 400
   y: 1
-  width: 1
-  height: 1
-  color: MyString
+  width: 100
+  height: 50
+  color: #aab000
+  article_id: 2
+
+tummat_silmat_ruskea_tukka:
+  id: 3
+  name: Tummat silmät ruskea tukka
+  x: 1
+  y: 400
+  width: 200
+  height: 100
+  color: #bababa
+  article_id: 3
+
+moskova:
+  id: 4
+  name: Moskova
+  x: 400
+  y: 400
+  width: 200
+  height: 100
+  color: #bababa
+  article_id: 4
+

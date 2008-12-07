@@ -1,13 +1,20 @@
 # Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
 
-one:
-  start: 1
-  end: 1
-  directed: false
-  name: MyString
+levyttanyt:
+  source_id: 1
+  target_id: 2
+  directed: true
+  name: Levyttänyt
 
-two:
-  start: 1
-  end: 1
-  directed: false
-  name: MyString
+tummat1980:
+  source_id: 2
+  target_id: 3
+  directed: true
+  name: 1980
+
+moskova:
+  source_id: 2
+  target_id: 4
+  directed: true
+  name: 2007
+
