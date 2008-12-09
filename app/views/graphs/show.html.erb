@@ -1,3 +1,23 @@
+<style>
+.note
+{
+        position: absolute;
+        border: 2px solid #000;
+        top: 10px;    
+        left: 10px;   
+        width: 200px; 
+        height: 300px;
+        background-color: yellow;
+        color: #000;
+}
+</style>
+
+<script src="/javascripts/jquery-1.2.6.min.js"></script>
+<script src="/javascripts/ui/ui.core.js"></script>
+<script src="/javascripts/ui/ui.draggable.js"></script> 
+<script src="/javascripts/ui/ui.selectable.js"></script>
+<script src="/javascripts/ui/ui.resizable.js"></script>
+
 <p>
   <b>Name:</b>
   <%=h @graph.name %>
@@ -9,12 +29,32 @@
   </table>
 </div>
 
-<% @graph.notes.each do |note| %>
-  <div style="background-color:<%= note.color %>; layer-background-color:<%= note.color %>;">
-    <h4><%= note.name %></h4>
-    <p><%= @wikiparser.parse note.article.content %></p>
+<% @graph.notes.each do |n| %>
+  <!-- Traditional view commented out
+  <div style="background-color:<%= n.color %>; layer-background-color:<%= n.color %>;">
+    <h4><%= n.name %></h4>
+    <p><%= @wikiparser.parse n.article.content %></p>
     <p><table><td>Edit note</td>
-              <td><%= link_to " Delete note", "/notes/destroy/#{note.id}?graph_id=#{params[:id]}" %></td>
+              <td><%= link_to " Delete note", "/notes/destroy/#{n.id}?graph_id=#{params[:id]}" %></td>
     </table></p>
-  </div>
+   </div>
+   -->
+
+      <script>
+        // might be better to make an object model for these ... this is just a test
+        var newNote = document.createElement('div');
+        newNote.className = 'note'; // default style
+        $(newNote).css({backgroundColor: '<%= n.color %>', top: '<%= n.x %>px', left: '<%= n.y %>px', width: '<%= n.width %>px', height: '<%= n.height %>px'});
+        $(newNote).append("<h2><%= n.name %></h2>"); // show title
+
+        // This is ridiculous, and most likely does not work well
+        $(newNote).append("<%= (@wikiparser.parse n.article.content).gsub("\n","<br />").gsub("\"","") %>");
+
+	$(newNote).append("<p style=\"background-color: #aaaaaa\"><table><td>Edit note</td><td><%= (link_to " Delete note", "/notes/destroy/#{n.id}?graph_id=#{params[:id]}").gsub("\"","") %></td></table></p>");
+
+        $(newNote).resizable().draggable();
+        document.body.appendChild(newNote);
+      </script>
+           
 <% end %>
+
