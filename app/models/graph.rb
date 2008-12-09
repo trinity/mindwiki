@@ -1,3 +1,4 @@
 class Graph < ActiveRecord::Base
-  has_and_belongs_to_many :notes
+  has_many :notes
+  belongs_to :user
 end

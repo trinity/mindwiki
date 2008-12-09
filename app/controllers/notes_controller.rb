@@ -47,7 +47,7 @@ class NotesController < ApplicationController
     @graph = Graph.find(params[:graph_id])
     @note = Note.new(params[:note])
     @note.article = @article
-    @note.graphs.push @graph
+    @note.graph = @graph
 
     @note.save
     redirect_to(@graph)

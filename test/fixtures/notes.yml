@@ -1,8 +1,8 @@
 # Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
 
-paula:
+ruby_note:
   id: 1
-  name: Paula Koivuniemi
+  name: Ruby
   x: 1
   y: 1
   width: 300
@@ -10,9 +10,9 @@ paula:
   color: #abba10
   article_id: 1
 
-paulan_hitit:
+oo_note:
   id: 2
-  name: Hitit
+  name: OO
   x: 400
   y: 1
   width: 100
@@ -20,23 +20,12 @@ paulan_hitit:
   color: #aab000
   article_id: 2
 
-tummat_silmat_ruskea_tukka:
+matsumoto_note:
   id: 3
-  name: Tummat silmät ruskea tukka
+  name: Yukihiro Matsumoto
   x: 1
   y: 400
   width: 200
   height: 100
   color: #bababa
   article_id: 3
-
-moskova:
-  id: 4
-  name: Moskova
-  x: 400
-  y: 400
-  width: 200
-  height: 100
-  color: #bababa
-  article_id: 4
-

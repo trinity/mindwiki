@@ -8,6 +8,7 @@ class CreateNotes < ActiveRecord::Migration
       t.integer :height
       t.string :color
       t.references :article
+      t.references :graph
 
       t.timestamps
     end

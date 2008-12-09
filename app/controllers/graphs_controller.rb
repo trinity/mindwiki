@@ -46,6 +46,7 @@ class GraphsController < ApplicationController
   # POST /graphs.xml
   def create
     @graph = Graph.new(params[:graph])
+    @graph.user = current_user
 
     respond_to do |format|
       if @graph.save

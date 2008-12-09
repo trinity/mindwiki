@@ -5,6 +5,7 @@ class CreateEdges < ActiveRecord::Migration
       t.integer :target_id
       t.boolean :directed
       t.string :name
+      t.string :color
 
       t.timestamps
     end

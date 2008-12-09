@@ -1,20 +1,16 @@
 # Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
 
-levyttanyt:
+ruby_oo_edge:
   source_id: 1
   target_id: 2
-  directed: true
-  name: Levyttänyt
+  directed: false
+  name:
+  color: #000000
 
-tummat1980:
-  source_id: 2
+ruby_matsumoto_edge:
+  source_id: 1
   target_id: 3
   directed: true
-  name: 1980
-
-moskova:
-  source_id: 2
-  target_id: 4
-  directed: true
-  name: 2007
+  name: Created by
+  color: #ff00ff
 

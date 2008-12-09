@@ -1,9 +1,12 @@
 # Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
 
-paula_koivuniemi:
+ruby_graph:
   id: 1
-  name: Paula Koivuniemi
+  name: Ruby Is Great
+  user_id: 1
 
 random_empty_graph:
   id: 2
   name: MyGraph
+  user_id: 2
+

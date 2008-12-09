@@ -1,17 +1,14 @@
 # Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
 
-paula_koivuniemi:
+ruby_art:
   id: 1
-  content: Paula on suomalainen viihdetaiteilija. [[Image]http://www.huviopas.net/tampere/kuvat/aaatilap/paulakoivuniemi2007/paula1_300.jpg]
+  content: Ruby is a fantastic language
 
-hitit:
+oo_art:
   id: 2
-  content: Paulan hittejä
+  content: Ruby is pure OO. Yay!
 
-tummat_silmat_ruskea_tukka:
+matsumoto_art:
   id: 3
-  content: Tummat silmät ruskea tukka on levytetty 1980.
+  content: Ruby creation was started by Yukihiro "Matz" Matsumoto in 1993, and first published in 1995.
 
-moskova:
-  id: 4
-  content: Moskova on levytetty 2007.
