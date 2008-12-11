@@ -3,29 +3,32 @@
 ruby_note:
   id: 1
   name: Ruby
-  x: 1
-  y: 1
-  width: 300
-  height: 200
-  color: #abba10
+  x: 50
+  y: 150
+  width: 200
+  height: 180
+  color: '#abba10'
   article_id: 1
+  graph_id: 1
 
 oo_note:
   id: 2
   name: OO
-  x: 400
-  y: 1
-  width: 100
-  height: 50
-  color: #aab000
+  x: 500
+  y: 150
+  width: 200
+  height: 200
+  color: grey #normal css color definitions
   article_id: 2
+  graph_id: 1
 
 matsumoto_note:
   id: 3
   name: Yukihiro Matsumoto
-  x: 1
+  x: 50
   y: 400
-  width: 200
-  height: 100
-  color: #bababa
+  width: 300
+  height: 200
+  color: '#bababa'
   article_id: 3
+  graph_id: 1

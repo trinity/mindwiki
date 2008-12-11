@@ -7,6 +7,6 @@ ruby_graph:
 
 random_empty_graph:
   id: 2
-  name: MyGraph
+  name: MyGraphShouldBeEmpty
   user_id: 2
 
