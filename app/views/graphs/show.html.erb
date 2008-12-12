@@ -42,6 +42,10 @@ function createNote() {
   </table>
 </div>
 
+<script>
+var raphael_canvas = Raphael(1,100,1000,1000); 
+</script>
+
 <% @graph.notes.each do |n| %>
   <!-- Traditional view commented out
   <div style="background-color:<%= n.color %>; layer-background-color:<%= n.color %>;">
@@ -68,7 +72,21 @@ function createNote() {
         $(newNote).resizable().draggable();
         document.body.appendChild(newNote);
       </script>
+
+  <% n.edges_from.each do |e| %>
+    <script>
+      var edge_<%= e.source_id %>_<%= e.target_id %> = raphael_canvas.path({stroke: "<%= e.color %>"}).
+          absolutely().
+          moveTo(<%= e.source_note.x+e.source_note.width/2 %>,<%= e.source_note.y+e.source_note.height/2-100 %>).
+          lineTo(<%= e.target_note.x+e.target_note.width/2 %>,<%= e.target_note.y+e.target_note.height/2-100 %>);
+    </script>
+  <% end %>
            
 <% end %>
 
+<script>
+//update example
+//edge_1_2.path[1].arg = [10,10];
+//edge_1_2.redraw();
+</script>
 

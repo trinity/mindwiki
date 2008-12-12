@@ -14,3 +14,9 @@ ruby_matsumoto_edge:
   name: Created by
   color: '#ff00ff'
 
+matsumoto_youtube_edge:
+  source_id: 3
+  target_id: 5
+  directed: true
+  name: Speech at GoogleTech
+  color: black

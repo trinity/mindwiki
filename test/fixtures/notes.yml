@@ -4,9 +4,9 @@ ruby_note:
   id: 1
   name: Ruby
   x: 50
-  y: 150
+  y: 120
   width: 200
-  height: 180
+  height: 240
   color: '#abba10'
   article_id: 1
   graph_id: 1
@@ -14,10 +14,10 @@ ruby_note:
 oo_note:
   id: 2
   name: OO
-  x: 500
-  y: 150
+  x: 450
+  y: 120
   width: 200
-  height: 200
+  height: 140
   color: grey #normal css color definitions
   article_id: 2
   graph_id: 1
@@ -32,3 +32,24 @@ matsumoto_note:
   color: '#bababa'
   article_id: 3
   graph_id: 1
+
+redcloth_example_note:
+  id: 4
+  name: RedCloth parsing sample
+  x: 50
+  y: 100
+  width: 400
+  height: 600
+  color: grey
+  graph_id: 3
+  article_id: 4
+
+matsumoto_yt_note:
+  id: 5
+  x: 450
+  y: 320
+  width: 450
+  height: 450
+  color: '#ffccaa'
+  graph_id: 1
+  article_id: 5

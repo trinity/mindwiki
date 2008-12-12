@@ -84,6 +84,14 @@ class NotesController < ApplicationController
     @graph = Graph.find(params[:graph_id])
 
     @note = Note.find(params[:id])
+    
+    @note.edges_to.each do |e|
+      e.destroy
+    end
+    @note.edges_from.each do |e|
+      e.destroy
+    end
+    
     @note.destroy
 
     redirect_to(@graph)

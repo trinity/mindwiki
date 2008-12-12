@@ -2,13 +2,33 @@
 
 ruby_art:
   id: 1
-  content: Ruby is a fantastic language
+  content: "Ruby is a fantastic language\n
+            !http://www.cs.helsinki.fi/u/partel/ruby_pikaopas/Ruby_logo_100x100.png!"
 
 oo_art:
   id: 2
-  content: Ruby is pure OO. Yay!
+  content: Ruby is _pure_ OO. *Yay!*
 
 matsumoto_art:
   id: 3
   content: Ruby creation was started by Yukihiro "Matz" Matsumoto in 1993, and first published in 1995.
 
+redcloth_art:
+  id: 4
+  content: "\n
+
+h1. RedCloth is a Textile module for Ruby\n
+
+h2. Here are some examples of the functionality.\n
+
+Emphasis can be added with _underscores_ and *stars*.\n
+Errors can be -corected- +corrected+.\n
+V ~UPij~ has 10 ^9^ connections.\n
+Linked pic from cs.helsinki.fi: !http://www.cs.helsinki.fi/u/partel/ruby_pikaopas/Ruby_logo_100x100.png!\n
+\"Linky to ruby\":http://ruby-lang.org\n
+
+"
+
+matsumoto_yt_art:
+  id: 5
+  content: <object width="425" height="344"><param name="movie" value="http://www.youtube.com/v/oEkJvvGEtB4&hl=en&fs=1"></param><param name="allowFullScreen" value="true"></param><param name="allowscriptaccess" value="always"></param><embed src="http://www.youtube.com/v/oEkJvvGEtB4&hl=en&fs=1" type="application/x-shockwave-flash" allowscriptaccess="always" allowfullscreen="true" width="425" height="344"></embed></object>

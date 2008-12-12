@@ -10,3 +10,7 @@ random_empty_graph:
   name: MyGraphShouldBeEmpty
   user_id: 2
 
+redcloth_example:
+  id: 3
+  name: RedCloth parse-example
+  user_id: 1
