@@ -1,35 +1,5 @@
-<!-- This horrible mess of a file is quite temporary for testing and demoing. -->
-<style>
-.note
-{
-        position: absolute;
-        border: 2px solid #000;
-        top: 100px;    
-        left: 100px;   
-        width: 300px; 
-        height: 200px;
-        background-color: yellow;
-        color: #000;
-}
-</style>
-
-<script src="/javascripts/jquery-1.2.6.min.js"></script>
-<script src="/javascripts/ui/ui.core.js"></script>
-<script src="/javascripts/ui/ui.draggable.js"></script> 
-<script src="/javascripts/ui/ui.selectable.js"></script>
-<script src="/javascripts/ui/ui.resizable.js"></script>
-<script src="/javascripts/raphael.js"></script>
-<script>
-function createNote() {
-  var newNote = document.createElement('div');
-  newNote.className = "note";
-  $(newNote).append("<h2>A new note</h2><p>This doesn't save to db, yet. Refresh to delete.</p>");
-  $(newNote).append("<p><table><td>Edit note</td><td> Delete note</td></table></p>");
-  $(newNote).resizable().draggable();
-  document.body.appendChild(newNote);
-};
-</script>
-
+<%= javascript_include_tag :mindwiki_graph %>
+<%= stylesheet_link_tag :mindwiki_graph %>
 <p>
   <b>Name:</b>
   <%=h @graph.name %>
@@ -37,13 +7,16 @@ function createNote() {
 <div class="graphmenu_container">
   <table class="graphmenu">
     <td><%= link_to 'Back to graph list', graphs_path %></td>
+    <!-- Links won't be created with these links for long. -->
     <td><%= link_to " New note traditionally", "/notes/new/"+params[:id] %></td>
-    <td><a href="javascript:void(0)" onclick="createNote()"> New note by jQuery</a></td>
+    <td><a href="#" id="new_note_link"> New note by jQuery</a></td>
   </table>
 </div>
 
 <script>
-var raphael_canvas = Raphael(1,100,1000,1000); 
+  // MOVE REMAINING JAVASCRIPT OUT
+  // TEMP canvas
+  var raphael_canvas = Raphael(1,100,1000,1000);
 </script>
 
 <% @graph.notes.each do |n| %>
@@ -58,7 +31,7 @@ var raphael_canvas = Raphael(1,100,1000,1000);
    -->
 
       <script>
-        // might be better to make an object model for these ... this is just a test
+        // MOVE REMAINING JAVASCRIPT TO mindwiki_graph.js NAO PLZ KTHXBAI
         var newNote = document.createElement('div');
         newNote.className = 'note'; // default style
         $(newNote).css({backgroundColor: '<%= n.color %>', top: '<%= n.y %>px', left: '<%= n.x %>px', width: '<%= n.width %>px', height: '<%= n.height %>px'});
@@ -75,6 +48,7 @@ var raphael_canvas = Raphael(1,100,1000,1000);
 
   <% n.edges_from.each do |e| %>
     <script>
+      // MOVE REMAINING JAVASCRIPT
       var edge_<%= e.source_id %>_<%= e.target_id %> = raphael_canvas.path({stroke: "<%= e.color %>"}).
           absolutely().
           moveTo(<%= e.source_note.x+e.source_note.width/2 %>,<%= e.source_note.y+e.source_note.height/2-100 %>).
@@ -83,10 +57,3 @@ var raphael_canvas = Raphael(1,100,1000,1000);
   <% end %>
            
 <% end %>
-
-<script>
-//update example
-//edge_1_2.path[1].arg = [10,10];
-//edge_1_2.redraw();
-</script>
-
