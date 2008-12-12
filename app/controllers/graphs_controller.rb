@@ -1,5 +1,4 @@
 class GraphsController < ApplicationController
-  before_filter :set_wikiparser, :only => ['show']
   # GET /graphs
   # GET /graphs.xml
   def index
@@ -87,10 +86,6 @@ class GraphsController < ApplicationController
       format.html { redirect_to(graphs_url) }
       format.xml  { head :ok }
     end
-  end
-  
-  def set_wikiparser
-    @wikiparser = Wikitext::Parser.new
   end
   
 end

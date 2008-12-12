@@ -1,6 +1,4 @@
 class NotesController < ApplicationController
-  before_filter :set_wikiparser, :only => ['show','new','edit','update']
-
   # GET /notes
   # GET /notes.xml
   def index
@@ -93,11 +91,6 @@ class NotesController < ApplicationController
 #      format.html { redirect_to(notes_url) }
 #      format.xml  { head :ok }
 #    end
-  end
-  
-  def set_wikiparser
-    @wikiparser = Wikitext::Parser.new
-    @wikiparser.internal_link_prefix = "/note/byname/"
   end
   
 end

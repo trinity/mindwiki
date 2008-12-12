@@ -46,7 +46,7 @@ function createNote() {
   <!-- Traditional view commented out
   <div style="background-color:<%= n.color %>; layer-background-color:<%= n.color %>;">
     <h4><%= n.name %></h4>
-    <p><%= @wikiparser.parse n.article.content %></p>
+    <p><%= (RedCloth.new n.article.content).to_html %></p>
     <p><table><td>Edit note</td>
               <td><%= link_to " Delete note", "/notes/destroy/#{n.id}?graph_id=#{params[:id]}" %></td>
     </table></p>
@@ -61,7 +61,7 @@ function createNote() {
         $(newNote).append("<h2><%= n.name %></h2>"); // show title
 
         // This is ridiculous, and most likely does not work well
-        $(newNote).append("<%= (@wikiparser.parse n.article.content).gsub("\n","<br />").gsub("\"","") %>");
+        $(newNote).append("<%= (RedCloth.new n.article.content).to_html.gsub("\n","<br />").gsub("\"","") %>");
 
 	$(newNote).append("<p style=\"background-color: #aaaaaa\"><table><td>Edit note</td><td><%= (link_to " Delete note", "/notes/destroy/#{n.id}?graph_id=#{params[:id]}").gsub("\"","") %></td></table></p>");
 
