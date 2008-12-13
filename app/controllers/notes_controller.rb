@@ -94,11 +94,11 @@ class NotesController < ApplicationController
     
     @note.destroy
 
-    redirect_to(@graph)
-#    respond_to do |format|
-#      format.html { redirect_to(notes_url) }
-#      format.xml  { head :ok }
-#    end
+#    redirect_to(@graph)
+    respond_to do |format|
+      format.html { redirect_to(notes_url) }
+      format.xml  { head :ok }
+    end
   end
   
 end

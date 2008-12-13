@@ -1,3 +1,16 @@
+.mindwiki_window
+{
+	position: absolute;
+	border: 1px solid black;
+        margin: 10px;
+	top: 50px;
+	left: 0px;
+	width: 98%;
+	height: 85%;
+	background-color: #ddd;
+	color: black;
+}
+
 .note
 {
         position: absolute;

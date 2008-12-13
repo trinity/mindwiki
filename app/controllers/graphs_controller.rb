@@ -14,10 +14,7 @@ class GraphsController < ApplicationController
   # GET /graphs/1.xml
   def show
     @graph = Graph.find(params[:id])
-    #@graphnotes = @graph.notes;
-    #@graphnotes.each do |@note|
-    #  render :partial => @note
-    #end
+    @graphnotes = @graph.notes;
 
     respond_to do |format|
       format.html # show.html.erb
@@ -86,6 +83,58 @@ class GraphsController < ApplicationController
       format.html { redirect_to(graphs_url) }
       format.xml  { head :ok }
     end
+  end
+  
+  def sync_from_db
+    @graph = Graph.find(params[:id])
+    @graphnotes = @graph.notes;
+  end
+  
+
+  # Render all graph notes in xml
+  def render_notes_xml
+    sync_from_db()
+   
+    # Works nicely, except excludes article content
+    #xmlnotes = @graphnotes.to_xml
+    #render :xml => xmlnotes
+
+    # Includes article content, but adds weird extra tags(?!)
+    #@xml = Builder::XmlMarkup.new
+    #@xml.instruct! :xml
+    #@xml.notes{
+    #  for note in @graphnotes
+    #    @xml.note do
+    #      @xml.id(note.id)
+    #      @xml.name(note.name)
+    #      @xml.content((RedCloth.new note.article.content).to_html)
+    #      #etc...
+    #    end
+    #  end
+    #}
+    #render :xml => @xml
+
+    # ... So we use REXML :(
+    xml = REXML::Document.new
+    xml.add_element("notes")
+    @graphnotes.each do |n|
+      tmp = REXML::Element.new("note")
+      ["id","name","x","y","width","height","color","content"].each do |s|
+        tmp.add_element(s)
+      end
+      # Again unflexible code
+      tmp.elements["id"].text = n.id
+      tmp.elements["name"].text = n.name
+      tmp.elements["x"].text = n.x
+      tmp.elements["y"].text = n.y
+      tmp.elements["width"].text = n.width
+      tmp.elements["height"].text = n.height
+      tmp.elements["color"].text = n.color
+      tmp.elements["content"].text = (RedCloth.new n.article.content).to_html
+      xml.root.elements << tmp
+    end
+    render :xml => xml
+
   end
   
 end

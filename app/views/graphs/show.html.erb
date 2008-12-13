@@ -1,59 +1,14 @@
 <%= javascript_include_tag :mindwiki_graph %>
 <%= stylesheet_link_tag :mindwiki_graph %>
-<p>
-  <b>Name:</b>
-  <%=h @graph.name %>
-</p>
 <div class="graphmenu_container">
   <table class="graphmenu">
-    <td><%= link_to 'Back to graph list', graphs_path %></td>
-    <!-- Links won't be created with these links for long. -->
-    <td><%= link_to " New note traditionally", "/notes/new/"+params[:id] %></td>
-    <td><a href="#" id="new_note_link"> New note by jQuery</a></td>
+    <td><b>Graph name: </b><%= @graph.name %></td>
+    <td><b> Functionality: </b><%= link_to 'Back to graph list', graphs_path %></td>
+    <td><%= link_to " New note (to be deprecated)", "/notes/new/"+params[:id] %></td>
+    <td><b> Help: </b>You can create new notes by double clicking on the app window</td>
   </table>
 </div>
 
-<script>
-  // MOVE REMAINING JAVASCRIPT OUT
-  // TEMP canvas
-  var raphael_canvas = Raphael(1,100,1000,1000);
-</script>
-
-<% @graph.notes.each do |n| %>
-  <!-- Traditional view commented out
-  <div style="background-color:<%= n.color %>; layer-background-color:<%= n.color %>;">
-    <h4><%= n.name %></h4>
-    <p><%= (RedCloth.new n.article.content).to_html %></p>
-    <p><table><td>Edit note</td>
-              <td><%= link_to " Delete note", "/notes/destroy/#{n.id}?graph_id=#{params[:id]}" %></td>
-    </table></p>
-   </div>
-   -->
-
-      <script>
-        // MOVE REMAINING JAVASCRIPT TO mindwiki_graph.js NAO PLZ KTHXBAI
-        var newNote = document.createElement('div');
-        newNote.className = 'note'; // default style
-        $(newNote).css({backgroundColor: '<%= n.color %>', top: '<%= n.y %>px', left: '<%= n.x %>px', width: '<%= n.width %>px', height: '<%= n.height %>px'});
-        $(newNote).append("<h2><%= n.name %></h2>"); // show title
-
-        // This is ridiculous, and most likely does not work well
-        $(newNote).append("<%= (RedCloth.new n.article.content).to_html.gsub("\n","<br />").gsub("\"","") %>");
-
-	$(newNote).append("<p style=\"background-color: #aaaaaa\"><table><td>Edit note</td><td><%= (link_to " Delete note", "/notes/destroy/#{n.id}?graph_id=#{params[:id]}").gsub("\"","") %></td></table></p>");
-
-        $(newNote).resizable().draggable();
-        document.body.appendChild(newNote);
-      </script>
-
-  <% n.edges_from.each do |e| %>
-    <script>
-      // MOVE REMAINING JAVASCRIPT
-      var edge_<%= e.source_id %>_<%= e.target_id %> = raphael_canvas.path({stroke: "<%= e.color %>"}).
-          absolutely().
-          moveTo(<%= e.source_note.x+e.source_note.width/2 %>,<%= e.source_note.y+e.source_note.height/2-100 %>).
-          lineTo(<%= e.target_note.x+e.target_note.width/2 %>,<%= e.target_note.y+e.target_note.height/2-100 %>);
-    </script>
-  <% end %>
-           
-<% end %>
+<div class="mindwiki_window">
+<!-- Hope you have JavaScript enabled :) -->
+</div>

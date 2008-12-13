@@ -4,7 +4,7 @@ ruby_note:
   id: 1
   name: Ruby
   x: 50
-  y: 120
+  y: 10
   width: 200
   height: 240
   color: '#abba10'
@@ -15,7 +15,7 @@ oo_note:
   id: 2
   name: OO
   x: 450
-  y: 120
+  y: 10
   width: 200
   height: 140
   color: grey #normal css color definitions
@@ -26,7 +26,7 @@ matsumoto_note:
   id: 3
   name: Yukihiro Matsumoto
   x: 50
-  y: 400
+  y: 300
   width: 300
   height: 200
   color: '#bababa'
@@ -37,17 +37,18 @@ redcloth_example_note:
   id: 4
   name: RedCloth parsing sample
   x: 50
-  y: 100
+  y: 10
   width: 400
-  height: 600
+  height: 500
   color: grey
   graph_id: 3
   article_id: 4
 
 matsumoto_yt_note:
   id: 5
+  name: Matsumoto speech at GoogleTech
   x: 450
-  y: 320
+  y: 200
   width: 450
   height: 450
   color: '#ffccaa'
