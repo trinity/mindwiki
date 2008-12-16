@@ -40,25 +40,26 @@ class NotesController < ApplicationController
   # POST /notes
   # POST /notes.xml
   def create
-    # search by content. baaaad :)
-    @article = Article.find_or_create_by_content(params[:article_content])
+    # This makes all new notes have the same article...
+    #@article = Article.find_or_create_by_content(params[:article_content])
+    @article = Article.create(:content => params[:article_content])
     @graph = Graph.find(params[:graph_id])
     @note = Note.new(params[:note])
     @note.article = @article
     @note.graph = @graph
 
     @note.save
-    redirect_to(@graph)
-#    respond_to do |format|
-#      if @note.save
-#        flash[:notice] = 'Note was successfully created.'
-#        format.html { redirect_to(@note) }
-#        format.xml  { render :xml => @note, :status => :created, :location => @note }
-#      else
-#        format.html { render :action => "new" }
-#        format.xml  { render :xml => @note.errors, :status => :unprocessable_entity }
-#      end
-#    end
+#    redirect_to(@graph)
+    respond_to do |format|
+      if @note.save
+        flash[:notice] = 'Note was successfully created.'
+        format.html { redirect_to(@note) }
+        format.xml  { render :xml => @note, :status => :created, :location => @note }
+      else
+        format.html { render :action => "new" }
+        format.xml  { render :xml => @note.errors, :status => :unprocessable_entity }
+      end
+    end
   end
 
   # PUT /notes/1
