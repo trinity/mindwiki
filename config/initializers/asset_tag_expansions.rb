@@ -1,5 +1,5 @@
 # Javascript-files required by the MindWiki application (not all of the site, just the application)
-ActionView::Helpers::AssetTagHelper.register_javascript_expansion :mindwiki_graph => ["mindwiki_graph", "jquery-1.2.6.min", 
+ActionView::Helpers::AssetTagHelper.register_javascript_expansion :mindwiki_graph => ["mindwiki_graph", "jquery-1.2.6.min", "jquery.livequery",
  "ui/ui.core", "ui/ui.draggable", "ui/ui.selectable", "ui/ui.resizable", "raphael"]
  
 # Stylesheet

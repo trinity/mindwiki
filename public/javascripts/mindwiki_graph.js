@@ -60,7 +60,7 @@ window.onload = function(){
 		.append("Lappu "+currentId.toString());
 			
 		$(newArticle).addClass("noteArticle").attr("id", "article"+currentId.toString())
-		.append("Sisältöä...");
+		.append("Sisaltaa...");
 			
 		$(newArticleTD).addClass("noteArticleTD").attr("id", "articleTD"+currentId.toString())
 		.append(newArticle);
