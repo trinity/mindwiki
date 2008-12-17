@@ -8,7 +8,7 @@ function Note() {
 	this.y;
 	this.width;
 	this.height;
-	this.color = "grey";
+	this.color = "silver";
 	this.content = "New content."; // currently already rendered.. -> change for editing.
 
 	this.div;
@@ -46,7 +46,7 @@ Note.prototype.newID = function() {
 		data: {
 	                "graph_id" : graph_id,
         	        "note[name]" : "New note",    
-	                "note[color]" : "grey",             
+	                "note[color]" : "silver",             
 	                "note[x]" : thisnote.x,                        
 	                "note[y]" : thisnote.y,        
 	                "note[width]" : 200,         
@@ -71,10 +71,8 @@ Note.prototype.redraw = function() {
 	var thisnote = this; // To be used in submethods, e.g. click-handlers.
 	this.div = document.createElement("div");
 
-	// Style
-	this.div.className = "note"; // default style
-	$(this.div).css({
-		"backgroundColor" : "#ddd", // User def color for content column
+	$(this.div).addClass("note").css({
+		"backgroundColor" : this.color, // User def color for content column
 		"top" : this.y+"px",
 		"left" : this.x+"px",
 		"width" : this.width+"px",
@@ -85,59 +83,71 @@ Note.prototype.redraw = function() {
 	$(this.div)
 	.resizable(
 	{
-	        minWidth: 100,
-                minHeight: 60,
-                maxWidth: 400,
-                maxHeight: 400,
-                handles:  'se' // What's this
+    minWidth: 100,
+    minHeight: 60,
+    maxWidth: 400,
+    maxHeight: 400,
+    handles:  'se' // defines the resize handle location i.e. south east corner
 	})
 	.draggable(
 	{
-		zIndex: this.id, // good? bad?
+		zIndex: this.id, // BAD!!! the active note should be on top
 		containment: "parent"
 	});
 
 	// Content
 
 	// Creating note elements
-        var noteTable = document.createElement("table");
-        var titleTD = document.createElement("td");
-        var articleTD = document.createElement("td");
-        var buttonRow = document.createElement("tr");
-        var titleRow = document.createElement("tr");
-        var articleRow = document.createElement("tr");
-        var article = document.createElement("div");
-        var deleteButtonTD = document.createElement("td");
-        var colorButtonTD = document.createElement("td");
-        var arrowButtonTD = document.createElement("td");
-        var deleteButton = document.createElement("a");
-        var colorButton = document.createElement("a");
-        var arrowButton = document.createElement("a");
+  var noteTable = document.createElement("table");
+  var titleTD = document.createElement("td");
+  var articleTD = document.createElement("td");
+  var buttonRow = document.createElement("tr");
+  var titleRow = document.createElement("tr");
+  var articleRow = document.createElement("tr");
+  var article = document.createElement("div");
+  var deleteButtonTD = document.createElement("td");
+  var colorButtonTD = document.createElement("td");
+  var arrowButtonTD = document.createElement("td");
+  var deleteButton = document.createElement("a");
+  var colorButton = document.createElement("a");
+  var arrowButton = document.createElement("a");
 
-	// table
-	$(this.div).append(noteTable);
-	$(noteTable).addClass("noteContent").append(buttonRow).append(titleRow).append(articleRow);
-
-        // button row
-        $(buttonRow).append(deleteButtonTD);
-	$(buttonRow).append(colorButtonTD);
-	$(buttonRow).append(arrowButtonTD);
-
+	// arrow button
+ 	$(arrowButton).addClass("noteButton").append("Arrow");
+	$(arrowButton).click(function () { /* TODO */ });
+	$(arrowButtonTD).addClass("noteButtonTD").append(arrowButton);
+	
+	// color button
+ 	$(colorButton).addClass("noteButton").append("Color");
+	$(colorButton).click(function () { /* TODO */ });
+	$(colorButtonTD).addClass("noteButtonTD").append(colorButton);
+	
 	// delete button
-       	$(deleteButton).addClass("deleteButton").append("Delete");
+ 	$(deleteButton).addClass("noteButton").append("Delete");
 	$(deleteButton).click(function () { thisnote.delete(); });
 	$(deleteButtonTD).addClass("noteButtonTD").append(deleteButton);
 
-	// title row
-	$(titleRow).append(titleTD);
-	// titleTD
-	$(titleTD).addClass("noteTitle").append(this.name);
+  // button row
+	//$(buttonRow).append(arrowButtonTD);
+	//$(buttonRow).append(colorButtonTD);
+  $(buttonRow).addClass("noteTableRow").append(arrowButtonTD).append(colorButtonTD).append(deleteButtonTD);
 
-	// article row
-	$(articleRow).append(articleTD);
+	// titleTD
+	$(titleTD).addClass("noteTitleTD").attr("colspan",3).append(this.name);
+	// title row
+	$(titleRow).addClass("noteTableRow").append(titleTD);
+
+	// article (div)
+	$(article).addClass("noteArticle").css({"backgroundColor": this.color}).append(this.content.toString());
 	// articleTD
-	$(articleTD).addClass("articleTD").css({"backgroundColor": this.color}).append(this.content);
+	$(articleTD).addClass("noteArticleTD").css({"backgroundColor": this.color}).attr("colspan",3).append(article);
+	// article row
+	$(articleRow).addClass("noteArticleRow").append(articleTD);
  	
+	// table
+	$(noteTable).addClass("noteTable").append(buttonRow).append(titleRow).append(articleRow);
+	$(this.div).append(noteTable);
+
 	$("#vport").append(this.div);
 }
 

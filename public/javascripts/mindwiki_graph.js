@@ -28,20 +28,27 @@ window.onload = function(){
 		// - show buttons
 		// - highlight borders?
 			
-		$(this).css("border", "4px solid red");
+		$(this).css("border", "4px solid red"); // debug action
 		event.stopPropagation();
 		}
+	);
+		
+	$(".note").livequery("dblclick", function(event)
+	{
+		// this event should never fire...
+		event.stopPropagation();
+	}
 	);
 		
 	$(".noteArticle").livequery("dblclick", function(event)
 	{
 		// launch edit...
-		this.style.backgroundColor = "#aa7777";
+		this.style.backgroundColor = "#aa7777"; //debug action
 		event.stopPropagation();
 	}
 	);
 		
-	$(".noteTitle").livequery("dblclick", function(event)
+	$(".noteTitleTD").livequery("dblclick", function(event)
 	{
 		// this event is not used. we just prevent the dblclick
 		// to bubble to parents.
@@ -82,7 +89,7 @@ function loadAllNotes() {
     dataType: "xml",
     success: function(data){
       $("note",data).each(function(i) {
-	tmp = new Note();
+				tmp = new Note();
         tmp.id = $(this).find("id").text(),
         tmp.name = $(this).find("name").text(),
         tmp.x = $(this).find("x").text(),   
@@ -91,7 +98,7 @@ function loadAllNotes() {
         tmp.height = $(this).find("height").text(),
         tmp.color = $(this).find("color").text(), 
         tmp.content = $(this).find("content").text()
-	tmp.redraw();
+				tmp.redraw();
       });
     },
     error: function(a,b,c){

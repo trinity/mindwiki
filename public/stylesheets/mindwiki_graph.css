@@ -4,8 +4,8 @@
 	position: absolute;
 	border: 1px solid black;
 	top: 55px;
-        left: 1px;
-        margin: 10px;
+  left: 1px;
+  margin: 10px;
 	width: 98%;
 	height: 80%;
 	background-color: #ccc;
@@ -26,7 +26,7 @@
 }
 
 /* TABLE style */
-.noteContent
+.noteTable
 {
 	position: absolute;
 	top: 0px;
@@ -38,27 +38,20 @@
 }
 
 /* dummy TR style */
-.noteButtonsRow
+.noteTableRow
 {
 	height: 20px;
 }
 
-/* A style */
-.deleteButton
+.noteArticleRow
 {
-
+	height: 100%;
 }
 
 /* A style */
-.colorButton
+.noteButton
 {
-
-}
-
-/* A style */
-.arrowButton
-{
-
+	color: blue;
 }
 
 /* TD style */
@@ -70,10 +63,11 @@
 	color: black;
 	height: 20px;
 	padding: 1px;
+	width: 33%;
 }
 
 /* TD style */
-.noteTitle
+.noteTitleTD
 {
 	border-bottom: black solid thin;
 	border-top: none;
@@ -93,7 +87,6 @@
 	font-size: smaller;
 	background-color: white;
 	color: red;
-	height: 100%;
 	padding: 1px;
 }
 
@@ -105,12 +98,4 @@
 	background-color: white;
 	color: black;
 }
-
-#resizeSE{
-	bottom: -10px;
-	right: -10px;
-	cursor: se-resize;
-}
-
-
 
