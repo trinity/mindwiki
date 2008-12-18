@@ -26,9 +26,16 @@ window.onload = function(){
 		// select:
 		// - unselect previously selected if any
 		// - show buttons
-		// - highlight borders?
-			
-		$(this).css("border", "4px solid red"); // debug action
+		// - highlight borders
+		
+		var clickedNote = this;
+		
+		// hide all
+		$(".note").removeClass("noteSelected").find(".noteButtonRow").hide();
+		
+		// show the one which was clicked
+		$(clickedNote).addClass("noteSelected").find(".noteButtonRow").show();
+		
 		event.stopPropagation();
 		}
 	);
@@ -89,15 +96,19 @@ function loadAllNotes() {
     dataType: "xml",
     success: function(data){
       $("note",data).each(function(i) {
-				tmp = new Note();
-        tmp.id = $(this).find("id").text(),
-        tmp.name = $(this).find("name").text(),
-        tmp.x = $(this).find("x").text(),   
-        tmp.y = $(this).find("y").text(),   
-        tmp.width = $(this).find("width").text(),
-        tmp.height = $(this).find("height").text(),
-        tmp.color = $(this).find("color").text(), 
-        tmp.content = $(this).find("content").text()
+				var tmp = new Note();
+        tmp.id = $(this).find("id").text();
+        tmp.name = $(this).find("name").text();
+        tmp.x = $(this).find("x").text();
+        tmp.y = $(this).find("y").text();   
+        tmp.width = $(this).find("width").text();
+        tmp.height = $(this).find("height").text();
+        tmp.color = $(this).find("color").text();
+				// BUG: Fix this !!!
+				// if you put here a static string (like: tmp.content = "Yeah!"), then note looks ok.
+				// if you don't, then the contents shift down a little bit :( 
+        tmp.content = $(this).find("content").text();
+				tmp.div = null; // redraw creates div
 				tmp.redraw();
       });
     },

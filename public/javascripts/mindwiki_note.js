@@ -9,8 +9,8 @@ function Note() {
 	this.width;
 	this.height;
 	this.color = "silver";
-	this.content = "New content."; // currently already rendered.. -> change for editing.
-
+	this.content = "Default content."; // currently already rendered.. -> change for editing.
+	this.selected = 0;
 	this.div;
 }
 
@@ -44,14 +44,14 @@ Note.prototype.newID = function() {
 		url: "/notes/create",
 		type: "POST",
 		data: {
-	                "graph_id" : graph_id,
-        	        "note[name]" : "New note",    
-	                "note[color]" : "silver",             
-	                "note[x]" : thisnote.x,                        
-	                "note[y]" : thisnote.y,        
-	                "note[width]" : 200,         
-	                "note[height]" : 300,        
-	                "article_content" : "New content."
+	    "graph_id" : graph_id,
+      "note[name]" : "Note name",    
+	    "note[color]" : "red",             
+	    "note[x]" : thisnote.x,                        
+	    "note[y]" : thisnote.y,        
+	    "note[width]" : 200,         
+	    "note[height]" : 300,        
+	    "article_content" : "Content"
  		},
 		dataType: "xml",
 		success: function(data){
@@ -128,14 +128,12 @@ Note.prototype.redraw = function() {
 	$(deleteButtonTD).addClass("noteButtonTD").append(deleteButton);
 
   // button row
-	//$(buttonRow).append(arrowButtonTD);
-	//$(buttonRow).append(colorButtonTD);
-  $(buttonRow).addClass("noteTableRow").append(arrowButtonTD).append(colorButtonTD).append(deleteButtonTD);
-
+  $(buttonRow).addClass("noteButtonRow").append(arrowButtonTD).append(colorButtonTD).append(deleteButtonTD);
+	
 	// titleTD
 	$(titleTD).addClass("noteTitleTD").attr("colspan",3).append(this.name);
 	// title row
-	$(titleRow).addClass("noteTableRow").append(titleTD);
+	$(titleRow).addClass("noteTitleRow").append(titleTD);
 
 	// article (div)
 	$(article).addClass("noteArticle").css({"backgroundColor": this.color}).append(this.content.toString());
@@ -147,6 +145,8 @@ Note.prototype.redraw = function() {
 	// table
 	$(noteTable).addClass("noteTable").append(buttonRow).append(titleRow).append(articleRow);
 	$(this.div).append(noteTable);
+
+	$(buttonRow).hide();
 
 	$("#vport").append(this.div);
 }
