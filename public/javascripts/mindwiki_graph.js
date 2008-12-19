@@ -2,6 +2,7 @@
 
 // Global baaad?
 var graph_id;
+var last_selected_note = null;
 
 window.onload = function(){
 
@@ -10,7 +11,7 @@ window.onload = function(){
 	var id_from_pathname = new RegExp(/\d+/).exec(location.pathname);
 	graph_id = parseInt(id_from_pathname[0]); // RegExp.exec puts matches into an array
 
-	// Note creation by double clicking in the viewport
+	// NEW NOTE creation by double clicking in the viewport
 	$("#vport").dblclick( function(event)
 	{
 		var tmp = new Note();
@@ -18,9 +19,13 @@ window.onload = function(){
 		tmp.y = event.pageY - $(this).offset().top;
 		tmp.newID();
 		tmp.redraw();
+		// Let's select the new note right away, too.
+		tmp.selected = true;
+		tmp.update();		
 	}
 	);
 		
+/* Moved to mindwiki_note.js
 	$(".note").livequery("click", function(event)
 	{
 		// select:
@@ -39,7 +44,7 @@ window.onload = function(){
 		event.stopPropagation();
 		}
 	);
-		
+*/		
 	$(".note").livequery("dblclick", function(event)
 	{
 		// this event should never fire...
@@ -47,13 +52,16 @@ window.onload = function(){
 	}
 	);
 		
+/* Move to mindwiki_note.js
 	$(".noteArticle").livequery("dblclick", function(event)
 	{
 		// launch edit...
+		
 		this.style.backgroundColor = "#aa7777"; //debug action
 		event.stopPropagation();
 	}
 	);
+*/
 		
 	$(".noteTitleTD").livequery("dblclick", function(event)
 	{
@@ -92,28 +100,26 @@ window.onload = function(){
 // FIX TO LOAD ONE AT A TIME!
 function loadAllNotes() {
   $.ajax({
-    url: "/graphs/render_notes_xml/"+graph_id,
-    dataType: "xml",
-    success: function(data){
-      $("note",data).each(function(i) {
-				var tmp = new Note();
-        tmp.id = $(this).find("id").text();
-        tmp.name = $(this).find("name").text();
-        tmp.x = $(this).find("x").text();
-        tmp.y = $(this).find("y").text();   
-        tmp.width = $(this).find("width").text();
-        tmp.height = $(this).find("height").text();
-        tmp.color = $(this).find("color").text();
-				// BUG: Fix this !!!
-				// if you put here a static string (like: tmp.content = "Yeah!"), then note looks ok.
-				// if you don't, then the contents shift down a little bit :( 
-        tmp.content = $(this).find("content").text();
-				tmp.div = null; // redraw creates div
-				tmp.redraw();
+	url: "/graphs/render_notes_xml/"+graph_id,
+	dataType: "xml",
+	success: function(data){
+		$("note",data).each(function(i) {
+			var tmp = new Note();
+			tmp.id = $(this).find("id").text();
+			tmp.name = $(this).find("name").text();
+			tmp.x = $(this).find("x").text();
+			tmp.y = $(this).find("y").text();   
+			tmp.width = $(this).find("width").text();
+			tmp.height = $(this).find("height").text();
+			tmp.color = $(this).find("color").text();
+			tmp.content = $(this).find("content").text();
+			tmp.editableContent = $(this).find("editableContent").text();
+			//tmp.div = null; // redraw creates div
+			tmp.redraw();
       });
     },
     error: function(a,b,c){
-      alert("errordata: "+a+" "+b+" "+c);
+	alert("errordata: "+a+" "+b+" "+c);
     }
   });
 };

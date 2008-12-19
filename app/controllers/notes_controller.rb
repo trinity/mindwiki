@@ -37,6 +37,7 @@ class NotesController < ApplicationController
     @note = Note.find(params[:id])
   end
 
+
   # POST /notes
   # POST /notes.xml
   def create
@@ -102,4 +103,16 @@ class NotesController < ApplicationController
     end
   end
   
+  # Updates note content and return a RedCloth rendering for javascript usage.
+  def update_content
+    @note = Note.find(params[:id])
+    if @note.article.update_attribute(:content, params[:newContent])
+      flash[:notice] = @note.name+' content successfully updated.'
+      render :text => (RedCloth.new @note.article.content).to_html
+    else
+      flash[:notice] = @note.name+' content update error.'
+      render :text => "<p>Content update error.</p>"
+    end
+  end
+
 end

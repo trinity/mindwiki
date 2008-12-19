@@ -119,7 +119,7 @@ class GraphsController < ApplicationController
     xml.add_element("notes")
     @graphnotes.each do |n|
       tmp = REXML::Element.new("note")
-      ["id","name","x","y","width","height","color","content"].each do |s|
+      ["id","name","x","y","width","height","color","content","editableContent"].each do |s|
         tmp.add_element(s)
       end
       # Again unflexible code
@@ -131,6 +131,7 @@ class GraphsController < ApplicationController
       tmp.elements["height"].text = n.height
       tmp.elements["color"].text = n.color
       tmp.elements["content"].text = (RedCloth.new n.article.content).to_html
+      tmp.elements["editableContent"].text = n.article.content
       xml.root.elements << tmp
     end
     render :xml => xml
