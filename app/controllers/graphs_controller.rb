@@ -130,7 +130,7 @@ class GraphsController < ApplicationController
       tmp.elements["width"].text = n.width
       tmp.elements["height"].text = n.height
       tmp.elements["color"].text = n.color
-      tmp.elements["content"].text = (RedCloth.new n.article.content).to_html
+      tmp.elements["content"].text = RedCloth.new(white_list(n.article.content),[:filter_styles]).to_html(:textile, :youtube)
       tmp.elements["editableContent"].text = n.article.content
       xml.root.elements << tmp
     end
