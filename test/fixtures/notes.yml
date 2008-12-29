@@ -18,7 +18,7 @@ oo_note:
   y: 10
   width: 200
   height: 140
-  color: grey #normal css color definitions
+  color: gray #normal css color definitions
   article_id: 2
   graph_id: 1
 
@@ -40,7 +40,7 @@ redcloth_example_note:
   y: 10
   width: 400
   height: 500
-  color: grey
+  color: gray
   graph_id: 3
   article_id: 4
 
