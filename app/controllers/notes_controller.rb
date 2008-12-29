@@ -114,5 +114,29 @@ class NotesController < ApplicationController
       render :text => "<p>Content update error.</p>"
     end
   end
+  
+  # Updates note position
+  def update_position
+    @note = Note.find(params[:id])
+    if @note.update_attributes(:x => params[:x], :y => params[:y])
+      flash[:notice] = @note.name+' coordinates successfully updated.'
+      render :text => "OK"
+    else
+      flash[:notice] = @note.name+' coordinates updating error.'
+      render :text => "ERROR"
+    end
+  end
+  
+  # Updates note size
+  def update_size
+    @note = Note.find(params[:id])
+    if @note.update_attributes(:width => params[:width], :height => params[:height])
+      flash[:notice] = @note.name+' size successfully updated.'
+      render :text => "OK"
+    else
+      flash[:notice] = @note.name+' size updating error.'
+      render :text => "ERROR"
+    end
+  end
 
 end
