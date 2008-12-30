@@ -16,6 +16,10 @@ class Note < ActiveRecord::Base
   validates_numericality_of :width, :greater_than_or_equal_to => 20, :less_than => 9999, :only_integer => true
   validates_numericality_of :height, :greater_than_or_equal_to => 20, :less_than => 9999, :only_integer => true
   # W3C HTML & CSS standards only accept 16 color names
-  validates_format_of :color, :with => /\A(#(\d|a|b|c|d|e|f){6,6})|(aqua)|(black)|(blue)|(fuchsia)|(gray)|(green)|(lime)|(maroon)|(navy)|(olive)|(purple)|(red)|(silver)|(teal)|(white)|(yellow)\Z/i
+  #validates_format_of :color, :with => /\A(#(\d|a|b|c|d|e|f){6,6})|(aqua)|(black)|(blue)|(fuchsia)|(gray)|(green)|(lime)|(maroon)|(navy)|(olive)|(purple)|(red)|(silver)|(teal)|(white)|(yellow)\Z/i
+
+  def validate
+    validate_color('color')
+  end
                                                      
 end

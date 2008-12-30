@@ -44,6 +44,7 @@ class NotesController < ApplicationController
     # This makes all new notes have the same article...
     #@article = Article.find_or_create_by_content(params[:article_content])
     @article = Article.create(:content => params[:article_content])
+    @article.content_type = 1 # Lame, yeah.
     @graph = Graph.find(params[:graph_id])
     @note = Note.new(params[:note])
     @note.article = @article

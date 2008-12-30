@@ -42,6 +42,7 @@ class GraphsController < ApplicationController
   # POST /graphs.xml
   def create
     @graph = Graph.new(params[:graph])
+    @graph.color = "silver" # TODO: Let user pick the color
     @graph.user = current_user
 
     respond_to do |format|
@@ -90,6 +91,15 @@ class GraphsController < ApplicationController
     @graphnotes = @graph.notes;
   end
   
+  # Returns the color for the graph
+  def get_color
+    if @graph = Graph.find(params[:id])
+      render :text => @graph.color
+    else
+      render :text => "silver"
+    end
+  end
+
 
   # Render all graph notes in xml
   def render_notes_xml

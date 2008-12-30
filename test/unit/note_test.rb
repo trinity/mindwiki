@@ -44,7 +44,7 @@ class NoteTest < ActiveSupport::TestCase
     assert note.update_attributes(:y => -9999)
     
     # Only integers, though
-    assert_equal false, note.update_attributes(:x => 4.5)
+    assert_equal false, note.update_attributes(:x => 4.6)
     assert_equal false, note.update_attributes(:y => 4.5)
     assert_equal false, note.update_attributes(:x => "foo")
     assert_equal false, note.update_attributes(:y => "foo")
@@ -89,10 +89,13 @@ class NoteTest < ActiveSupport::TestCase
 
     # Normal six-figure hexes should work fine, three-figures shouldn't
     assert note.update_attributes(:color => "#b1b1b1")
+    assert note.update_attributes(:color => "#aBcDeF")
     assert_equal false, note.update_attributes(:color => "#ccc")
+    assert_equal false, note.update_attributes(:color => "b1b1b1")
 
     # 16 W3C standard colors should work, e.g. yellow works, pink doesn't
     assert note.update_attributes(:color => "yellow")
+    assert note.update_attributes(:color => "yElLoW")
     assert_equal false, note.update_attributes(:color => "pink")
   end
   

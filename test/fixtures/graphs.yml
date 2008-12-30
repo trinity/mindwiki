@@ -4,13 +4,16 @@ ruby_graph:
   id: 1
   name: Ruby Is Great
   user_id: 1
+  color: "silver"
 
 random_empty_graph:
   id: 2
-  name: MyGraphShouldBeEmpty
+  name: MyGraphShouldBeEmptyAndGreen
   user_id: 2
+  color: "#abba10"
 
 redcloth_example:
   id: 3
   name: RedCloth parse-example
   user_id: 1
+  color: "silver"

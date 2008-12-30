@@ -6,24 +6,31 @@ var last_selected_note = null;
 
 window.onload = function(){
 
-	// Load graph ID from the path variable.
-	// Is ID the only numerical data in the path? Currently, yeah. Maybe sharpen up the regexp, still.
-	var id_from_pathname = new RegExp(/\d+/).exec(location.pathname);
-	graph_id = parseInt(id_from_pathname[0]); // RegExp.exec puts matches into an array
+  // Load graph ID from the path variable.
+  // Is ID the only numerical data in the path? Currently, yeah. Maybe sharpen up the regexp, still.
+  var id_from_pathname = new RegExp(/\d+/).exec(location.pathname);
+  graph_id = parseInt(id_from_pathname[0]); // RegExp.exec puts matches into an array
+  $.ajax({
+    url: "/graphs/get_color/"+graph_id,        
+    success: function(data){
+      $("#vport").css({"backgroundColor" : data});
+    }
+    // Fail silently, backgroundcolor isn't important :)
+  });
 
-	// NEW NOTE creation by double clicking in the viewport
-	$("#vport").dblclick( function(event)
-	{
-		var tmp = new Note();
-		tmp.x = event.pageX - $(this).offset().left;
-		tmp.y = event.pageY - $(this).offset().top;
-		tmp.newID();
-		tmp.redraw();
-		// Let's select the new note right away, too.
-		tmp.selected = true;
-		tmp.update();		
-	}
-	);
+  // NEW NOTE creation by double clicking in the viewport
+  $("#vport").dblclick( function(event)
+  {
+    var tmp = new Note();
+    tmp.x = event.pageX - $(this).offset().left;
+    tmp.y = event.pageY - $(this).offset().top;
+    tmp.newID();
+    tmp.redraw();
+    // Let's select the new note right away, too.
+    tmp.selected = true;
+    tmp.update();		
+  }
+);
 		
 /* Moved to mindwiki_note.js
 	$(".note").livequery("click", function(event)
