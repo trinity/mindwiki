@@ -140,4 +140,15 @@ class NotesController < ApplicationController
     end
   end
 
+  def update_color
+    @note = Note.find(params[:id])
+    if @note.update_attributes(:color => params[:newColor])
+      flash[:notice] = @note.name+' color successfully updated.'
+      render :text => "OK"
+    else
+      flash[:notice] = @note.name+' color updating error.'
+      render :text => "ERROR"
+    end
+  end
+
 end

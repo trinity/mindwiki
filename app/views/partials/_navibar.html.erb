@@ -1,10 +1,19 @@
 <% if logged_in? %>
+<div id="top-menu">
+  <div id="account">
+    <ul><li><a href="#" class="myaccount">My account</a></li>
+    <li><a href="/sessions/destroy" class="logout">Sign out</a></li></ul>
+  </div>
+  <div id="loggedas">Logged in as <%= current_user.login %>
+  </div>
+  <ul>
+    <li><a href="/graphs" class="graphs">Graphs</a></li>
+  </ul>
+</div>
+
 <div class="navibar_container">
 	<table class="navibar">	
 	  <tr>
-		<td><%= link_to " Graphs", "/graphs" %></td>
-		<td><%= link_to " Log out", "/sessions/destroy" %></td>
-	
 		<td>
 			<span id="notice_container">
 				<%= render :partial => "/partials/notify" %>

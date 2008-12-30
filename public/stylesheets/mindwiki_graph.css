@@ -101,7 +101,7 @@
 	font-size: smaller;
 	background-color: white;
 	color: red;
-	padding: 1px;
+	padding: 0px;
 }
 
 /* DIV style */
@@ -111,6 +111,9 @@
 	height: 100%;
 	background-color: white;
 	color: black;
+        margin-top: -15px;
+        margin-left: 0px;
+        margin-bottom: -1px;
 }
 
 

@@ -21,6 +21,8 @@ function Note() {
 
 // Update the note on the screen to reflect the note object.
 Note.prototype.update = function() {
+  // Maybe split into smaller functions?
+
   // SELECTION.
   // Multiselection is not implemented, yet!
   if(this.selected){
@@ -43,7 +45,10 @@ Note.prototype.update = function() {
 
   // Content rendering after edit
   if(this.articleDiv != null) 
-    $(this.articleDiv).html(this.content);	
+    $(this.articleDiv).html(this.content);
+
+  // Color change
+  $(this.articleDiv).css({"backgroundColor": this.color});
 
 }
 
@@ -214,7 +219,40 @@ Note.prototype.redraw = function() {
 	
   // color button
   $(colorButton).addClass("noteButton").append("Color");
-  $(colorButton).click(function () { /* TODO */ });
+  $(colorButton).click(function () { 
+    // Color dialog
+    $("#vport").append('<div id="colorDialog" class="flora"></div>');
+    $("#colorDialog").append('<p>Choose color<br /><input type="text" id="note_color" value="'+thisnote.color+'" /><div id="colorPicker"></div></p>');
+    $("#colorPicker").farbtastic("#note_color");
+    $("#colorDialog").dialog({
+      width: 230,
+      height: 350,
+      position: [thisnote.x, thisnote.y],
+      modal: true,
+      title: thisnote.name+" (Choosing background color)",
+      buttons: {
+        "Cancel": function(){
+          $(this).dialog("destroy").remove();
+        },
+        "Save": function(){
+          var newColor = $("#note_color").val();
+          // WARNING! NO INPUT VALIDATION! (Faster, though :))
+          thisnote.color = newColor;
+          thisnote.update();
+          $.ajax({
+            url: "/notes/update_color/"+thisnote.id,
+            data: { "newColor" : newColor },
+            dataType: "html",
+            success: function(data){
+              // :)
+            }
+          });
+          $(this).dialog("destroy").remove(); // Don't edit lighty :)
+        }
+      }
+    });
+
+  });
   $(colorButtonTD).addClass("noteButtonTD").append(colorButton);
 	
   // delete button
@@ -267,7 +305,7 @@ Note.prototype.redraw = function() {
               alert("Cannot update content: "+a+b+c);
             }
           });
-          $(this).dialog("destroy").remove(); // Don't edit lighty :)
+          $(this).dialog("destroy").remove(); // Don't edit lightly :)
         }
       }
     });

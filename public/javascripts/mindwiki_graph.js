@@ -112,12 +112,12 @@ function loadAllNotes() {
 	success: function(data){
 		$("note",data).each(function(i) {
 			var tmp = new Note();
-			tmp.id = $(this).find("id").text();
+			tmp.id = parseInt($(this).find("id").text());
 			tmp.name = $(this).find("name").text();
-			tmp.x = $(this).find("x").text();
-			tmp.y = $(this).find("y").text();   
-			tmp.width = $(this).find("width").text();
-			tmp.height = $(this).find("height").text();
+			tmp.x = parseInt($(this).find("x").text());
+			tmp.y = parseInt($(this).find("y").text());
+			tmp.width = parseInt($(this).find("width").text());
+			tmp.height = parseInt($(this).find("height").text());
 			tmp.color = $(this).find("color").text();
 			tmp.content = $(this).find("content").text();
 			tmp.editableContent = $(this).find("editableContent").text();

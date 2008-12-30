@@ -1,4 +1,18 @@
-body { background-color: #fff; color: #333; }
+#top-menu {background: #2C4056; color: #fff; height:1.8em; font-size: 0.8em; padding: 2px 2px 0px 6px;}
+#top-menu ul {margin: 0;  padding: 0;}
+#top-menu li {
+  float:left;
+  list-style-type:none;
+  margin: 0px 0px 0px 0px;
+  padding: 0px 0px 0px 0px;
+  white-space:nowrap;
+}
+#top-menu a {color: #fff; padding-right: 8px; font-weight: bold;}
+#top-menu #loggedas { float: right; margin-right: 0.5em; color: #fff; }
+
+#account {float:right;}
+
+body { background-color: #fff; color: #333; margin: 0; padding: 0; }
 
 body, p, ol, ul, td {
   font-family: verdana, arial, helvetica, sans-serif;
