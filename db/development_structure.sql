@@ -3,8 +3,9 @@ CREATE TABLE `articles` (
   `content` text,
   `created_at` datetime default NULL,
   `updated_at` datetime default NULL,
+  `content_type` int(11) default '1',
   PRIMARY KEY  (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8;
 
 CREATE TABLE `edges` (
   `id` int(11) NOT NULL auto_increment,
@@ -16,7 +17,7 @@ CREATE TABLE `edges` (
   `created_at` datetime default NULL,
   `updated_at` datetime default NULL,
   PRIMARY KEY  (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=754664364 DEFAULT CHARSET=utf8;
 
 CREATE TABLE `graphs` (
   `id` int(11) NOT NULL auto_increment,
@@ -24,8 +25,9 @@ CREATE TABLE `graphs` (
   `user_id` int(11) default NULL,
   `created_at` datetime default NULL,
   `updated_at` datetime default NULL,
+  `color` varchar(255) default NULL,
   PRIMARY KEY  (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8;
 
 CREATE TABLE `notes` (
   `id` int(11) NOT NULL auto_increment,
@@ -40,7 +42,7 @@ CREATE TABLE `notes` (
   `created_at` datetime default NULL,
   `updated_at` datetime default NULL,
   PRIMARY KEY  (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8;
 
 CREATE TABLE `schema_migrations` (
   `version` varchar(255) NOT NULL,
@@ -60,7 +62,7 @@ CREATE TABLE `users` (
   `deleted` tinyint(1) default '0',
   `admin` tinyint(1) default '0',
   PRIMARY KEY  (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
 
 INSERT INTO schema_migrations (version) VALUES ('20081205063512');
 
@@ -71,3 +73,7 @@ INSERT INTO schema_migrations (version) VALUES ('20081205063746');
 INSERT INTO schema_migrations (version) VALUES ('20081205063821');
 
 INSERT INTO schema_migrations (version) VALUES ('20081205064406');
+
+INSERT INTO schema_migrations (version) VALUES ('20081230071729');
+
+INSERT INTO schema_migrations (version) VALUES ('20081230073039');

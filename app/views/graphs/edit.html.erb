@@ -1,3 +1,5 @@
+<%= javascript_include_tag :graph_color_picker %>
+<%= stylesheet_link_tag :graph_color_picker %>
 <h1>Editing graph</h1>
 
 <% form_for(@graph) do |f| %>
@@ -6,6 +8,14 @@
   <p>
     <%= f.label :name %><br />
     <%= f.text_field :name %>
+  </p>
+  <p>
+    <div class="form-item">
+      <%= f.label :color %><br />
+      <%= f.text_field :color %>
+    </div>
+    <div id="picker">
+    </div>
   </p>
   <p>
     <%= f.submit "Update" %>

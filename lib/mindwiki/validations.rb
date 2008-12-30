@@ -2,7 +2,7 @@
 module Mindwiki::Validations
 
   def validate_color(*attributes)
-    error_message = 'Only six digit hexes allowed, e.g. #123456, #abba10.'
+    error_message = ' needs to be a six digit hex value, e.g. #123456, #abba10.'
     attributes.each do |attribute|
       self.errors.add(attribute, error_message) unless valid_color?(self.send(attribute))
     end
