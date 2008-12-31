@@ -4,7 +4,7 @@
 var graph_id;
 var last_selected_note = null;
 
-window.onload = function(){
+$(document).ready(function(){
 
   // Load graph ID from the path variable.
   // Is ID the only numerical data in the path? Currently, yeah. Maybe sharpen up the regexp, still.
@@ -19,8 +19,7 @@ window.onload = function(){
   });
 
   // NEW NOTE creation by double clicking in the viewport
-  $("#vport").dblclick( function(event)
-  {
+  $("#vport").dblclick( function(event){
     var tmp = new Note();
     tmp.x = event.pageX - $(this).offset().left;
     tmp.y = event.pageY - $(this).offset().top;
@@ -29,58 +28,27 @@ window.onload = function(){
     // Let's select the new note right away, too.
     tmp.selected = true;
     tmp.update();		
-  }
-);
+  });
 		
-/* Moved to mindwiki_note.js
-	$(".note").livequery("click", function(event)
-	{
-		// select:
-		// - unselect previously selected if any
-		// - show buttons
-		// - highlight borders
+  $(".note").livequery("dblclick", function(event){
+    // this event should never fire...
+    event.stopPropagation();
+  });
 		
-		var clickedNote = this;
 		
-		// hide all
-		$(".note").removeClass("noteSelected").find(".noteButtonRow").hide();
-		
-		// show the one which was clicked
-		$(clickedNote).addClass("noteSelected").find(".noteButtonRow").show();
-		
-		event.stopPropagation();
-		}
-	);
-*/		
-	$(".note").livequery("dblclick", function(event)
-	{
-		// this event should never fire...
-		event.stopPropagation();
-	}
-	);
-		
-/* Move to mindwiki_note.js
-	$(".noteArticle").livequery("dblclick", function(event)
-	{
-		// launch edit...
-		
-		this.style.backgroundColor = "#aa7777"; //debug action
-		event.stopPropagation();
-	}
-	);
-*/
-		
-	$(".noteTitleTD").livequery("dblclick", function(event)
-	{
-		// this event is not used. we just prevent the dblclick
-		// to bubble to parents.
-		event.stopPropagation();
-	}
-	);
+  $(".noteTitleTD").livequery("dblclick", function(event){
+    // this event is not used. we just prevent the dblclick
+    // to bubble to parents.
+    event.stopPropagation();
+  });
 
-	loadAllNotes();
+  loadAllNotes();
 
-};
+  // TEMP Raphael test:
+  //var rc = Raphael("vport", 9999, 9999); // drawing coordinates relative to #vport
+  //var test_edge = rc.path({stroke: "#000000"}).absolutely().moveTo(0,0).lineTo(100,100);
+
+});
 
 // MAYBE MAKE A FUNCTION TO DRAW THE EDGES?!
 // Some other day...
@@ -104,29 +72,76 @@ window.onload = function(){
  
 
 // Loads all notes from the database
-// FIX TO LOAD ONE AT A TIME!
 function loadAllNotes() {
+
+  // get ids
   $.ajax({
-	url: "/graphs/render_notes_xml/"+graph_id,
-	dataType: "xml",
-	success: function(data){
-		$("note",data).each(function(i) {
-			var tmp = new Note();
-			tmp.id = parseInt($(this).find("id").text());
-			tmp.name = $(this).find("name").text();
-			tmp.x = parseInt($(this).find("x").text());
-			tmp.y = parseInt($(this).find("y").text());
-			tmp.width = parseInt($(this).find("width").text());
-			tmp.height = parseInt($(this).find("height").text());
-			tmp.color = $(this).find("color").text();
-			tmp.content = $(this).find("content").text();
-			tmp.editableContent = $(this).find("editableContent").text();
-			//tmp.div = null; // redraw creates div
-			tmp.redraw();
+    url: "/graphs/get_note_ids/"+graph_id,
+    dataType: "xml",
+    success: function(data){
+      $("note",data).each(function(i) {
+        // JAVASCRIPT IS NOT THREADED?! WTF?! SLOOOOW!
+        loadNote(parseInt($(this).find("id").text()));
       });
     },
     error: function(a,b,c){
-	alert("errordata: "+a+" "+b+" "+c);
+      alert("Cannot load note IDs: "+a+" "+b+" "+c);
+    }
+  });
+
+
+/*  // All notes in one chunk
+    $.ajax({
+    url: "/graphs/render_notes_xml/"+graph_id,
+    dataType: "xml",
+    success: function(data){
+      $("note",data).each(function(i) {
+        var tmp = new Note();
+        tmp.id = parseInt($(this).find("id").text());
+        tmp.name = $(this).find("name").text();
+        tmp.x = parseInt($(this).find("x").text());
+        tmp.y = parseInt($(this).find("y").text());
+        tmp.width = parseInt($(this).find("width").text());
+        tmp.height = parseInt($(this).find("height").text());
+        tmp.color = $(this).find("color").text();
+        tmp.content = $(this).find("content").text();
+        tmp.editableContent = $(this).find("editableContent").text();
+        //tmp.div = null; // redraw creates div
+        tmp.redraw();
+      });
+    },
+    error: function(a,b,c){
+      alert("Cannot load all notes: "+a+" "+b+" "+c);
+    }
+  });
+*/
+
+};
+
+function loadNote(noteId) {
+  $.ajax({
+    url: "/notes/show/"+noteId,
+    dataType: "xml",
+    success: function(data){
+      if(data != null && data != "" && data != "\n" && data != "E" && data != "E\n") {
+        $("note",data).each(function(i) {
+          var tmp = new Note();
+          tmp.id = parseInt($(this).find("id").text());
+          tmp.name = $(this).find("name").text();
+          tmp.x = parseInt($(this).find("x").text());
+          tmp.y = parseInt($(this).find("y").text());
+          tmp.width = parseInt($(this).find("width").text());
+          tmp.height = parseInt($(this).find("height").text());
+          tmp.color = $(this).find("color").text();
+          tmp.content = $(this).find("content").text();
+          tmp.editableContent = $(this).find("editableContent").text();
+          //tmp.div = null; // redraw creates div
+          tmp.redraw();
+        });
+      }
+    },
+    error: function(a,b,c){
+      alert("Cannot load note: "+a+" "+b+" "+c);
     }
   });
 };

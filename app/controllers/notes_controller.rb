@@ -17,7 +17,29 @@ class NotesController < ApplicationController
 
     respond_to do |format|
       format.html # show.html.erb
-      format.xml  { render :xml => @note }
+      # format.xml  { render :xml => @note } #default
+      format.xml {
+        xml = REXML::Document.new
+        xml.add_element("notes")
+        tmp = REXML::Element.new("note")
+        ["id","name","x","y","width","height","color","content","editableContent"].each do |s|
+          tmp.add_element(s)
+        end
+        # Again unflexible code
+        tmp.elements["id"].text = @note.id
+        tmp.elements["name"].text = @note.name
+        tmp.elements["x"].text = @note.x
+        tmp.elements["y"].text = @note.y
+        tmp.elements["width"].text = @note.width
+        tmp.elements["height"].text = @note.height
+        tmp.elements["color"].text = @note.color 
+        tmp.elements["content"].text = RedCloth.new(white_list(@note.article.content),[:filter_styles]).to_html(:textile, :youtube)
+        tmp.elements["editableContent"].text = @note.article.content
+        xml.root.elements << tmp
+  
+        render :xml => xml
+
+      }
     end
   end
 

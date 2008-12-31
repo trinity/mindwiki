@@ -89,18 +89,37 @@ class GraphsController < ApplicationController
     @graph = Graph.find(params[:id])
     @graphnotes = @graph.notes;
   end
+
+  # Renders note IDs in xml
+  # Maybe use standard respond_to -style?
+  def get_note_ids
+    sync_from_db()
+    xml = REXML::Document.new
+    xml.add_element("notes")
+    @graphnotes.each do |n|
+      tmp = REXML::Element.new("note")
+      ["id"].each do |s|
+        tmp.add_element(s)
+      end
+      # Again unflexible code
+      tmp.elements["id"].text = n.id
+      xml.root.elements << tmp
+    end
+    render :xml => xml
+  end
   
   # Returns the color for the graph
   def get_color
     if @graph = Graph.find(params[:id])
       render :text => @graph.color
     else
-      render :text => "silver"
+      render :text => "#dddddd"
     end
   end
 
 
   # Render all graph notes in xml
+  # DEPRECATED: ONLY USED WITH ALL-IN-ONE NOTE-LOADING
   def render_notes_xml
     sync_from_db()
    
