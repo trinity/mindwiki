@@ -3,6 +3,7 @@
 // Global baaad?
 var graph_id;
 var last_selected_note = null;
+var rc; // raphael canvas
 
 $(document).ready(function(){
 
@@ -44,10 +45,19 @@ $(document).ready(function(){
 
   loadAllNotes();
 
-  // TEMP Raphael test:
-  //var rc = Raphael("vport", 9999, 9999); // drawing coordinates relative to #vport
-  //var test_edge = rc.path({stroke: "#000000"}).absolutely().moveTo(0,0).lineTo(100,100);
+  rc = Raphael("vport", 9999, 9999); // drawing coordinates relative to #vport
 
+  // TEMP drawArrow test:
+	/*
+	drawArrow(100,100,100,50);
+	drawArrow(100,100,150,50);
+	drawArrow(100,100,150,100);
+	drawArrow(100,100,150,150);
+	drawArrow(100,100,100,150);
+	drawArrow(100,100,50,150);
+	drawArrow(100,100,50,100);
+	drawArrow(100,100,50,50);
+	*/
 });
 
 // MAYBE MAKE A FUNCTION TO DRAW THE EDGES?!
@@ -146,3 +156,55 @@ function loadNote(noteId) {
   });
 };
 
+function drawArrow(x1, y1, x2, y2) 
+{
+  rc.path({stroke: "#000000"}).absolutely().moveTo(x1,y1).lineTo(x2,y2);
+	
+	var arrowSize = 10;
+	
+	// vievport doesn't have standard coordinate system. that's why we count each y-coordinate
+	// as negative to use standard 2D algebra.
+	var negy1 = -y1;
+	var negy2 = -y2;
+	
+	var a1 = getAngle(x1, negy1, x2, negy2);
+	var aLeft = a1 - 0.85 * Math.PI;
+	var aRight = a1 + 0.85 * Math.PI;
+	var xLeft = x2 + arrowSize * Math.cos(aLeft);
+	var yLeft = -(negy2 + arrowSize * Math.sin(aLeft));
+	var xRight = x2 + arrowSize * Math.cos(aRight);
+	var yRight = -(negy2 + arrowSize * Math.sin(aRight));
+	
+  rc.path({stroke: "#000000", fill: "#000000"}).absolutely().moveTo(x2,y2).lineTo(xLeft,yLeft).lineTo(xRight,yRight).andClose();
+};
+
+function getAngle(x1, y1, x2, y2) 
+{
+	// returns the angle from point (x1,y1) to (x2,y2).
+	// assumes standrad coordinate system
+	
+	// let's handle main axis first
+	if (x2 == x1)
+	{
+		if (y1 < y2)
+		{
+			return Math.PI / 2;
+		}
+		return 1.5 * Math.PI;
+	}
+	else if (y2 == y1)
+	{
+		if (x1 > x2)
+		{
+			return Math.PI;
+		}
+		return 0;
+	}
+
+	// other angles
+	if (x1 > x2)
+	{
+		return Math.PI + Math.atan((y2-y1)/(x2-x1));
+	}
+	return Math.atan((y2-y1)/(x2-x1));
+}
