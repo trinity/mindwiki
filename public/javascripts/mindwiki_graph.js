@@ -45,6 +45,12 @@ $(document).ready(function(){
 
   loadAllNotes();
 
+  // Stop events in class stop_propagation
+  // Used for youtube-videos, for instance..
+  $(".stop_propagation").livequery("mousedown", function(e){
+    e.stopPropagation();
+  });
+
   rc = Raphael("vport", 9999, 9999); // drawing coordinates relative to #vport
 
   // TEMP drawArrow test:

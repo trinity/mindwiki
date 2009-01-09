@@ -9,7 +9,24 @@ module RedClothYoutubeExtension
       video_code = tag.gsub(/\[|\]|((y|Y)(o|O)(u|U)(t|T)(u|U)(b|B)(e|E))\|/,"")
       # The parameters may be quite wrong for many youtube-videos..
       # Maybe add additional size-attributes to the custom tag.
-      "<object width=\"425\" height=\"350\"><param name=\"movie\" value=\"http://www.youtube.com/v/#{video_code}&hl=en&fs=1\"></param><param name=\"allowFullScreen\" value=\"true\"></param><param name=\"allowscriptaccess\" value=\"always\"></param><embed src=\"http://www.youtube.com/v/#{video_code}&hl=en&fs=1\" type=\"application/x-shockwave-flash\" allowscriptaccess=\"always\" allowfullscreen=\"true\" width=\"425\" height=\"344\"></embed></object>"
+
+      # wmode opaque: remember to stop event propagation
+      # wmode window: goes over the content editing window
+
+
+#      "<object class=\"stop_propagation\" id=\"yt_video_#{video_code}\" width=\"425\" height=\"344\">
+#        <param name=\"wmode\" value=\"opaque\"></param>
+#        <param name=\"movie\" value=\"http://www.youtube.com/v/#{video_code}&hl=en&fs=1\"></param>
+#        <param name=\"allowFullScreen\" value=\"true\"></param>
+#        <param name=\"allowscriptaccess\" value=\"always\"></param>
+#        <embed src=\"http://www.youtube.com/v/#{video_code}&hl=en&fs=1\" type=\"application/x-shockwave-flash\" wmode=\"opaque\" allowscriptaccess=\"always\" allowfullscreen=\"true\" width=\"425\" height=\"344\"></embed>
+#      </object>"
+
+      # The above is here on one line, so there won't be any unnecessary spaces or newlines in the content.
+
+      "<object class=\"stop_propagation\" id=\"yt_video_#{video_code}\" width=\"425\" height=\"344\"><param name=\"wmode\" value=\"opaque\"></param><param name=\"movie\" value=\"http://www.youtube.com/v/#{video_code}&hl=en&fs=1\"></param><param name=\"allowFullScreen\" value=\"true\"></param><param name=\"allowscriptaccess\" value=\"always\"></param><embed src=\"http://www.youtube.com/v/#{video_code}&hl=en&fs=1\" type=\"application/x-shockwave-flash\" wmode=\"opaque\" allowscriptaccess=\"always\" allowfullscreen=\"true\" width=\"425\" height=\"344\"></embed></object>"
+
+
     end
   end
 end

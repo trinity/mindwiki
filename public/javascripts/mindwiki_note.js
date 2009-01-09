@@ -247,7 +247,7 @@ Note.prototype.redraw = function() {
               // :)
             }
           });
-          $(this).dialog("destroy").remove(); // Don't edit lighty :)
+          $(this).dialog("destroy").remove(); // Don't edit lightly :)
         }
       }
     });
@@ -280,6 +280,7 @@ Note.prototype.redraw = function() {
 
     $("#vport").append('<div id="editWindow" class="flora"></div>');
     $("#editWindow").append('<p>Content<br /><textarea rows="15" cols="75" id="editableContentBox">'+thisnote.editableContent+'</textarea></p>');
+    $("#editWindow").css({"zIndex": "9999999"}); // isn't there a 'top' option? :)
     $("#editWindow").dialog({
       width: 600,
       height: 400,
