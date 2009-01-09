@@ -6,6 +6,7 @@ class Graph < ActiveRecord::Base
   validates_presence_of :name
 
   def validate
+    validate_text('name')
     validate_color('color')
   end
   

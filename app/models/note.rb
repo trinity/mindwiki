@@ -20,6 +20,7 @@ class Note < ActiveRecord::Base
 
   def validate
     validate_color('color')
+    validate_text('name')
   end
                                                      
 end
