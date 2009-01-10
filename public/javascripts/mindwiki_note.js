@@ -15,8 +15,10 @@ function Note() {
 
   this.selected = false;
 
+  // These make updating easier
   this.div;
   this.articleDiv; 
+  this.titleTD;
 }
 
 // Update the note on the screen to reflect the note object.
@@ -49,6 +51,9 @@ Note.prototype.update = function() {
 
   // Color change
   $(this.articleDiv).css({"backgroundColor": this.color});
+
+  // Title change
+  $(this.titleTD.firstChild).replaceWith(this.name);
 
 }
 
@@ -265,6 +270,7 @@ Note.prototype.redraw = function() {
 	
   // titleTD
   $(titleTD).addClass("noteTitleTD").attr("colspan",3).append(this.name);
+  thisnote.titleTD = titleTD;
   // title row
   $(titleRow).addClass("noteTitleRow").append(titleTD);
 
@@ -279,7 +285,7 @@ Note.prototype.redraw = function() {
     // Maybe FIX someday?
 
     $("#vport").append('<div id="editWindow" class="flora"></div>');
-    $("#editWindow").append('<p>Content<br /><textarea rows="15" cols="75" id="editableContentBox">'+thisnote.editableContent+'</textarea></p>');
+    $("#editWindow").append('<p>Title<br /><input type="text" size="30" id="titleInputField" value="'+thisnote.name+'"/></p><p>Content<br /><textarea rows="15" cols="75" id="editableContentBox">'+thisnote.editableContent+'</textarea></p>');
     $("#editWindow").css({"zIndex": "9999999"}); // isn't there a 'top' option? :)
     $("#editWindow").dialog({
       width: 600,
@@ -291,9 +297,31 @@ Note.prototype.redraw = function() {
           $(this).dialog("destroy").remove();
         },
         "Save": function(){
+           
+          // Yes, it would be faster to have only one ajax-call...
+
+          // Updating the title
+          var newTitle = $("#titleInputField").val();
+          if(thisnote.name != newTitle){
+            $.ajax({
+              url: "/notes/update_name/"+thisnote.id,
+              data: { "newName" : newTitle },
+              dataType: "html",
+              success: function(data){
+                // yay!
+                thisnote.name = newTitle;
+                thisnote.update();
+              },
+              error: function(a,b,c){
+                //alert("Cannot update title: "+a+b+c);
+              }
+            });
+          }
+
+          // Updating the content
           var boxContents = $("#editableContentBox").val();
           thisnote.editableContent = boxContents;
-          thisnote.content = "Rendering edited content, please wait...";
+          thisnote.content = "Rendering edited content, please wait..."; // Javascript isn't actually threaded, so user never sees this :(
           $.ajax({
             url: "/notes/update_content/"+thisnote.id,
             data: { "newContent" : boxContents },

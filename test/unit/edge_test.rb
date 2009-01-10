@@ -35,7 +35,12 @@ class EdgeTest < ActiveSupport::TestCase
     e.target_note = Note.find(notes(:matsumoto_yt_note).id)
     assert e.save
     
+    # Needs to be in the same graph
     e.target_note = Note.find(notes(:redcloth_example_note).id)
+    assert_equal false, e.save
+    
+    # Can't make recursive (self-to-self) edges
+    e.target_note = Note.find(notes(:ruby_note).id)
     assert_equal false, e.save
 
     e.target_note = nil
@@ -47,7 +52,12 @@ class EdgeTest < ActiveSupport::TestCase
     e.source_note = Note.find(notes(:matsumoto_yt_note).id)
     assert e.save
     
+    # Needs to be in the same graph
     e.source_note = Note.find(notes(:redcloth_example_note).id)
+    assert_equal false, e.save
+
+    # Can't make recursive (self-to-self) edges
+    e.source_note = Note.find(notes(:oo_note).id)
     assert_equal false, e.save
 
     e.source_note = nil

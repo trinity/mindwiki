@@ -172,5 +172,14 @@ class NotesController < ApplicationController
       render :text => "ERROR"
     end
   end
+  
+  def update_name
+    @note = Note.find(params[:id])
+    if @note.update_attributes(:name => params[:newName])
+      render :text => "OK"
+    else
+      render :text => "ERROR"
+    end
+  end
 
 end
