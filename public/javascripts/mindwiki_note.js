@@ -1,5 +1,7 @@
 // This file defines the MindWiki note objects
 
+var globalStartNote; // used when creating new edges
+
 // Note is the "class" for all notes.
 function Note() {
   this.id;
@@ -195,8 +197,21 @@ Note.prototype.redraw = function() {
   // Selection
   $(this.div).mousedown( function()
   {
-    thisnote.selected = true;
-    thisnote.update();  
+    if (globalStartNote != null)
+    {
+      // create edge. no selection.
+      var tmpEdge = new Edge();
+      tmpEdge.rCanvas = rc;
+      tmpEdge.setStartNote(globalStartNote);
+      tmpEdge.setEndNote(thisnote);
+      tmpEdge.update();
+      globalStartNote = null;
+    }
+    else
+    {
+      thisnote.selected = true;
+      thisnote.update();  
+    }
   });      
  
 
@@ -219,7 +234,9 @@ Note.prototype.redraw = function() {
 
   // arrow button
   $(arrowButton).addClass("noteButton").append("Arrow");
-  $(arrowButton).click(function () { /* TODO */ });
+  $(arrowButton).click(function () {
+    globalStartNote = thisnote;
+  });
   $(arrowButtonTD).addClass("noteButtonTD").append(arrowButton);
 	
   // color button
