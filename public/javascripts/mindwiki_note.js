@@ -248,6 +248,31 @@ Note.prototype.redraw = function() {
 	
   // color button
   $(colorButton).addClass("noteButton").append("Color");
+  $(colorButton).ColorPicker({
+    color: thisnote.color,
+    onShow: function(picker){
+      $(picker).fadeIn(100);
+      return false;
+    },
+    onHide: function(picker){
+      $(picker).fadeOut(100);
+      return false;
+    },
+    onSubmit: function(hsb, hex, rgb){
+      thisnote.color = "#"+hex;
+      thisnote.update();
+      $.ajax({
+        url: "/notes/update_color/"+thisnote.id,
+        data: { "newColor" : "#"+hex },
+        dataType: "html",
+        success: function(data){
+          // :)
+        }
+      });
+    }
+  });
+
+/* Old Farbtastic code
   $(colorButton).click(function () { 
     // Color dialog
     $("#vport").append('<div id="colorDialog" class="flora"></div>');
@@ -280,8 +305,9 @@ Note.prototype.redraw = function() {
         }
       }
     });
-
   });
+*/
+
   $(colorButtonTD).addClass("noteButtonTD").append(colorButton);
 	
   // delete button
