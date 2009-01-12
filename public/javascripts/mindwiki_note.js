@@ -336,10 +336,11 @@ Note.prototype.redraw = function() {
 
     $("#vport").append('<div id="editWindow" class="flora"></div>');
     $("#editWindow").append('<p>Title<br /><input type="text" size="30" id="titleInputField" value="'+thisnote.name+'"/></p><p>Content<br /><textarea rows="15" cols="75" id="editableContentBox">'+thisnote.editableContent+'</textarea></p>');
+    $("#editableContentBox").markItUp(mySettings);
     $("#editWindow").css({"zIndex": "9999999"}); // isn't there a 'top' option? :)
     $("#editWindow").dialog({
-      width: 600,
-      height: 400,
+      width: 750,
+      height: 550,
       modal: true,
       title: thisnote.name+" (Editing)",
       buttons: {
