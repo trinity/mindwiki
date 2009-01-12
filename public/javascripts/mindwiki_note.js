@@ -96,6 +96,10 @@ Note.prototype.updateSize = function() {
   });
 }
 
+// Sends the new edge info to the server
+Note.prototype.createEdge = function() {
+  var thisnote = this;
+}
 
 // Delete note.
 Note.prototype.delete = function() {
@@ -140,7 +144,7 @@ Note.prototype.newID = function() {
     dataType: "xml",
     success: function(data){
       $("note", data).each(function(i) {
-        thisnote.id = $(this).find("id").text();
+        thisnote.id = parseInt($(this).find("id").text());
       });
     },
     error: function(a,b,c){
@@ -197,6 +201,7 @@ Note.prototype.redraw = function() {
   // Selection
   $(this.div).mousedown( function()
   {
+    // Are we in the edge creation mode?
     if (globalStartNote != null)
     {
       // create edge. no selection.
@@ -204,9 +209,11 @@ Note.prototype.redraw = function() {
       tmpEdge.rCanvas = rc;
       tmpEdge.setStartNote(globalStartNote);
       tmpEdge.setEndNote(thisnote);
-      tmpEdge.update();
-      globalStartNote = null;
+      tmpEdge.newID(); // notifies server
+      tmpEdge.update(); // draws clientside
+      globalStartNote = null; // ready for a new edge to be created
     }
+    // Normal note selection (not in the edge creation mode)
     else
     {
       thisnote.selected = true;
@@ -258,7 +265,7 @@ Note.prototype.redraw = function() {
         },
         "Save": function(){
           var newColor = $("#note_color").val();
-          // WARNING! NO INPUT VALIDATION! (Faster, though :))
+          // WARNING! NO INPUT VALIDATION!
           thisnote.color = newColor;
           thisnote.update();
           $.ajax({

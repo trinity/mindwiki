@@ -5,6 +5,13 @@ class Edge < ActiveRecord::Base
   validates_presence_of :source_note
   validates_presence_of :target_note
 
+
+  # Is the note pair unique. a->b == b->a.
+  # If you want an undirected edge, use the directed-attribute.
+
+  validates_uniqueness_of :source_id, :scope => [:target_id]
+ 
+
   def validate
     validate_color('color')
     validate_text('name')
@@ -14,7 +21,9 @@ class Edge < ActiveRecord::Base
 
     # Validate that the source and target are not the same
     self.errors.add('target_note', ' can not be the same note as the source note.') unless different_notes?
-    
+
+    # Validate "bidirectional" uniqueness
+    self.errors.add('source_note', ' and target_note need to be a unique pairing. Use undirected edges to represent two directed edges going to opposite notes.') unless bidirectionally_unique?
   end
 
   # Are notes in the same graph?
@@ -38,5 +47,15 @@ class Edge < ActiveRecord::Base
     end
     return self.source_note != self.target_note
   end
-
+  
+  # Is there already a note from target to source?
+  def bidirectionally_unique?
+    if self.source_note.nil?
+      return false
+    end
+    if self.target_note.nil?
+      return false
+    end
+    return Edge.first(:conditions => {:source_id => self.target_note.id, :target_id => self.source_note.id}).nil?
+  end
 end

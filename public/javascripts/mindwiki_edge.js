@@ -13,6 +13,7 @@ function Edge ()
   this.angle = 0; // direction from startnote to endnote in radians.
   this.color = "#000000";
   this.title = "";
+  this.directed = true;
   this.selected = false;
   this.rCanvas = null;  // Raphael canvas
 }
@@ -89,6 +90,30 @@ Edge.prototype.draw = function ()
   var yRight = -(negy2 + arrowSize * Math.sin(aRight));
 	
   this.rCanvas.path({stroke: this.color, fill: this.color}).absolutely().moveTo(this.x2,this.y2).lineTo(xLeft,yLeft).lineTo(xRight,yRight).andClose();
+};
+
+Edge.prototype.newID = function() {
+  var thisedge = this;
+  $.ajax({
+    url: "/edges/create",
+    type: "POST",
+    data: {
+      "edge[name]" : thisedge.title,    
+      "edge[color]" : thisedge.color,             
+      "edge[source_id]" : thisedge.startNote.id,
+      "edge[target_id]" : thisedge.endNote.id,        
+      "edge[directed]" : thisedge.directed,
+    },
+    dataType: "xml",
+    success: function(data){
+      $("edge", data).each(function(i) {
+        thisedge.id = parseInt($(this).find("id").text());
+      });
+    },
+    error: function(a,b,c){
+      alert("Cannot create a new edge: "+a+b+c);
+    }
+  });
 };
 
 function getAngle(x1, y1, x2, y2) 

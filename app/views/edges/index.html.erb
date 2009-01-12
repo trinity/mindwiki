@@ -2,18 +2,20 @@
 
 <table>
   <tr>
-    <th>Start</th>
-    <th>End</th>
+    <th>Source ID</th>
+    <th>Target ID</th>
     <th>Directed</th>
     <th>Name</th>
+    <th>Color</th>
   </tr>
 
 <% for edge in @edges %>
   <tr>
-    <td><%=h edge.start %></td>
-    <td><%=h edge.end %></td>
+    <td><%=h edge.source_id %></td>
+    <td><%=h edge.target_id %></td>
     <td><%=h edge.directed %></td>
     <td><%=h edge.name %></td>
+    <td><%=h edge.color %></td>
     <td><%= link_to 'Show', edge %></td>
     <td><%= link_to 'Edit', edit_edge_path(edge) %></td>
     <td><%= link_to 'Destroy', edge, :confirm => 'Are you sure?', :method => :delete %></td>

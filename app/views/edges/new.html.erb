@@ -4,12 +4,12 @@
   <%= f.error_messages %>
 
   <p>
-    <%= f.label :start %><br />
-    <%= f.text_field :start %>
+    <%= f.label :source_id %><br />
+    <%= f.text_field :source_id %>
   </p>
   <p>
-    <%= f.label :end %><br />
-    <%= f.text_field :end %>
+    <%= f.label :target_id %><br />
+    <%= f.text_field :target_id %>
   </p>
   <p>
     <%= f.label :directed %><br />
@@ -18,6 +18,10 @@
   <p>
     <%= f.label :name %><br />
     <%= f.text_field :name %>
+  </p>
+  <p>
+    <%= f.label :color %><br />
+    <%= f.text_field :color %>
   </p>
   <p>
     <%= f.submit "Create" %>
