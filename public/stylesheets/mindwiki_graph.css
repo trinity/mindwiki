@@ -4,8 +4,8 @@
 	position: absolute;
 	border: 1px solid black;
 	top: 55px;
-  left: 1px;
-  margin: 10px;
+	left: 1px;
+	margin: 10px;
 	width: 98%;
 	bottom: 25px;
 	background-color: #ccc;
@@ -32,6 +32,15 @@
 	width: 16px;
 	height: 16px;
 	background-image: url("/images/resize.png");
+}
+
+.context_help
+{
+	position: absolute;
+	bottom: 10px;
+	left: 10px;
+	border: 1px solid black;
+
 }
 
 /* DIV style */

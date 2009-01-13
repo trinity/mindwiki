@@ -58,6 +58,32 @@ $(document).ready(function(){
     event.stopPropagation();
   });
 		
+  $("#vport").hover( function()
+  {
+    $("#context_help").empty().append("Create new notes by double clicking");
+  }
+  );
+
+  $(".note").livequery(function()
+  {
+    $(this).hover(function()
+    {
+      $("#context_help").empty().append("Double click to edit content");
+    }
+    );
+  }
+  );
+
+  // Does not work for some reason
+  /*$(".arrowButton").livequery(function()
+  {
+    $(this).hover(function()
+    {
+      $("#context_help").empty().append("Create connected note");
+    }
+    );
+  }
+  );*/
 		
   $(".noteTitleTD").livequery("dblclick", function(event){
     // this event is not used. we just prevent the dblclick
