@@ -177,41 +177,61 @@ function loadNote(noteId) {
     url: "/notes/show/"+noteId,
     dataType: "xml",
     success: function(data){
-      if(data != null && data != "" && data != "\n" && data != "E" && data != "E\n") {
+//      if(data != null && data != "" && data != "\n" && data != "E" && data != "E\n") {
+        var edgeIds = [];
+
 
         // notes
 
         $("note",data).each(function(i) {
           var tmp = new Note();
-          tmp.id = parseInt($(this).find("id").text());
-          tmp.name = $(this).find("name").text();
-          tmp.x = parseInt($(this).find("x").text());
-          tmp.y = parseInt($(this).find("y").text());
-          tmp.width = parseInt($(this).find("width").text());
-          tmp.height = parseInt($(this).find("height").text());
-          tmp.color = $(this).find("color").text();
-          tmp.content = $(this).find("content").text();
-          tmp.editableContent = $(this).find("editableContent").text();
+          tmp.id = parseInt($(this).find("id:first").text());
+          tmp.name = $(this).find("name:first").text();
+          tmp.x = parseInt($(this).find("x:first").text());
+          tmp.y = parseInt($(this).find("y:first").text());
+          tmp.width = parseInt($(this).find("width:first").text());
+          tmp.height = parseInt($(this).find("height:first").text());
+          tmp.color = $(this).find("color:first").text();
           //tmp.div = null; // redraw creates div
+
+          $("article",this).each(function(j){ // There's really only one :)
+            tmp.content = $(this).find("content_rendered:first").text();
+            var contentType = parseInt($(this).find("content_type:first").text());
+            if(contentType == 1) // RedCloth-parse included
+              tmp.editableContent = $(this).find("content:first").text();
+          });
+          
+          // THIS NEEDS FIXING BADLY:
+          // NOW EDGES ARE BASICALLY RETRIEVED TWICE.
+          // ALSO DRAWN TWICE :D
+          // Just create edges from this ajax call.
+
+          // Also, bad copypastecode below
+
+          // Escapes the edges-to array first, then loops edges-to -fields inside
+          $("edges-to",$(this).find("edges-to:first")).each(function(k){
+            var id = parseInt($(this).find("id:first").text());
+            if(edgeIds.indexOf(id) == -1){ // doesn't work
+              edgeIds.push(id);
+            }
+          });
+          $("edges-from",$(this).find("edges-from:first")).each(function(l){
+            var id = parseInt($(this).find("id:first").text());
+            if(edgeIds.indexOf(id) == -1){
+              edgeIds.push(id);
+            }
+            
+          });
+
           notes.push(tmp);
           tmp.redraw();
-        });
-
-        // edges ids
-
-        var edgeIds = [];
-        $("edge",data).each(function(i){
-          var id = parseInt($(this).find("edgeid").text());
-          if(edgeIds.indexOf(id) == -1){
-            edgeIds.push(id);
-          }
         });
 
         // load the edges
         jQuery.each(edgeIds, function(){
           loadEdge(this);
         });
-      }
+//      }
     },
     error: function(a,b,c){
       alert("Cannot load note: "+a+" "+b+" "+c);

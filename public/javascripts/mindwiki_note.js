@@ -68,6 +68,7 @@ Note.prototype.updatePosition = function() {
   var thisnote = this;
   $.ajax({
     url: "/notes/update_position/"+thisnote.id,
+    dataType: "xml",
     data: {
       "x" : thisnote.x,
       "y" : thisnote.y

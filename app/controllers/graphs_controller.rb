@@ -90,19 +90,10 @@ class GraphsController < ApplicationController
     @graphnotes = @graph.notes;
   end
 
-  # Renders note IDs in xml
-  # Maybe use standard respond_to -style?
+  # Renders note IDs
   def get_note_ids
     sync_from_db()
-    xml = REXML::Document.new
-    xml.add_element("notes")
-    @graphnotes.each do |n|
-      tmp = REXML::Element.new("note")
-      tmp.add_element("id")
-      tmp.elements["id"].text = n.id
-      xml.root.elements << tmp
-    end
-    render :xml => xml
+    render :xml => @graphnotes.to_xml(:only => [:id])
   end
   
   # Returns the color for the graph
@@ -116,7 +107,7 @@ class GraphsController < ApplicationController
 
 
   # Render all graph notes in xml
-  # DEPRECATED: ONLY USED WITH ALL-IN-ONE NOTE-LOADING
+  # DEPRECATED/NOT IN USE (Was used for all-in-one-loading.)
   def render_notes_xml
     sync_from_db()
    
@@ -160,7 +151,6 @@ class GraphsController < ApplicationController
       xml.root.elements << tmp
     end
     render :xml => xml
-
   end
   
 end
