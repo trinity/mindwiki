@@ -298,43 +298,6 @@ Note.prototype.redraw = function() {
   });
   $(buttonsDiv).append(colorButton);
 
-/* Old Farbtastic code
-  $(colorButton).click(function () { 
-    // Color dialog
-    $("#vport").append('<div id="colorDialog" class="flora"></div>');
-    $("#colorDialog").append('<p>Choose color<br /><input type="text" id="note_color" value="'+thisnote.color+'" /><div id="colorPicker"></div></p>');
-    $("#colorPicker").farbtastic("#note_color");
-    $("#colorDialog").dialog({
-      width: 230,
-      height: 350,
-      position: [thisnote.x, thisnote.y],
-      modal: true,
-      title: thisnote.name+" (Choosing background color)",
-      buttons: {
-        "Cancel": function(){
-          $(this).dialog("destroy").remove();
-        },
-        "Save": function(){
-          var newColor = $("#note_color").val();
-          // WARNING! NO INPUT VALIDATION!
-          thisnote.color = newColor;
-          thisnote.update();
-          $.ajax({
-            url: "/notes/update_color/"+thisnote.id,
-            data: { "newColor" : newColor },
-            dataType: "html",
-            success: function(data){
-              // :)
-            }
-          });
-          $(this).dialog("destroy").remove(); // Don't edit lightly :)
-        }
-      }
-    });
-  });
-*/
-  
-	
   // delete button
   $(deleteButton).addClass("noteDeleteButton");
   $(deleteButton).click(function () { thisnote.delete(); });
@@ -435,3 +398,38 @@ Note.prototype.redraw = function() {
   $("#vport").append(this.div);
 }
 
+/* Old Farbtastic code
+  $(colorButton).click(function () { 
+    // Color dialog
+    $("#vport").append('<div id="colorDialog" class="flora"></div>');
+    $("#colorDialog").append('<p>Choose color<br /><input type="text" id="note_color" value="'+thisnote.color+'" /><div id="colorPicker"></div></p>');
+    $("#colorPicker").farbtastic("#note_color");
+    $("#colorDialog").dialog({
+      width: 230,
+      height: 350,
+      position: [thisnote.x, thisnote.y],
+      modal: true,
+      title: thisnote.name+" (Choosing background color)",
+      buttons: {
+        "Cancel": function(){
+          $(this).dialog("destroy").remove();
+        },
+        "Save": function(){
+          var newColor = $("#note_color").val();
+          // WARNING! NO INPUT VALIDATION!
+          thisnote.color = newColor;
+          thisnote.update();
+          $.ajax({
+            url: "/notes/update_color/"+thisnote.id,
+            data: { "newColor" : newColor },
+            dataType: "html",
+            success: function(data){
+              // :)
+            }
+          });
+          $(this).dialog("destroy").remove(); // Don't edit lightly :)
+        }
+      }
+    });
+  });
+*/
