@@ -87,7 +87,7 @@
 	width: 16px;
 	height: 16px;
 	position: absolute;
-	left: 0px;
+	left: 2px;
 }
 
 .noteColorButton
@@ -97,7 +97,7 @@
 	width: 16px;
 	height: 16px;
 	position: absolute;
-	left: 16px;
+	left: 20px;
 }
 
 .noteDeleteButton
@@ -107,7 +107,7 @@
 	width: 16px;
 	height: 16px;
 	position: absolute;
-	right: 0px;
+	right: 2px;
 }
 
 
