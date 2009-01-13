@@ -109,10 +109,7 @@ Note.prototype.delete = function() {
   var thisnote = this;
   this.deleteDivFromDom();
   $.ajax({
-    url: "/notes/destroy/"+thisnote.id+"?graph_id="+graph_id, // fetches too much data -> NEW METHOD INTO CONTROLLER?
-    success: function(data){
-      // maybe do something? :D
-    },
+    url: "/notes/destroy/"+thisnote.id,
     error: function(a,b,c){
       alert("Cannot delete note id "+thisnote.id+" from database: "+a+b+c);
     }

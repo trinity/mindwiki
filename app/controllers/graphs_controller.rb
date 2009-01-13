@@ -98,10 +98,7 @@ class GraphsController < ApplicationController
     xml.add_element("notes")
     @graphnotes.each do |n|
       tmp = REXML::Element.new("note")
-      ["id"].each do |s|
-        tmp.add_element(s)
-      end
-      # Again unflexible code
+      tmp.add_element("id")
       tmp.elements["id"].text = n.id
       xml.root.elements << tmp
     end

@@ -1,23 +1,14 @@
 class NotesController < ApplicationController
-  # GET /notes
-  # GET /notes.xml
-  def index
-    @notes = Note.find(:all)
-
-    respond_to do |format|
-      format.html # index.html.erb
-      format.xml  { render :xml => @notes }
-    end
-  end
-
   # GET /notes/1
   # GET /notes/1.xml
   def show
     @note = Note.find(params[:id])
 
+    # This would basically do the same as the REXML below, but doesn't have RedCloth-rendering
+    #render :xml => @note.to_xml(:include => [:article, :edges_to, :edges_from])
+
     respond_to do |format|
-      format.html # show.html.erb
-      # format.xml  { render :xml => @note } #default
+      # Custom xml formatting, so we get article contents and edge-ids as well.
       format.xml {
         xml = REXML::Document.new
         xml.add_element("notes")
@@ -37,7 +28,6 @@ class NotesController < ApplicationController
         tmp.elements["editableContent"].text = @note.article.content
 
         # Related edges: (TODO: combine these loops please)
-        
         # incoming
         @note.edges_to.each do |e|
           etmp = REXML::Element.new("edge")
@@ -55,27 +45,9 @@ class NotesController < ApplicationController
 
         xml.root.elements << tmp
         render :xml => xml
-
       }
     end
   end
-
-  # GET /notes/new
-  # GET /notes/new.xml
-  def new
-    @note = Note.new
-
-    respond_to do |format|
-      format.html # new.html.erb
-      format.xml  { render :xml => @note }
-    end
-  end
-
-  # GET /notes/1/edit
-  def edit
-    @note = Note.find(params[:id])
-  end
-
 
   # POST /notes
   # POST /notes.xml
@@ -89,17 +61,10 @@ class NotesController < ApplicationController
     @note.article = @article
     @note.graph = @graph
 
-    @note.save
-#    redirect_to(@graph)
-    respond_to do |format|
-      if @note.save
-        flash[:notice] = 'Note was successfully created.'
-        format.html { redirect_to(@note) }
-        format.xml  { render :xml => @note, :status => :created, :location => @note }
-      else
-        format.html { render :action => "new" }
-        format.xml  { render :xml => @note.errors, :status => :unprocessable_entity }
-      end
+    if @note.save
+      render :xml => @note.to_xml(:only => [:id]), :status => :created      
+    else
+      render :xml => @note.errors, :status => :unprocessable_entity
     end
   end
 
@@ -123,8 +88,6 @@ class NotesController < ApplicationController
   # DELETE /notes/1
   # DELETE /notes/1.xml
   def destroy
-    @graph = Graph.find(params[:graph_id])
-
     @note = Note.find(params[:id])
     
     @note.edges_to.each do |e|
@@ -136,67 +99,52 @@ class NotesController < ApplicationController
     
     @note.destroy
 
-#    redirect_to(@graph)
-    respond_to do |format|
-      format.html { redirect_to(notes_url) }
-      format.xml  { head :ok }
-    end
+    head :ok
   end
   
   # Updates note content and return a RedCloth rendering for javascript usage.
   def update_content
     @note = Note.find(params[:id])
     if @note.article.update_attribute(:content, params[:newContent])
-      flash[:notice] = @note.name+' content successfully updated.'
       render :text => RedCloth.new(white_list(@note.article.content),[:filter_styles]).to_html(:textile, :youtube)
     else
-      flash[:notice] = @note.name+' content update error.'
       render :text => "<p>Content update error.</p>"
     end
   end
   
-  # Updates note position
   def update_position
     @note = Note.find(params[:id])
     if @note.update_attributes(:x => params[:x], :y => params[:y])
-      flash[:notice] = @note.name+' coordinates successfully updated.'
-      render :text => "OK"
+      head :ok
     else
-      flash[:notice] = @note.name+' coordinates updating error.'
-      render :text => "ERROR"
+      render :xml => @note.errors, :status => :unprocessable_entity
     end
   end
   
-  # Updates note size
   def update_size
     @note = Note.find(params[:id])
     if @note.update_attributes(:width => params[:width], :height => params[:height])
-      flash[:notice] = @note.name+' size successfully updated.'
-      render :text => "OK"
+      head :ok
     else
-      flash[:notice] = @note.name+' size updating error.'
-      render :text => "ERROR"
+      render :xml => @note.errors, :status => :unprocessable_entity
     end
   end
 
   def update_color
     @note = Note.find(params[:id])
     if @note.update_attributes(:color => params[:newColor])
-      flash[:notice] = @note.name+' color successfully updated.'
-      render :text => "OK"
+      head :ok
     else
-      flash[:notice] = @note.name+' color updating error.'
-      render :text => "ERROR"
+      render :xml => @note.errors, :status => :unprocessable_entity
     end
   end
   
   def update_name
     @note = Note.find(params[:id])
     if @note.update_attributes(:name => params[:newName])
-      render :text => "OK"
+      head :ok
     else
-      render :text => "ERROR"
+      render :xml => @note.errors, :status => :unprocessable_entity
     end
   end
-
 end
