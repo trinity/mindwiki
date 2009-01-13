@@ -58,7 +58,7 @@ $(document).ready(function(){
     event.stopPropagation();
   });
 		
-  $("#vport").hover( function()
+  /*$("#vport").hover( function()
   {
     $("#context_help").empty().append("Create new notes by double clicking");
   }
@@ -72,7 +72,7 @@ $(document).ready(function(){
     }
     );
   }
-  );
+  );*/
 
   // Does not work for some reason
   /*$(".arrowButton").livequery(function()
