@@ -11,9 +11,12 @@ function Note() {
   this.y = 1;
   this.width = 300;
   this.height = 200;
-  this.color = "silver";
+  this.color = "#dddddd";
   this.content = "<p>Default content.</p>"; // <p> -tag bumps the layout ~10px down. What?-o
   this.editableContent = "Default content."; // RedCloth-syntax. What the user edits.
+
+  this.edgesTo = [];
+  this.edgesFrom = [];
 
   this.selected = false;
 
@@ -157,6 +160,7 @@ Note.prototype.newID = function() {
 // Use after loading a Note with data.
 Note.prototype.redraw = function() {
   var thisnote = this; // To be used in submethods, e.g. click-handlers.
+
   if(this.div != null){
     thisnote.deleteDivFromDom();
   }
@@ -195,6 +199,20 @@ Note.prototype.redraw = function() {
       thisnote.x = ui.position.left;
       thisnote.y = ui.position.top;
       thisnote.updatePosition();
+    },
+    drag: function(event, ui){
+      thisnote.x = ui.position.left;
+      thisnote.y = ui.position.top;
+      // let's update the related edges:
+      var l = thisnote.edgesTo.length;
+      for(var i=0;i<l;i++){
+        thisnote.edgesTo[i].update(true);
+      }
+      l = thisnote.edgesFrom.length;
+      for(var i=0;i<l;i++){
+        thisnote.edgesFrom[i].update(true);
+      }
+      
     }
   });
 
@@ -210,6 +228,9 @@ Note.prototype.redraw = function() {
       tmpEdge.setStartNote(globalStartNote);
       tmpEdge.setEndNote(thisnote);
       tmpEdge.newID(); // notifies server
+      //add the edge to notes for updating
+      globalStartNote.edgesFrom.push(tmpEdge);
+      thisnote.edgesTo.push(tmpEdge);
       tmpEdge.update(); // draws clientside
       globalStartNote = null; // ready for a new edge to be created
     }

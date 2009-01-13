@@ -16,6 +16,8 @@ function Edge ()
   this.directed = true;
   this.selected = false;
   this.rCanvas = null;  // Raphael canvas
+  this.canvasPath = null; // Raphael canvas.path
+  this.canvasPath2 = null;
 }
 
 Edge.prototype.setStartNote = function (note) 
@@ -28,8 +30,10 @@ Edge.prototype.setEndNote = function (note)
   this.endNote = note;
 }
 
-Edge.prototype.update = function () 
+Edge.prototype.update = function (doNotRedraw)
 {
+  doNotRedraw = doNotRedraw || false; // defaults to false
+
   if (this.startNote == null || this.endNote == null)
   {
     alert("Trying to draw an edge, which has a null note!");
@@ -66,13 +70,16 @@ Edge.prototype.update = function ()
   this.x2 = result[0];
   this.y2 = -result[1];
   
-  this.draw();
+  if(doNotRedraw)
+    this.drawUpdateOnly();
+  else
+    this.draw();
 
 };
 
 Edge.prototype.draw = function () 
 {
-  this.rCanvas.path({stroke: this.color}).absolutely().moveTo(this.x1,this.y1).lineTo(this.x2,this.y2);
+  this.canvasPath = this.rCanvas.path({stroke: this.color}).absolutely().moveTo(this.x1,this.y1).lineTo(this.x2,this.y2);
 	
   var arrowSize = 10;
 	
@@ -89,7 +96,38 @@ Edge.prototype.draw = function ()
   var xRight = this.x2 + arrowSize * Math.cos(aRight);
   var yRight = -(negy2 + arrowSize * Math.sin(aRight));
 	
-  this.rCanvas.path({stroke: this.color, fill: this.color}).absolutely().moveTo(this.x2,this.y2).lineTo(xLeft,yLeft).lineTo(xRight,yRight).andClose();
+  this.canvasPath2 = this.rCanvas.path({stroke: this.color, fill: this.color}).absolutely().moveTo(this.x2,this.y2).lineTo(xLeft,yLeft).lineTo(xRight,yRight).andClose();
+};
+
+// THIS IS COPYPASTED FROM draw(). SORRY!. FIX LATER!
+Edge.prototype.drawUpdateOnly = function () 
+{
+  //this.canvasPath = this.rCanvas.path({stroke: this.color}).absolutely().moveTo(this.x1,this.y1).lineTo(this.x2,this.y2);
+  this.canvasPath.path[0].arg = [this.x1,this.y1];
+  this.canvasPath.path[1].arg = [this.x2,this.y2];
+  this.canvasPath.redraw();
+	
+  var arrowSize = 10;
+	
+  // vievport doesn't have standard coordinate system. that's why we count each y-coordinate
+  // as negative to use standard 2D algebra.
+  var negy1 = -this.y1;
+  var negy2 = -this.y2;
+	
+  // compute the other two points of the arrow tip
+  var aLeft = this.angle - 0.85 * Math.PI;
+  var aRight = this.angle + 0.85 * Math.PI;
+  var xLeft = this.x2 + arrowSize * Math.cos(aLeft);
+  var yLeft = -(negy2 + arrowSize * Math.sin(aLeft));
+  var xRight = this.x2 + arrowSize * Math.cos(aRight);
+  var yRight = -(negy2 + arrowSize * Math.sin(aRight));
+	
+  //this.canvasPath2 = this.rCanvas.path({stroke: this.color, fill: this.color}).absolutely().moveTo(this.x2,this.y2).lineTo(xLeft,yLeft).lineTo(xRight,yRight).andClose();
+  this.canvasPath2.path[0].arg = [this.x2,this.y2];
+  this.canvasPath2.path[1].arg = [xLeft,yLeft];
+  this.canvasPath2.path[2].arg = [xRight,yRight];
+  
+  this.canvasPath2.redraw();
 };
 
 Edge.prototype.newID = function() {

@@ -5,6 +5,28 @@ var graph_id;
 var last_selected_note = null;
 var rc; // raphael canvas
 
+// Maybe more sophisticated containers?!
+var notes = [];
+var edges = [];
+
+function getNoteById(id){
+  l = notes.length;
+  for(var i=0;i<l;i++){
+    if(notes[i].id == id)
+      return notes[i];
+  }
+  return null;
+}
+
+function getEdgeById(id){
+  l = edges.length;
+  for(var i=0;i<l;i++){
+    if(edges[i].id == id)
+      return edges[i];
+  }
+  return null;
+}
+
 $(document).ready(function(){
 
   // Load graph ID from the path variable.
@@ -130,6 +152,9 @@ function loadNote(noteId) {
     dataType: "xml",
     success: function(data){
       if(data != null && data != "" && data != "\n" && data != "E" && data != "E\n") {
+
+        // notes
+
         $("note",data).each(function(i) {
           var tmp = new Note();
           tmp.id = parseInt($(this).find("id").text());
@@ -142,7 +167,23 @@ function loadNote(noteId) {
           tmp.content = $(this).find("content").text();
           tmp.editableContent = $(this).find("editableContent").text();
           //tmp.div = null; // redraw creates div
+          notes.push(tmp);
           tmp.redraw();
+        });
+
+        // edges ids
+
+        var edgeIds = [];
+        $("edge",data).each(function(i){
+          var id = parseInt($(this).find("edgeid").text());
+          if(edgeIds.indexOf(id) == -1){
+            edgeIds.push(id);
+          }
+        });
+
+        // load the edges
+        jQuery.each(edgeIds, function(){
+          loadEdge(this);
         });
       }
     },
@@ -152,3 +193,46 @@ function loadNote(noteId) {
   });
 };
 
+
+
+function loadEdge(edgeId) {
+
+  var tmp = null;
+/*  if(edges[edgeId] != null)
+    tmp = edges[edgeId];
+  else
+*/
+    tmp = new Edge();
+
+  $.ajax({
+    url: "/edges/show/"+edgeId,
+    dataType: "xml",
+    success: function(data){
+      if(data != null && data != "" && data != "\n" && data != "E" && data != "E\n") {
+        $("edge",data).each(function(i) {
+          tmp.rCanvas = rc; // maybe somewhere else
+          tmp.id = parseInt($(this).find("id").text());
+          tmp.title = $(this).find("name").text();
+          tmp.color = $(this).find("color").text();
+          tmp.directed = true; // TODO!! $(this).find("content").text();
+
+          var startNote = getNoteById(parseInt($(this).find("source-id").text()));
+          var endNote = getNoteById(parseInt($(this).find("target-id").text()));
+          tmp.setStartNote(startNote); // Yikes for not checking!
+          tmp.setEndNote(endNote);
+
+          // Give notes the reference to this edge, also:
+          startNote.edgesFrom.push(tmp);
+          endNote.edgesTo.push(tmp);
+
+          tmp.update();
+          edges.push(tmp);
+        });
+      }
+    },
+    error: function(a,b,c){
+      alert("Cannot load edge: "+a+" "+b+" "+c);
+    }
+
+  });
+}

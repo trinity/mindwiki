@@ -35,8 +35,25 @@ class NotesController < ApplicationController
         tmp.elements["color"].text = @note.color 
         tmp.elements["content"].text = RedCloth.new(white_list(@note.article.content),[:filter_styles]).to_html(:textile, :youtube)
         tmp.elements["editableContent"].text = @note.article.content
+
+        # Related edges: (TODO: combine these loops please)
+        
+        # incoming
+        @note.edges_to.each do |e|
+          etmp = REXML::Element.new("edge")
+          etmp.add_element("edgeid")
+          etmp.elements["edgeid"].text = e.id
+          tmp.root.elements << etmp
+        end
+        # outgoing
+        @note.edges_from.each do |e|
+          etmp = REXML::Element.new("edge")
+          etmp.add_element("edgeid")
+          etmp.elements["edgeid"].text = e.id
+          tmp.root.elements << etmp
+        end
+
         xml.root.elements << tmp
-  
         render :xml => xml
 
       }
