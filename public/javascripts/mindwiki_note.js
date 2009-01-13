@@ -253,21 +253,23 @@ Note.prototype.redraw = function() {
   var titleRow = document.createElement("tr");
   var articleRow = document.createElement("tr");
   var article = document.createElement("div");
-  var deleteButtonTD = document.createElement("td");
-  var colorButtonTD = document.createElement("td");
-  var arrowButtonTD = document.createElement("td");
 
+  var buttonsTD = document.createElement("td");
+  var buttonsDiv = document.createElement("div");
+  
   /* These should probably have alttexts. */
   var deleteButton = document.createElement("div");
   var colorButton = document.createElement("div");
   var arrowButton = document.createElement("div");
+
+  $(buttonsDiv).addClass("noteButtonTD");
 
   // arrow button
   $(arrowButton).addClass("noteArrowButton");
   $(arrowButton).click(function () {
     globalStartNote = thisnote;
   });
-  $(arrowButtonTD).addClass("noteButtonTD").append(arrowButton);
+  $(buttonsDiv).append(arrowButton);
 	
   // color button
   $(colorButton).addClass("noteColorButton");
@@ -294,6 +296,7 @@ Note.prototype.redraw = function() {
       });
     }
   });
+  $(buttonsDiv).append(colorButton);
 
 /* Old Farbtastic code
   $(colorButton).click(function () { 
@@ -330,16 +333,19 @@ Note.prototype.redraw = function() {
     });
   });
 */
-
-  $(colorButtonTD).addClass("noteButtonTD").append(colorButton);
+  
 	
   // delete button
   $(deleteButton).addClass("noteDeleteButton");
   $(deleteButton).click(function () { thisnote.delete(); });
-  $(deleteButtonTD).addClass("noteButtonTD").append(deleteButton);
+  $(buttonsDiv).append(deleteButton);
+  
 
+
+  $(buttonsTD).append(buttonsDiv);
   // button row
-  $(buttonRow).addClass("noteButtonRow").append(arrowButtonTD).append(colorButtonTD).append(deleteButtonTD);
+  $(buttonRow).addClass("noteButtonRow").append(buttonsTD);
+
 	
   // titleTD
   $(titleTD).addClass("noteTitleTD").attr("colspan",3).append(this.name);

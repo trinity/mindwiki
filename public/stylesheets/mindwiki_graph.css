@@ -86,6 +86,8 @@
 	background-repeat: no-repeat;
 	width: 16px;
 	height: 16px;
+	position: absolute;
+	left: 0px;
 }
 
 .noteColorButton
@@ -94,6 +96,8 @@
 	background-repeat: no-repeat;
 	width: 16px;
 	height: 16px;
+	position: absolute;
+	left: 16px;
 }
 
 .noteDeleteButton
@@ -102,6 +106,8 @@
 	background-repeat: no-repeat;
 	width: 16px;
 	height: 16px;
+	position: absolute;
+	right: 0px;
 }
 
 
@@ -113,9 +119,8 @@
 	background-image: url("/images/bar.png");
 	/*background-color: #ffff00;*/
 	color: black;
-	height: 20px;
+	height: 16px;
 	padding: 1px;
-	width: 33%;
 }
 
 /* TD style */
