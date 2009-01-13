@@ -178,8 +178,8 @@ Note.prototype.redraw = function() {
   $(this.div)
   .resizable(
   {
-    minWidth: 100,
-    minHeight: 60,
+    minWidth: 120,
+    minHeight: 80,
     maxWidth: 800,
     maxHeight: 800,
     handles:  'se', // defines the resize handle location i.e. south east corner
