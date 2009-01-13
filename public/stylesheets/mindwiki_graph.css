@@ -25,6 +25,15 @@
 	color: black;
 }
 
+.ui-resizable-se
+{
+	bottom: 0px;
+	right: 0px;
+	width: 16px;
+	height: 16px;
+	background-image: url("/images/resize.png");
+}
+
 /* DIV style */
 .noteSelected
 {
@@ -63,17 +72,44 @@
 }
 
 /* A style */
+/*
 .noteButton
 {
 	color: blue;
 }
+*/
+.noteArrowButton
+{
+	background-image: url("/images/arrow_btn.png");
+	background-repeat: no-repeat;
+	width: 16px;
+	height: 16px;
+}
+
+.noteColorButton
+{
+	background-image: url("/images/color_btn.png");
+	background-repeat: no-repeat;
+	width: 16px;
+	height: 16px;
+}
+
+.noteDeleteButton
+{
+	background-image: url("/images/delete_btn.png");
+	background-repeat: no-repeat;
+	width: 16px;
+	height: 16px;
+}
+
 
 /* TD style */
 .noteButtonTD
 {
 	border: none;
 	font-size: smaller;
-	background-color: #ffff00;
+	background-image: url("/images/bar.png");
+	/*background-color: #ffff00;*/
 	color: black;
 	height: 20px;
 	padding: 1px;

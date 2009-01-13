@@ -235,19 +235,21 @@ Note.prototype.redraw = function() {
   var deleteButtonTD = document.createElement("td");
   var colorButtonTD = document.createElement("td");
   var arrowButtonTD = document.createElement("td");
-  var deleteButton = document.createElement("a");
-  var colorButton = document.createElement("a");
-  var arrowButton = document.createElement("a");
+
+  /* These should probably have alttexts. */
+  var deleteButton = document.createElement("div");
+  var colorButton = document.createElement("div");
+  var arrowButton = document.createElement("div");
 
   // arrow button
-  $(arrowButton).addClass("noteButton").append("Arrow");
+  $(arrowButton).addClass("noteArrowButton");
   $(arrowButton).click(function () {
     globalStartNote = thisnote;
   });
   $(arrowButtonTD).addClass("noteButtonTD").append(arrowButton);
 	
   // color button
-  $(colorButton).addClass("noteButton").append("Color");
+  $(colorButton).addClass("noteColorButton");
   $(colorButton).ColorPicker({
     color: thisnote.color,
     onShow: function(picker){
@@ -311,7 +313,7 @@ Note.prototype.redraw = function() {
   $(colorButtonTD).addClass("noteButtonTD").append(colorButton);
 	
   // delete button
-  $(deleteButton).addClass("noteButton").append("Delete");
+  $(deleteButton).addClass("noteDeleteButton");
   $(deleteButton).click(function () { thisnote.delete(); });
   $(deleteButtonTD).addClass("noteButtonTD").append(deleteButton);
 
