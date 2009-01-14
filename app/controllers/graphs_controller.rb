@@ -46,7 +46,6 @@ class GraphsController < ApplicationController
 
     respond_to do |format|
       if @graph.save
-        flash[:notice] = 'Graph was successfully created.'
         format.html { redirect_to(@graph) }
         format.xml  { render :xml => @graph, :status => :created, :location => @graph }
       else
@@ -63,7 +62,6 @@ class GraphsController < ApplicationController
 
     respond_to do |format|
       if @graph.update_attributes(params[:graph])
-        flash[:notice] = 'Graph was successfully updated.'
         format.html { redirect_to(@graph) }
         format.xml  { head :ok }
       else
@@ -93,64 +91,21 @@ class GraphsController < ApplicationController
   # Renders note IDs
   def get_note_ids
     sync_from_db()
-    render :xml => @graphnotes.to_xml(:only => [:id])
+
+    respond_to do |format|
+      format.xml { render :xml => @graphnotes.to_xml(:only => [:id]) }
+    end
   end
   
   # Returns the color for the graph
   def get_color
-    if @graph = Graph.find(params[:id])
-      render :text => @graph.color
-    else
-      render :text => "#dddddd"
-    end
-  end
-
-
-  # Render all graph notes in xml
-  # DEPRECATED/NOT IN USE (Was used for all-in-one-loading.)
-  def render_notes_xml
-    sync_from_db()
-   
-    # Works nicely, except excludes article content
-    #xmlnotes = @graphnotes.to_xml
-    #render :xml => xmlnotes
-
-    # Includes article content, but adds weird extra tags(?!)
-    #@xml = Builder::XmlMarkup.new
-    #@xml.instruct! :xml
-    #@xml.notes{
-    #  for note in @graphnotes
-    #    @xml.note do
-    #      @xml.id(note.id)
-    #      @xml.name(note.name)
-    #      @xml.content((RedCloth.new note.article.content).to_html)
-    #      #etc...
-    #    end
-    #  end
-    #}
-    #render :xml => @xml
-
-    # ... So we use REXML :(
-    xml = REXML::Document.new
-    xml.add_element("notes")
-    @graphnotes.each do |n|
-      tmp = REXML::Element.new("note")
-      ["id","name","x","y","width","height","color","content","editableContent"].each do |s|
-        tmp.add_element(s)
+    respond_to do |format|
+      if @graph = Graph.find(params[:id])
+        format.text { render :text => @graph.color }
+      else
+        format.text { render :text => "#dddddd" }
       end
-      # Again unflexible code
-      tmp.elements["id"].text = n.id
-      tmp.elements["name"].text = n.name
-      tmp.elements["x"].text = n.x
-      tmp.elements["y"].text = n.y
-      tmp.elements["width"].text = n.width
-      tmp.elements["height"].text = n.height
-      tmp.elements["color"].text = n.color
-      tmp.elements["content"].text = RedCloth.new(white_list(n.article.content),[:filter_styles]).to_html(:textile, :youtube)
-      tmp.elements["editableContent"].text = n.article.content
-      xml.root.elements << tmp
     end
-    render :xml => xml
-  end
-  
-end
+  end  
+
+end #EOF

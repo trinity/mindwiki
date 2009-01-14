@@ -5,7 +5,6 @@ class EdgesController < ApplicationController
     @edge = Edge.find(params[:id])
 
     respond_to do |format|
-      format.html # show.html.erb
       format.xml  { render :xml => @edge }
     end
   end
@@ -31,11 +30,8 @@ class EdgesController < ApplicationController
 
     respond_to do |format|
       if @edge.update_attributes(params[:edge])
-        flash[:notice] = 'Edge was successfully updated.'
-        format.html { redirect_to(@edge) }
         format.xml  { head :ok }
       else
-        format.html { render :action => "edit" }
         format.xml  { render :xml => @edge.errors, :status => :unprocessable_entity }
       end
     end

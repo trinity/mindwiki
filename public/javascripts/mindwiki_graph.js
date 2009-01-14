@@ -215,13 +215,6 @@ function loadNote(noteId) {
               edgeIds.push(id);
             }
           });
-          $("edges-from",$(this).find("edges-from:first")).each(function(l){
-            var id = parseInt($(this).find("id:first").text());
-            if(edgeIds.indexOf(id) == -1){
-              edgeIds.push(id);
-            }
-            
-          });
 
           notes.push(tmp);
           tmp.redraw();

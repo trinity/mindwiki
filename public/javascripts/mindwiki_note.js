@@ -1,6 +1,7 @@
 // This file defines the MindWiki note objects
 
 var globalStartNote; // used when creating new edges
+var runningZ = 10; // used for z-index = "top"
 
 // Note is the "class" for all notes.
 function Note() {
@@ -44,7 +45,8 @@ Note.prototype.update = function() {
 
     // Update this to have seleced appearance
     $(this.div).addClass("noteSelected").find(".noteButtonRow").show();
-    //$(this.div). // Maybe put selected on top? as in zIndex == hiiigh
+    runningZ++;
+    $(this.div).css({"zIndex":runningZ}); // Maybe put selected on top? as in zIndex == hiiigh
 
   } else {
     $(this.div).removeClass("noteSelected").find(".noteButtonRow").hide();
@@ -57,21 +59,24 @@ Note.prototype.update = function() {
   // Color change
   $(this.articleDiv).css({"backgroundColor": this.color});
 
-  // Title change
-  $(this.titleTD.firstChild).replaceWith(this.name);
-
+  // Title change DOES NOT WORK! When did this break? :D
+  $(this.titleTD).html(this.name);
 }
 
 
 // Notifies the controller of updated coordinates
+
+// Warning: jQuery does not validate empty page with OK status as 
+// success without (for example) dataType: "html"
+
 Note.prototype.updatePosition = function() {
   var thisnote = this;
   $.ajax({
-    url: "/notes/update_position/"+thisnote.id,
-    dataType: "xml",
+    url: "/notes/update/"+thisnote.id,
+    dataType: "html",
     data: {
-      "x" : thisnote.x,
-      "y" : thisnote.y
+      "note[x]" : thisnote.x,
+      "note[y]" : thisnote.y
     },
     success: function(data){
       // ...
@@ -86,10 +91,11 @@ Note.prototype.updatePosition = function() {
 Note.prototype.updateSize = function() {
   var thisnote = this;
   $.ajax({
-    url: "/notes/update_size/"+thisnote.id,
+    url: "/notes/update/"+thisnote.id,
+    dataType: "html",
     data: {
-      "width" : thisnote.width,
-      "height" : thisnote.height
+      "note[width]" : thisnote.width,
+      "note[height]" : thisnote.height
     },
     success: function(data){
       // ...
@@ -186,6 +192,19 @@ Note.prototype.redraw = function() {
       thisnote.width = ui.size.width;
       thisnote.height = ui.size.height;
       thisnote.updateSize();
+    },
+    resize: function(event, ui){
+      thisnote.width = ui.size.width;
+      thisnote.height = ui.size.height;
+      // let's update the related edges:
+      var l = thisnote.edgesTo.length;
+      for(var i=0;i<l;i++){
+        thisnote.edgesTo[i].update(true);
+      }
+      l = thisnote.edgesFrom.length;
+      for(var i=0;i<l;i++){
+        thisnote.edgesFrom[i].update(true);
+      }
     }
   })
   .draggable(
@@ -285,8 +304,8 @@ Note.prototype.redraw = function() {
       thisnote.color = "#"+hex;
       thisnote.update();
       $.ajax({
-        url: "/notes/update_color/"+thisnote.id,
-        data: { "newColor" : "#"+hex },
+        url: "/notes/update/"+thisnote.id,
+        data: { "note[color]" : "#"+hex },
         dataType: "html",
         success: function(data){
           // :)
@@ -294,6 +313,7 @@ Note.prototype.redraw = function() {
       });
     }
   });
+  $(".colorpicker").css({"zIndex": 9999999});
   $(buttonsDiv).append(colorButton);
 
   // delete button
@@ -345,9 +365,9 @@ Note.prototype.redraw = function() {
           var newTitle = $("#titleInputField").val();
           if(thisnote.name != newTitle){
             $.ajax({
-              url: "/notes/update_name/"+thisnote.id,
-              data: { "newName" : newTitle },
+              url: "/notes/update/"+thisnote.id,
               dataType: "html",
+              data: { "note[name]" : newTitle },
               success: function(data){
                 // yay!
                 thisnote.name = newTitle;
@@ -395,39 +415,3 @@ Note.prototype.redraw = function() {
 
   $("#vport").append(this.div);
 }
-
-/* Old Farbtastic code
-  $(colorButton).click(function () { 
-    // Color dialog
-    $("#vport").append('<div id="colorDialog" class="flora"></div>');
-    $("#colorDialog").append('<p>Choose color<br /><input type="text" id="note_color" value="'+thisnote.color+'" /><div id="colorPicker"></div></p>');
-    $("#colorPicker").farbtastic("#note_color");
-    $("#colorDialog").dialog({
-      width: 230,
-      height: 350,
-      position: [thisnote.x, thisnote.y],
-      modal: true,
-      title: thisnote.name+" (Choosing background color)",
-      buttons: {
-        "Cancel": function(){
-          $(this).dialog("destroy").remove();
-        },
-        "Save": function(){
-          var newColor = $("#note_color").val();
-          // WARNING! NO INPUT VALIDATION!
-          thisnote.color = newColor;
-          thisnote.update();
-          $.ajax({
-            url: "/notes/update_color/"+thisnote.id,
-            data: { "newColor" : newColor },
-            dataType: "html",
-            success: function(data){
-              // :)
-            }
-          });
-          $(this).dialog("destroy").remove(); // Don't edit lightly :)
-        }
-      }
-    });
-  });
-*/
