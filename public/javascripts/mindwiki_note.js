@@ -112,7 +112,7 @@ Note.prototype.createEdge = function() {
 }
 
 // Delete note.
-Note.prototype.delete = function() {
+Note.prototype.remove = function() {
   var thisnote = this;
   this.deleteDivFromDom();
   $.ajax({
@@ -318,7 +318,7 @@ Note.prototype.redraw = function() {
 
   // delete button
   $(deleteButton).addClass("noteDeleteButton");
-  $(deleteButton).click(function () { thisnote.delete(); });
+  $(deleteButton).click(function () { thisnote.remove(); });
   $(buttonsDiv).append(deleteButton);
   
 

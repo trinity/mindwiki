@@ -34,7 +34,7 @@ $(document).ready(function(){
   var id_from_pathname = new RegExp(/\d+/).exec(location.pathname);
   graph_id = parseInt(id_from_pathname[0]); // RegExp.exec puts matches into an array
   $.ajax({
-    url: "/graphs/get_color/"+graph_id,        
+    url: "/graphs/get_color/" + graph_id + ".xml",        
     success: function(data){
       $("#vport").css({"backgroundColor" : data});
     }
@@ -130,7 +130,7 @@ function loadAllNotes() {
 
   // get ids
   $.ajax({
-    url: "/graphs/get_note_ids/"+graph_id,
+    url: "/graphs/get_note_ids/" + graph_id + ".xml",
     dataType: "xml",
     success: function(data){
       $("note",data).each(function(i) {
@@ -174,7 +174,7 @@ function loadAllNotes() {
 
 function loadNote(noteId) {
   $.ajax({
-    url: "/notes/show/"+noteId,
+    url: "/notes/show/" + noteId + ".xml",
     dataType: "xml",
     success: function(data){
 //      if(data != null && data != "" && data != "\n" && data != "E" && data != "E\n") {
@@ -244,7 +244,7 @@ function loadEdge(edgeId) {
     tmp = new Edge();
 
   $.ajax({
-    url: "/edges/show/"+edgeId,
+    url: "/edges/show/" + edgeId + ".xml",
     dataType: "xml",
     success: function(data){
       if(data != null && data != "" && data != "\n" && data != "E" && data != "E\n") {
