@@ -172,6 +172,7 @@ Note.prototype.redraw = function() {
 
   $(this.div).addClass("note").css({
     "backgroundColor" : this.color, // doesn't really show -> bars and content overwrite
+    "position" : "absolute",
     "top" : this.y+"px",
     "left" : this.x+"px",
     "width" : this.width+"px",
