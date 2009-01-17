@@ -27,7 +27,13 @@ Edge.prototype.setStartNote = function (note)
 
 Edge.prototype.setEndNote = function (note) 
 {
-  this.endNote = note;
+  if (note == this.startNote) {
+  	globalStartNote = null;
+  	globalEndNote = null;
+  	this.startNote = null;
+  }
+  else 
+  	this.endNote = note;
 }
 
 Edge.prototype.update = function (doNotRedraw)
@@ -128,6 +134,7 @@ Edge.prototype.drawUpdateOnly = function ()
   this.canvasPath2.path[2].arg = [xRight,yRight];
   
   this.canvasPath2.redraw();
+  
 };
 
 Edge.prototype.newID = function() {
