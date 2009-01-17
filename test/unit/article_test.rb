@@ -9,6 +9,15 @@ class ArticleTest < ActiveSupport::TestCase
       assert art.save
     end
   end
+
+  test "Deletion" do
+    assert_difference "Article.count", -1 do
+      assert_difference "Note.count", -1 do # Deleting the article also deletes the associated notes
+        art = Article.find(articles(:ruby_art).id)
+        art.destroy
+      end
+    end
+  end
   
   test "Content validation" do
     art = Article.find(articles(:ruby_art).id)

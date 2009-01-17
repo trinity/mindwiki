@@ -1,12 +1,12 @@
 class Note < ActiveRecord::Base
 
-  belongs_to :article
+  belongs_to :article #, :dependent => :destroy # does not work yet. Rails ticket 1079. Workaround method for now.
   belongs_to :graph
   validates_presence_of :graph
   
-  has_many :edges_to, :foreign_key => "source_id", :class_name => "Edge"
-  has_many :edges_from, :foreign_key => "target_id", :class_name => "Edge"
-  
+  # Edges don't depend on other objects, so :delete_all is safe. (Faster than :destroy)
+  has_many :edges_to, :foreign_key => "source_id", :class_name => "Edge", :dependent => :delete_all
+  has_many :edges_from, :foreign_key => "target_id", :class_name => "Edge", :dependent => :delete_all
 
   validates_presence_of :name
   # No checking of "traditionally sane" x/y values, cause after viewport integration these
@@ -19,6 +19,20 @@ class Note < ActiveRecord::Base
   def validate
     validate_color('color')
     validate_text('name')
+  end
+  
+  #belongs_to :dependent => :destroy does not work yet. Rails ticket 1079. Workaround method for now.
+  def after_destroy
+    # Check to see if other notes still reference the article. If not, the destroy the article, too.
+    if self.article.nil?
+      return
+    end
+    if !Note.find(:first, :conditions => {:article_id => self.article_id})
+      art = Article.find(self.article_id)
+      if !art.nil?
+        art.destroy
+      end
+    end
   end
                                                      
 end

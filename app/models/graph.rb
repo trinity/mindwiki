@@ -1,5 +1,5 @@
 class Graph < ActiveRecord::Base
-  has_many :notes
+  has_many :notes, :dependent => :destroy
   belongs_to :user
   validates_presence_of :user
   

@@ -1,7 +1,7 @@
 require 'test_helper'
 
 class GraphTest < ActiveSupport::TestCase
-  fixtures :graphs, :users
+  fixtures :graphs, :notes, :edges, :users
 
   test "Creation" do
     assert_difference "Graph.count" do
@@ -21,6 +21,20 @@ class GraphTest < ActiveSupport::TestCase
       
       # no more requirements
       assert graph.save
+    end
+  end
+
+  test "Destroy cascading" do
+    # Test fixture Ruby-graph has four notes/articles and three edges. They should get deleted, too.
+    assert_difference "Graph.count", -1 do
+      assert_difference "Note.count", -4 do
+        assert_difference "Article.count", -4 do
+          assert_difference "Edge.count", -3 do
+            graph = Graph.find(graphs(:ruby_graph).id)
+            assert graph.destroy
+          end
+        end
+      end
     end
   end
 

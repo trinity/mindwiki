@@ -1,5 +1,5 @@
 class Article < ActiveRecord::Base
-  has_many :notes
+  has_many :notes, :dependent => :destroy
   
   validates_numericality_of :content_type, :only_integer => true
   

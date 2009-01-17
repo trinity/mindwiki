@@ -1,15 +1,4 @@
-<%= javascript_include_tag :mindwiki_graph %>
-<!--<%= stylesheet_link_tag :mindwiki_graph %>-->
-<div class="graphmenu_container">
-  <table class="graphmenu">
-    <td><b>Graph name: </b><%= @graph.name %></td>
-    <td><b> Functionality: </b><%= link_to 'Back to graph list', graphs_path %></td>
-    <td><b> Help: </b>Double click the window app to create a note. Double click on the content to edit (Just below the content text. Click-area still vague.)</td>
-  </table>
-</div>
-
 <div class="mindwiki_viewport" id="vport">
-<!-- Hope you have JavaScript enabled :) -->
 </div>
 <div class="context_help">
 <a id="context_help"> <b>context help</b> </a>
