@@ -3,13 +3,17 @@
 // Constructor
 function Edge ()
 {
-  this.id;
+  this.id = -1;
   this.startNote = null;
   this.endNote = null;
   this.x1 = 0;
   this.y1 = 0;
   this.x2 = 0;
   this.y2 = 0;
+  this.xLeft = 0;
+  this.yLeft = 0;
+  this.xRight = 0;
+  this.yRight = 0;
   this.angle = 0; // direction from startnote to endnote in radians.
   this.color = "#000000";
   this.title = "";
@@ -18,6 +22,7 @@ function Edge ()
   this.rCanvas = null;  // Raphael canvas
   this.canvasPath = null; // Raphael canvas.path
   this.canvasPath2 = null;
+  this.arrowSize = 10;
 }
 
 Edge.prototype.setStartNote = function (note) 
@@ -36,16 +41,9 @@ Edge.prototype.setEndNote = function (note)
   	this.endNote = note;
 }
 
-Edge.prototype.update = function (doNotRedraw)
-{
-  doNotRedraw = doNotRedraw || false; // defaults to false
-
-  if (this.startNote == null || this.endNote == null)
-  {
-    alert("Trying to draw an edge, which has a null note!");
-    return;
-  }
-
+// This updates edge position and angle based on values of the notes.
+// Used before updating or drawing the edge with Raphael.
+Edge.prototype.update = function(){
   var sx = this.startNote.x + this.startNote.width / 2;
   var sy = this.startNote.y + this.startNote.height / 2;
   var ex = this.endNote.x + this.endNote.width / 2;
@@ -55,7 +53,7 @@ Edge.prototype.update = function (doNotRedraw)
   // as negative to use standard 2D algebra.
   var negsy = -sy;
   var negey = -ey;
-	var a = getAngle(sx, negsy, ex, negey);
+  var a = getAngle(sx, negsy, ex, negey);
   this.angle = a;
   
   var result = new Array();
@@ -63,7 +61,6 @@ Edge.prototype.update = function (doNotRedraw)
   rectangleIntersection(sx, negsy, this.startNote.width, this.startNote.height, a, result);
   this.x1 = result[0];
   this.y1 = -result[1];
-  
 
   // change direction. 
   a += Math.PI;
@@ -75,21 +72,8 @@ Edge.prototype.update = function (doNotRedraw)
   rectangleIntersection(ex, negey, this.endNote.width, this.endNote.height, a, result);
   this.x2 = result[0];
   this.y2 = -result[1];
-  
-  if(doNotRedraw)
-    this.drawUpdateOnly();
-  else
-    this.draw();
 
-};
-
-Edge.prototype.draw = function () 
-{
-  this.canvasPath = this.rCanvas.path({stroke: this.color}).absolutely().moveTo(this.x1,this.y1).lineTo(this.x2,this.y2);
-	
-  var arrowSize = 10;
-	
-  // vievport doesn't have standard coordinate system. that's why we count each y-coordinate
+  // Viewport doesn't have standard coordinate system. That is why we count each y-coordinate
   // as negative to use standard 2D algebra.
   var negy1 = -this.y1;
   var negy2 = -this.y2;
@@ -97,46 +81,54 @@ Edge.prototype.draw = function ()
   // compute the other two points of the arrow tip
   var aLeft = this.angle - 0.85 * Math.PI;
   var aRight = this.angle + 0.85 * Math.PI;
-  var xLeft = this.x2 + arrowSize * Math.cos(aLeft);
-  var yLeft = -(negy2 + arrowSize * Math.sin(aLeft));
-  var xRight = this.x2 + arrowSize * Math.cos(aRight);
-  var yRight = -(negy2 + arrowSize * Math.sin(aRight));
-	
-  this.canvasPath2 = this.rCanvas.path({stroke: this.color, fill: this.color}).absolutely().moveTo(this.x2,this.y2).lineTo(xLeft,yLeft).lineTo(xRight,yRight).andClose();
-};
+  this.xLeft = this.x2 + this.arrowSize * Math.cos(aLeft);
+  this.yLeft = -(negy2 + this.arrowSize * Math.sin(aLeft));
+  this.xRight = this.x2 + this.arrowSize * Math.cos(aRight);
+  this.yRight = -(negy2 + this.arrowSize * Math.sin(aRight));
+}
 
-// THIS IS COPYPASTED FROM draw(). SORRY!. FIX LATER!
-Edge.prototype.drawUpdateOnly = function () 
+Edge.prototype.redraw = function()
 {
-  //this.canvasPath = this.rCanvas.path({stroke: this.color}).absolutely().moveTo(this.x1,this.y1).lineTo(this.x2,this.y2);
+  if (this.startNote == null || this.endNote == null)
+  {
+    alert("Trying to draw an edge, which has a null note!");
+    return;
+  }
+
+  this.update();
+
   this.canvasPath.path[0].arg = [this.x1,this.y1];
   this.canvasPath.path[1].arg = [this.x2,this.y2];
   this.canvasPath.redraw();
-	
-  var arrowSize = 10;
-	
-  // vievport doesn't have standard coordinate system. that's why we count each y-coordinate
-  // as negative to use standard 2D algebra.
-  var negy1 = -this.y1;
-  var negy2 = -this.y2;
-	
-  // compute the other two points of the arrow tip
-  var aLeft = this.angle - 0.85 * Math.PI;
-  var aRight = this.angle + 0.85 * Math.PI;
-  var xLeft = this.x2 + arrowSize * Math.cos(aLeft);
-  var yLeft = -(negy2 + arrowSize * Math.sin(aLeft));
-  var xRight = this.x2 + arrowSize * Math.cos(aRight);
-  var yRight = -(negy2 + arrowSize * Math.sin(aRight));
-	
-  //this.canvasPath2 = this.rCanvas.path({stroke: this.color, fill: this.color}).absolutely().moveTo(this.x2,this.y2).lineTo(xLeft,yLeft).lineTo(xRight,yRight).andClose();
+
   this.canvasPath2.path[0].arg = [this.x2,this.y2];
-  this.canvasPath2.path[1].arg = [xLeft,yLeft];
-  this.canvasPath2.path[2].arg = [xRight,yRight];
-  
+  this.canvasPath2.path[1].arg = [this.xLeft,this.yLeft];
+  this.canvasPath2.path[2].arg = [this.xRight,this.yRight];
   this.canvasPath2.redraw();
-  
 };
 
+// "Undraws" the edge.
+Edge.prototype.undraw = function()
+{
+  // Notify the graph object
+  graph.disconnectEdge(this.id);
+
+  this.canvasPath.path = "";
+  this.canvasPath.redraw();
+
+  this.canvasPath2.path = "";
+  this.canvasPath2.redraw();
+}
+
+Edge.prototype.draw = function () 
+{
+  this.update();
+
+  this.canvasPath = this.rCanvas.path({stroke: this.color}).absolutely().moveTo(this.x1,this.y1).lineTo(this.x2,this.y2);
+  this.canvasPath2 = this.rCanvas.path({stroke: this.color, fill: this.color}).absolutely().moveTo(this.x2,this.y2).lineTo(this.xLeft,this.yLeft).lineTo(this.xRight,this.yRight).andClose();
+};
+
+// Sends a newly created edge to server, and gets a database id in return.
 Edge.prototype.newID = function() {
   var thisedge = this;
   $.ajax({

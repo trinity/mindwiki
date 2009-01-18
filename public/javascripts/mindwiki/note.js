@@ -43,7 +43,7 @@ Note.prototype.update = function() {
     // Update this to have seleced appearance
     $(this.div).addClass("noteSelected").find(".noteButtonRow").show();
     graph.runningZ++;
-    $(this.div).css({"zIndex":graph.runningZ}); // Maybe put selected on top? as in zIndex == hiiigh
+    $(this.div).css({"zIndex":graph.runningZ}); // Bring selected to front. This is a temporary solution.
 
   } else {
     $(this.div).removeClass("noteSelected").find(".noteButtonRow").hide();
@@ -103,15 +103,35 @@ Note.prototype.updateSize = function() {
   });
 }
 
-// Sends the new edge info to the server
-Note.prototype.createEdge = function() {
-  var thisnote = this;
-}
-
 // Delete note.
 Note.prototype.remove = function() {
   var thisnote = this;
+
+  // First hide/delete edges and the note from client viewing:
+  // FIXME: Delete edges from edgesTo and edgesFrom -arrays too!
+  //        (from thisnote and the other note)
+  if(this.edgesTo != null){
+    for(var i=0;i<this.edgesTo.length;i++){
+      // Disassociate from the other note
+      this.edgesTo[i].startNote.disconnectEdgeFromById(this.edgesTo[i].id);
+      // Hide the edge
+      this.edgesTo[i].undraw();
+    }
+  }
+  if(this.edgesFrom != null){
+    for(var i=0;i<this.edgesFrom.length;i++){
+      // Disassociate from the other note
+      this.edgesFrom[i].endNote.disconnectEdgeToById(this.edgesFrom[i].id);
+      // Hide the edge
+      this.edgesFrom[i].undraw();
+    }
+  }
   this.deleteDivFromDom();
+
+  // Notify the graph object
+  graph.disconnectNote(this.id);
+
+  // Notify the server
   $.ajax({
     url: "/notes/destroy/"+thisnote.id,
     error: function(a,b,c){
@@ -119,6 +139,30 @@ Note.prototype.remove = function() {
     }
   });
   delete this;
+}
+
+// Removes an edge from container.
+// Used by disconnectEdge[From|To]ById
+Note.prototype.removeEdge = function(container, edgeId){
+  var l = container.length;
+  var delIndex = -1;
+  for(var i=0;i<l;i++){
+    if(container[i].id == edgeId){
+      delIndex = i;
+      break;
+    }
+  }
+  if(delIndex >= 0){
+    container.splice(delIndex,1);
+  }
+}
+
+Note.prototype.disconnectEdgeFromById = function(edgeId){
+  this.removeEdge(this.edgesFrom, edgeId);
+}
+
+Note.prototype.disconnectEdgeToById = function(edgeId){
+  this.removeEdge(this.edgesTo, edgeId);
 }
 
 // Just remove the div of the note from the DOM-tree. 
@@ -197,11 +241,11 @@ Note.prototype.redraw = function() {
       // let's update the related edges:
       var l = thisnote.edgesTo.length;
       for(var i=0;i<l;i++){
-        thisnote.edgesTo[i].update(true);
+        thisnote.edgesTo[i].redraw();
       }
       l = thisnote.edgesFrom.length;
       for(var i=0;i<l;i++){
-        thisnote.edgesFrom[i].update(true);
+        thisnote.edgesFrom[i].redraw();
       }
     }
   })
@@ -221,11 +265,11 @@ Note.prototype.redraw = function() {
       // let's update the related edges:
       var l = thisnote.edgesTo.length;
       for(var i=0;i<l;i++){
-        thisnote.edgesTo[i].update(true);
+        thisnote.edgesTo[i].redraw();
       }
       l = thisnote.edgesFrom.length;
       for(var i=0;i<l;i++){
-        thisnote.edgesFrom[i].update(true);
+        thisnote.edgesFrom[i].redraw();
       }
       
     }
@@ -237,7 +281,7 @@ Note.prototype.redraw = function() {
     // Are we in the edge creation mode?
     if (graph.globalStartNote != null)
     {
-      // create edge. no selection.
+      // Create edge. No selection.
       var tmpEdge = new Edge();
       tmpEdge.rCanvas = graph.rc;
       tmpEdge.setStartNote(graph.globalStartNote);
@@ -246,7 +290,7 @@ Note.prototype.redraw = function() {
       //add the edge to notes for updating
       graph.globalStartNote.edgesFrom.push(tmpEdge);
       thisnote.edgesTo.push(tmpEdge);
-      tmpEdge.update(); // draws clientside
+      tmpEdge.draw(); // draws clientside
       graph.globalStartNote = null; // ready for a new edge to be created
     }
     // Normal note selection (not in the edge creation mode)

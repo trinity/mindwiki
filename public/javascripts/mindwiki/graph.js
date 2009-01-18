@@ -149,7 +149,6 @@ Graph.prototype.loadNote = function(noteId) {
           tmp.width = parseInt($(this).find("width:first").text());
           tmp.height = parseInt($(this).find("height:first").text());
           tmp.color = $(this).find("color:first").text();
-          //tmp.div = null; // redraw creates div
 
           $("article",this).each(function(j){ // There's really only one :)
             tmp.content = $(this).find("content_rendered:first").text();
@@ -210,7 +209,7 @@ Graph.prototype.loadEdge = function(edgeId) {
           startNote.edgesFrom.push(tmp);
           endNote.edgesTo.push(tmp);
 
-          tmp.update();
+          tmp.draw();
           thisgraph.edges.push(tmp);
         });
       }
@@ -221,3 +220,29 @@ Graph.prototype.loadEdge = function(edgeId) {
 
   });
 }
+
+// Helper function to remove objects from arrays (notes and edges).
+Graph.prototype.removeFromArray = function(arr, objId){
+  var l = arr.length;
+  var delIndex = -1;   
+  for(var i=0;i<l;i++){
+    if(arr[i].id == objId){
+      delIndex = i;
+      break;
+    }
+  }
+  if(delIndex >= 0){
+    arr.splice(delIndex,1);
+  }
+}
+
+Graph.prototype.disconnectEdge = function(edgeId){
+  this.removeFromArray(this.edges,edgeId);
+}
+
+Graph.prototype.disconnectNote = function(noteId){
+  this.removeFromArray(this.notes,noteId);
+}
+
+
+
