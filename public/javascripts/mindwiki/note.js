@@ -1,8 +1,5 @@
 // This file defines the MindWiki note objects
 
-var globalStartNote; // used when creating new edges
-var runningZ = 10; // used for z-index = "top"
-
 // Note is the "class" for all notes.
 function Note() {
   this.id;
@@ -35,18 +32,18 @@ Note.prototype.update = function() {
   // Multiselection is not implemented, yet!
   if(this.selected){
     // last note exists and isn't this one -> deselect it
-    if(last_selected_note != null && last_selected_note != this){
-      last_selected_note.selected = false;
-      last_selected_note.update();
-      last_selected_note = this;
+    if(graph.last_selected_note != null && graph.last_selected_note != this){
+      graph.last_selected_note.selected = false;
+      graph.last_selected_note.update();
+      graph.last_selected_note = this;
     }
 
-    last_selected_note = this;
+    graph.last_selected_note = this;
 
     // Update this to have seleced appearance
     $(this.div).addClass("noteSelected").find(".noteButtonRow").show();
-    runningZ++;
-    $(this.div).css({"zIndex":runningZ}); // Maybe put selected on top? as in zIndex == hiiigh
+    graph.runningZ++;
+    $(this.div).css({"zIndex":graph.runningZ}); // Maybe put selected on top? as in zIndex == hiiigh
 
   } else {
     $(this.div).removeClass("noteSelected").find(".noteButtonRow").hide();
@@ -139,7 +136,7 @@ Note.prototype.newID = function() {
     url: "/notes/create",
     type: "POST",
     data: {
-      "graph_id" : graph_id,
+      "graph_id" : graph.id,
       "note[name]" : thisnote.name,    
       "note[color]" : thisnote.color,             
       "note[x]" : thisnote.x,                        
@@ -238,19 +235,19 @@ Note.prototype.redraw = function() {
   $(this.div).mousedown( function()
   {
     // Are we in the edge creation mode?
-    if (globalStartNote != null)
+    if (graph.globalStartNote != null)
     {
       // create edge. no selection.
       var tmpEdge = new Edge();
-      tmpEdge.rCanvas = rc;
-      tmpEdge.setStartNote(globalStartNote);
+      tmpEdge.rCanvas = graph.rc;
+      tmpEdge.setStartNote(graph.globalStartNote);
       tmpEdge.setEndNote(thisnote);
       tmpEdge.newID(); // notifies server
       //add the edge to notes for updating
-      globalStartNote.edgesFrom.push(tmpEdge);
+      graph.globalStartNote.edgesFrom.push(tmpEdge);
       thisnote.edgesTo.push(tmpEdge);
       tmpEdge.update(); // draws clientside
-      globalStartNote = null; // ready for a new edge to be created
+      graph.globalStartNote = null; // ready for a new edge to be created
     }
     // Normal note selection (not in the edge creation mode)
     else
@@ -285,7 +282,7 @@ Note.prototype.redraw = function() {
   // arrow button
   $(arrowButton).addClass("noteArrowButton");
   $(arrowButton).click(function () {
-    globalStartNote = thisnote;
+    graph.globalStartNote = thisnote;
   });
   $(buttonsDiv).append(arrowButton);
 	

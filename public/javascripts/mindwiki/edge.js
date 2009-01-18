@@ -28,8 +28,8 @@ Edge.prototype.setStartNote = function (note)
 Edge.prototype.setEndNote = function (note) 
 {
   if (note == this.startNote) {
-  	globalStartNote = null;
-  	globalEndNote = null;
+  	graph.globalStartNote = null;
+  	// Does not exist: graph.globalEndNote = null;
   	this.startNote = null;
   }
   else 

@@ -1,44 +1,37 @@
 // This file defines the MindWiki graph viewing and editing client
 
-// Global baaad?
-var graph_id;
-var last_selected_note = null;
-var rc; // raphael canvas
-
-// Maybe more sophisticated containers?!
-var notes = [];
-var edges = [];
-
-function getNoteById(id){
-  var l = notes.length;
-  for(var i=0;i<l;i++){
-    if(notes[i].id == id)
-      return notes[i];
-  }
-  return null;
-}
-
-function getEdgeById(id){
-  var l = edges.length;
-  for(var i=0;i<l;i++){
-    if(edges[i].id == id)
-      return edges[i];
-  }
-  return null;
-}
-
 $(document).ready(function(){
+  var graphs = /\/graphs\/\d+/; // regexp to identify pathnames that should have mindwiki graphs
+  if(graphs.exec(document.location.pathname)){
+    graph = new Graph(); // graph is now global.
+  }
+});
+
+function Graph() {
+  this.id = -1;
+  this.last_selected_note = null;
+  this.rc = Raphael("vport", 9999, 9999);; // Raphael canvas, FIXME: static size
+  this.color = "#dddddd";
+
+  this.globalStartNote = null; // Used when creating new edges
+  this.runningZ = 10; // Used for z-index = "top". Will be replaced with specific z-order handling soon.
+
+  // Maybe more sophisticated containers?!
+  this.notes = [];
+  this.edges = [];
+
+  var thisgraph = this; // To be used in submethods
 
   // Load graph ID from the path variable.
   // Is ID the only numerical data in the path? Currently, yeah. Maybe sharpen up the regexp, still.
   var id_from_pathname = new RegExp(/\d+/).exec(location.pathname);
-  graph_id = parseInt(id_from_pathname[0]); // RegExp.exec puts matches into an array
+  this.id = parseInt(id_from_pathname[0]); // RegExp.exec puts matches into an array
   $.ajax({
-    url: "/graphs/get_color/" + graph_id,        
+    url: "/graphs/get_color/" + thisgraph.id,        
     success: function(data){
+      thisgraph.color = data;
       $("#vport").css({"backgroundColor" : data});
     }
-    // Fail silently, backgroundcolor isn't important :)
   });
 
   // NEW NOTE creation by double clicking in the viewport
@@ -91,30 +84,44 @@ $(document).ready(function(){
     event.stopPropagation();
   });
 
-  loadAllNotes();
+  this.loadAllNotes();
 
   // Stop events in class stop_propagation
   // Used for youtube-videos, for instance..
   $(".stop_propagation").livequery("mousedown", function(e){
     e.stopPropagation();
   });
+}
 
-  // global canvas used for all drawing
-  rc = Raphael("vport", 9999, 9999);  
+Graph.prototype.getNoteById = function(id){
+  var l = this.notes.length;
+  for(var i=0;i<l;i++){
+    if(this.notes[i].id == id)
+      return this.notes[i];
+  }
+  return null;
+}
 
-});
+Graph.prototype.getEdgeById = function(id){
+  var l = this.edges.length;
+  for(var i=0;i<l;i++){
+    if(this.edges[i].id == id)
+      return this.edges[i];
+  }
+  return null;
+}
+
 
 // Loads all notes from the database
-function loadAllNotes() {
-
+Graph.prototype.loadAllNotes = function() {
+  var thisgraph = this; // To be used in submethods
   // get ids
   $.ajax({
-    url: "/graphs/get_note_ids/" + graph_id + ".xml",
+    url: "/graphs/get_note_ids/" + thisgraph.id,
     dataType: "xml",
     success: function(data){
       $("note",data).each(function(i) {
-        // JAVASCRIPT IS NOT THREADED?! WTF?! SLOOOOW!
-        loadNote(parseInt($(this).find("id").text()));
+        thisgraph.loadNote(parseInt($(this).find("id").text()));
       });
     },
     error: function(a,b,c){
@@ -123,9 +130,10 @@ function loadAllNotes() {
   });
 };
 
-function loadNote(noteId) {
+Graph.prototype.loadNote = function(noteId) {
+  var thisgraph = this; // To be used in submethods
   $.ajax({
-    url: "/notes/show/" + noteId + ".xml",
+    url: "/notes/show/" + noteId,
     dataType: "xml",
     success: function(data){
         var edgeIds = [];
@@ -158,13 +166,13 @@ function loadNote(noteId) {
             }
           });
 
-          notes.push(tmp);
+          thisgraph.notes.push(tmp);
           tmp.redraw();
         });
 
         // load the edges
         jQuery.each(edgeIds, function(){
-          loadEdge(this);
+          thisgraph.loadEdge(this);
         });
     },
     error: function(a,b,c){
@@ -175,25 +183,26 @@ function loadNote(noteId) {
 
 
 
-function loadEdge(edgeId) {
+Graph.prototype.loadEdge = function(edgeId) {
+  var thisgraph = this; // To be used in submethods
 
   var tmp = null;
   tmp = new Edge();
 
   $.ajax({
-    url: "/edges/show/" + edgeId + ".xml",
+    url: "/edges/show/" + edgeId,
     dataType: "xml",
     success: function(data){
       if(data != null && data != "" && data != "\n" && data != "E" && data != "E\n") {
         $("edge",data).each(function(i) {
-          tmp.rCanvas = rc; // maybe somewhere else
+          tmp.rCanvas = thisgraph.rc; // maybe somewhere else
           tmp.id = parseInt($(this).find("id").text());
           tmp.title = $(this).find("name").text();
           tmp.color = $(this).find("color").text();
           tmp.directed = true; // TODO!! $(this).find("content").text();
 
-          var startNote = getNoteById(parseInt($(this).find("source-id").text()));
-          var endNote = getNoteById(parseInt($(this).find("target-id").text()));
+          var startNote = thisgraph.getNoteById(parseInt($(this).find("source-id").text()));
+          var endNote = thisgraph.getNoteById(parseInt($(this).find("target-id").text()));
           tmp.setStartNote(startNote); // Yikes for not checking!
           tmp.setEndNote(endNote);
 
@@ -202,7 +211,7 @@ function loadEdge(edgeId) {
           endNote.edgesTo.push(tmp);
 
           tmp.update();
-          edges.push(tmp);
+          thisgraph.edges.push(tmp);
         });
       }
     },
