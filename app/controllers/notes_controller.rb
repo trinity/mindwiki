@@ -12,10 +12,8 @@ class NotesController < ApplicationController
   # POST /notes
   # POST /notes.xml
   def create
-    # This makes all new notes have the same article...
     @article = Article.create(:content => params[:article_content])
-    @article.content_type = 1 # Lame, yeah.
-    @graph = Graph.find(params[:graph_id])
+    @graph = Graph.find(params[:graph_id], :select => "id", :readonly => true)
     @note = Note.new(params[:note])
     @note.article = @article
     @note.graph = @graph
@@ -60,10 +58,11 @@ class NotesController < ApplicationController
   
   # Updates note content and return a RedCloth rendering for javascript usage.
   def update_content
-    @note = Note.find(params[:id])
+    @note = Note.find(params[:id], :select => "article_id")
 
     respond_to do |format|
       if @note.article.update_attribute(:content, params[:newContent])
+        # Technically html :)
         format.text { render :text => RedCloth.new(white_list(@note.article.content),[:filter_styles]).to_html(:textile, :youtube) }
       else
         format.text { render :text => "<p>Content update error.</p>" }

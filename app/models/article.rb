@@ -1,6 +1,7 @@
 class Article < ActiveRecord::Base
   has_many :notes, :dependent => :destroy
   
+  default_value_for :content_type, 1
   validates_numericality_of :content_type, :only_integer => true
   
   def validate

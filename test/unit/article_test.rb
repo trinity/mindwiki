@@ -8,6 +8,11 @@ class ArticleTest < ActiveSupport::TestCase
       art = Article.new({:content => "Hello!", :content_type => 1})
       assert art.save
     end
+    assert_difference "Article.count" do
+      art2 = Article.new({:content => "Hi"})
+      assert art2.save # Should save without content_type
+      assert_equal 1, art2.content_type # Model should default content_type to 1
+    end
   end
 
   test "Deletion" do

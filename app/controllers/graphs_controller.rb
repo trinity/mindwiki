@@ -2,7 +2,7 @@ class GraphsController < ApplicationController
   # GET /graphs
   # GET /graphs.xml
   def index
-    @graphs = Graph.find(:all)
+    @graphs = Graph.find(:all, :readonly => true)
 
     respond_to do |format|
       format.html # index.html.erb
@@ -74,7 +74,7 @@ class GraphsController < ApplicationController
   # DELETE /graphs/1
   # DELETE /graphs/1.xml
   def destroy
-    @graph = Graph.find(params[:id])
+    @graph = Graph.find(params[:id], :select => "id")
     @graph.destroy
 
     respond_to do |format|
@@ -83,14 +83,10 @@ class GraphsController < ApplicationController
     end
   end
   
-  def sync_from_db
-    @graph = Graph.find(params[:id])
-    @graphnotes = @graph.notes;
-  end
-
   # Renders note IDs
   def get_note_ids
-    sync_from_db()
+    @graph = Graph.find(params[:id],:select => "id")
+    @graphnotes = @graph.notes; # FIXME: Fetches more than ids from the db
 
     respond_to do |format|
       format.xml { render :xml => @graphnotes.to_xml(:only => [:id]) }
@@ -100,7 +96,10 @@ class GraphsController < ApplicationController
   # Returns the color for the graph
   def get_color
     respond_to do |format|
-      if @graph = Graph.find(params[:id])
+      if params[:id].nil?
+        format.text { render :text => "#dddddd" }
+      end
+      if @graph = Graph.find(params[:id], :select => "color", :readonly => true)
         format.text { render :text => @graph.color }
       else
         format.text { render :text => "#dddddd" }
