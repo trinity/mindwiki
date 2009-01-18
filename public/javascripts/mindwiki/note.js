@@ -2,8 +2,7 @@
 
 // Note is the "class" for all notes.
 function Note() {
-  this.id;
-  // default values for new notes
+  this.id = -1;
   this.name = "New note";
   this.x = 1;
   this.y = 1;
@@ -19,9 +18,9 @@ function Note() {
   this.selected = false;
 
   // These make updating easier
-  this.div;
-  this.articleDiv; 
-  this.titleTD;
+  this.div = null;
+  this.articleDiv = null; 
+  this.titleTD = null;
 }
 
 // Update the note on the screen to reflect the note object.
@@ -108,8 +107,6 @@ Note.prototype.remove = function() {
   var thisnote = this;
 
   // First hide/delete edges and the note from client viewing:
-  // FIXME: Delete edges from edgesTo and edgesFrom -arrays too!
-  //        (from thisnote and the other note)
   if(this.edgesTo != null){
     for(var i=0;i<this.edgesTo.length;i++){
       // Disassociate from the other note
@@ -450,7 +447,7 @@ Note.prototype.redraw = function() {
  	
 
   // table
-  $(noteTable).addClass("noteTable").append(titleRow).append(buttonRow).append(articleRow); // changed order, JP 19.12.2008 :). Change back plz.
+  $(noteTable).addClass("noteTable").append(titleRow).append(buttonRow).append(articleRow);
   $(this.div).append(noteTable);
 
   $(buttonRow).hide();

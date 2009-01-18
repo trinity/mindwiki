@@ -33,12 +33,12 @@ Edge.prototype.setStartNote = function (note)
 Edge.prototype.setEndNote = function (note) 
 {
   if (note == this.startNote) {
-  	graph.globalStartNote = null;
-  	// Does not exist: graph.globalEndNote = null;
-  	this.startNote = null;
+    graph.globalStartNote = null;
+    // Does not exist: graph.globalEndNote = null;
+    this.startNote = null;
   }
   else 
-  	this.endNote = note;
+    this.endNote = note;
 }
 
 // This updates edge position and angle based on values of the notes.
