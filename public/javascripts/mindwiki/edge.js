@@ -105,7 +105,7 @@ Edge.prototype.redraw = function()
   this.canvasPath2.path[1].arg = [this.xLeft,this.yLeft];
   this.canvasPath2.path[2].arg = [this.xRight,this.yRight];
   this.canvasPath2.redraw();
-};
+}
 
 // "Undraws" the edge.
 Edge.prototype.undraw = function()
@@ -126,7 +126,72 @@ Edge.prototype.draw = function ()
 
   this.canvasPath = this.rCanvas.path({stroke: this.color}).absolutely().moveTo(this.x1,this.y1).lineTo(this.x2,this.y2);
   this.canvasPath2 = this.rCanvas.path({stroke: this.color, fill: this.color}).absolutely().moveTo(this.x2,this.y2).lineTo(this.xLeft,this.yLeft).lineTo(this.xRight,this.yRight).andClose();
-};
+}
+
+// Checks if the given coordinates (x,y) are "close" to edge. The close means in
+// this case that we draw a rectangle arourd the edge and then add the given margin
+// to it. If (x,y) is inside the rectangle, then (x,y) is close to the edge.
+Edge.prototype.isClose = function (x,y,margin) 
+{
+  // is x too far left from the edge
+  if ((x+margin) < this.x1 && (x+margin) < this.x2)
+  {
+    return false;
+  }
+  // is x too far right from the edge
+  if (x-margin > this.x1 && x-margin > this.x2)
+  {
+    return false;
+  }
+  // is y too far above the edge. note: raster oriented coordinates (origin at top left corner)
+  if (y+margin < this.y1 && y+margin < this.y2)
+  {
+    return false;
+  }
+  // is y too far below the edge. note: raster oriented coordinates (origin at top left corner)
+  if (y-margin > this.y1 && y-margin > this.y2)
+  {
+    return false;
+  }
+  // if we get here, then x,y is inside the rectangle
+  return true;
+}
+
+
+Edge.prototype.isHit = function (x,y,margin) 
+{
+  // check first if we are even close
+  if (!this.isClose(x,y,margin))
+  {
+    return false;
+  }
+  
+  var edgeLength = distance(this.x1, this.y1, this.x2, this.y2);
+  if (edgeLength < 1)
+  {
+    // the edge is actually a point.
+    return true;
+  }
+  // algorithm from: http://local.wasp.uwa.edu.au/~pbourke/geometry/pointline/ (18.1.2009)
+  var u = (x-this.x1)*(this.x2-this.x1) + (y-this.y1)*(this.y2-this.y1);
+  u = u / (edgeLength*edgeLength); // note: edgeLength >= 1
+
+  if (u < 0 || u > 1)
+  {
+    // closest point does not fall within the line segment
+    return false;
+  }
+  
+  var cx = this.x1 + u*(this.x2-this.x1);
+  var cy = this.y1 + u*(this.y2-this.y1);
+  
+  if (distance(x,y,cx,cy) > margin)
+  {
+    return false;
+  }
+  
+  return true;
+}
 
 // Sends a newly created edge to server, and gets a database id in return.
 Edge.prototype.newID = function() {
@@ -151,11 +216,11 @@ Edge.prototype.newID = function() {
       alert("Cannot create a new edge: "+a+b+c);
     }
   });
-};
+}
 
 function getAngle(x1, y1, x2, y2) 
 {
-  // returns the angle from point (x1,y1) to (x2,y2).
+  // returns the angle (0 <= angle < 2*pi) from point (x1,y1) to (x2,y2).
   // assumes standrad coordinate system
 	
   // let's handle main axis first
@@ -176,10 +241,14 @@ function getAngle(x1, y1, x2, y2)
     return 0;
   }
 
-  // other angles
   if (x1 > x2)
   {
     return Math.PI + Math.atan((y2-y1)/(x2-x1));
+  }
+  
+  if (y1 > y2)
+  {
+    return 2 * Math.PI + Math.atan((y2-y1)/(x2-x1));
   }
   return Math.atan((y2-y1)/(x2-x1));
 }
@@ -214,4 +283,12 @@ function rectangleIntersection(cx,cy,width,height,ang,result)
     result[0] = cx - (Math.cos(ang) / Math.sin(ang)) * height / 2
     result[1] = cy - height / 2;
   }
+}
+
+// calculates the euclidean distance between points (x1,y1) and (x2,y2).
+function distance(x1,y1,x2,y2)
+{
+  var dx = x2 - x1;
+  var dy = y2 - y1;
+  return Math.sqrt(dx*dx + dy*dy);
 }

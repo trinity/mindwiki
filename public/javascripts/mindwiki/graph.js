@@ -46,6 +46,24 @@ function Graph() {
     tmp.update();		
   });
 		
+  $("#vport").click( function(event){
+    var x = event.pageX - $(this).offset().left;
+    var y = event.pageY - $(this).offset().top;
+    var margin = 10;
+    
+    var l = thisgraph.edges.length;
+    for (var i=0;i<l;i++) 
+    {
+      if (thisgraph.edges[i].isHit(x,y,margin))
+      {
+        // TODO: handle edge click
+        alert("Edge clicked");
+      }
+    }
+    
+    //thisgraph.edgeClick(x,y,margin);
+  });
+		
   $(".note").livequery("dblclick", function(event){
     // this event should never fire...
     event.stopPropagation();
@@ -245,4 +263,17 @@ Graph.prototype.disconnectNote = function(noteId){
 }
 
 
+Graph.prototype.edgeClick = function(x,y,margin)
+{
+    var l = this.edges.length;
+    for (var i=0;i<l;i++) 
+    {
+      alert("graph: jep");
+
+      if (this.edges[i].isHit(x,y,margin))
+      {
+        // TODO: handle edge click
+      }
+    }
+}    
 

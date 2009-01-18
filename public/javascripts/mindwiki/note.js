@@ -289,6 +289,7 @@ Note.prototype.redraw = function() {
       thisnote.edgesTo.push(tmpEdge);
       tmpEdge.draw(); // draws clientside
       graph.globalStartNote = null; // ready for a new edge to be created
+      graph.edges.push(tmpEdge);
     }
     // Normal note selection (not in the edge creation mode)
     else
