@@ -379,7 +379,7 @@ Note.prototype.redraw = function() {
   thisnote.articleDiv = article; // for easier updating :)
 
   // launch editing:
-  $(article).dblclick(function() {
+  $(this.div).dblclick(function() {
     // This code might be a bit flakey, still. Using the same textbox-id for all notes absolutely requires
     // the calling of dialog("destroy").remove() to not cause some really annoyingly strange behaviour..
     // Maybe FIX someday?
