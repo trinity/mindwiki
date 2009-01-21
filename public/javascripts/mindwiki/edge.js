@@ -49,7 +49,7 @@ Edge.prototype.update = function(){
   var ex = this.endNote.x + this.endNote.width / 2;
   var ey = this.endNote.y + this.endNote.height / 2;
 
-  // vievport doesn't have standard coordinate system. that's why we count each y-coordinate
+  // viewport doesn't have standard coordinate system. that's why we count each y-coordinate
   // as negative to use standard 2D algebra.
   var negsy = -sy;
   var negey = -ey;

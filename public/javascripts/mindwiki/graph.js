@@ -10,7 +10,17 @@ $(document).ready(function(){
 function Graph() {
   this.id = -1;
   this.last_selected_note = null;
-  this.rc = Raphael("vport", 9999, 9999);; // Raphael canvas, FIXME: static size
+
+  // Viewport is a small window into the world.
+  this.world = document.createElement("div");
+  $(this.world).attr("id","mindwiki_world");
+  $("#vport").append(this.world);
+
+  this.rc_container = document.createElement("div");
+  $(this.rc_container).attr("id","rc_container");
+  $(this.world).append(this.rc_container);
+  
+  this.rc = Raphael("rc_container", 9999, 9999); // Raphael canvas, FIXME: static size
   this.color = "#dddddd";
 
   this.globalStartNote = null; // Used when creating new edges
@@ -30,12 +40,12 @@ function Graph() {
     url: "/graphs/get_color/" + thisgraph.id,        
     success: function(data){
       thisgraph.color = data;
-      $("#vport").css({"backgroundColor" : data});
+      $("#mindwiki_world").css({"backgroundColor" : data});
     }
   });
 
   // NEW NOTE creation by double clicking in the viewport
-  $("#vport").dblclick( function(event){
+  $("#mindwiki_world").dblclick( function(event){
     var tmp = new Note();
     tmp.x = event.pageX - $(this).offset().left;
     tmp.y = event.pageY - $(this).offset().top;
@@ -46,7 +56,7 @@ function Graph() {
     tmp.update();		
   });
 		
-  $("#vport").click( function(event){
+  $("#mindwiki_world").click( function(event){
     var x = event.pageX - $(this).offset().left;
     var y = event.pageY - $(this).offset().top;
     var margin = 10;
@@ -69,7 +79,7 @@ function Graph() {
     event.stopPropagation();
   });
 		
-  /*$("#vport").hover( function()
+  /*$("#mindwiki_world").hover( function()
   {
     $("#context_help").empty().append("Create new notes by double clicking");
   }

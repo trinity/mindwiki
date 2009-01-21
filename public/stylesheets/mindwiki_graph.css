@@ -7,8 +7,19 @@
 	margin: 10px;
 	width: 98%;
 	bottom: 25px;
-	background-color: #ccc;
 	color: black;
+        overflow: auto;
+}
+
+#mindwiki_world
+{
+  position: absolute;
+  height: 9999px;
+  width: 9999px;
+}
+
+#rc-container
+{
 }
 
 /* DIV style */

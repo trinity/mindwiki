@@ -166,7 +166,7 @@ Note.prototype.disconnectEdgeToById = function(edgeId){
 // Basically just hides the note from the UI.
 // Used in note deletion and before redraw.
 Note.prototype.deleteDivFromDom = function() {
-  document.getElementById("vport").removeChild(this.div);
+  document.getElementById("mindwiki_world").removeChild(this.div);
 }
 
 // Get new ID from DB.
@@ -386,10 +386,10 @@ Note.prototype.redraw = function() {
     // the calling of dialog("destroy").remove() to not cause some really annoyingly strange behaviour..
     // Maybe FIX someday?
 
-    $("#vport").append('<div id="editWindow" class="flora"></div>');
+    $("#mindwiki_world").append('<div id="editWindow" class="flora"></div>');
     $("#editWindow").append('<p>Title<br /><input type="text" size="30" id="titleInputField" value="'+thisnote.name+'"/></p><p>Content<br /><textarea rows="15" cols="75" id="editableContentBox">'+thisnote.editableContent+'</textarea></p>');
     $("#editableContentBox").markItUp(mySettings);
-    $("#editWindow").css({"zIndex": "9999999"}); // isn't there a 'top' option? :)
+    $("#editWindow").css({"zIndex": "9999999", "overflow": "auto"}); // isn't there a 'top' option? :)
     $("#editWindow").dialog({
       width: 750,
       height: 550,
@@ -455,5 +455,5 @@ Note.prototype.redraw = function() {
 
   $(buttonRow).hide();
 
-  $("#vport").append(this.div);
+  $("#mindwiki_world").append(this.div);
 }
