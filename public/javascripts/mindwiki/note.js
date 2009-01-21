@@ -273,30 +273,32 @@ Note.prototype.redraw = function() {
   });
 
   // Selection
-  $(this.div).mousedown( function()
+  $(this.div).mousedown( function(ev)
   {
-    // Are we in the edge creation mode?
-    if (graph.globalStartNote != null)
-    {
-      // Create edge. No selection.
-      var tmpEdge = new Edge();
-      tmpEdge.rCanvas = graph.rc;
-      tmpEdge.setStartNote(graph.globalStartNote);
-      tmpEdge.setEndNote(thisnote);
-      tmpEdge.newID(); // notifies server
-      //add the edge to notes for updating
-      graph.globalStartNote.edgesFrom.push(tmpEdge);
-      thisnote.edgesTo.push(tmpEdge);
-      tmpEdge.draw(); // draws clientside
-      graph.globalStartNote = null; // ready for a new edge to be created
-      graph.edges.push(tmpEdge);
-    }
-    // Normal note selection (not in the edge creation mode)
-    else
-    {
-      thisnote.selected = true;
-      thisnote.update();  
-    }
+    // Checks whether it is a single or dblclick. 
+    if (ev.detail == 1) {
+	
+		// Are we in the edge creation mode?
+		if (graph.globalStartNote != null) {
+			// Create edge. No selection.
+			var tmpEdge = new Edge();
+			tmpEdge.rCanvas = graph.rc;
+			tmpEdge.setStartNote(graph.globalStartNote);
+			tmpEdge.setEndNote(thisnote);
+			tmpEdge.newID(); // notifies server
+			//add the edge to notes for updating
+			graph.globalStartNote.edgesFrom.push(tmpEdge);
+			thisnote.edgesTo.push(tmpEdge);
+			tmpEdge.draw(); // draws clientside
+			graph.globalStartNote = null; // ready for a new edge to be created
+			graph.edges.push(tmpEdge);
+		}
+		// Normal note selection (not in the edge creation mode)
+		else {
+			thisnote.selected = true;
+			thisnote.update();
+		}
+	}
   });      
  
 
@@ -379,7 +381,7 @@ Note.prototype.redraw = function() {
   thisnote.articleDiv = article; // for easier updating :)
 
   // launch editing:
-  $(this.div).dblclick(function() {
+  $(this.div).dblclick(function(ev) {
     // This code might be a bit flakey, still. Using the same textbox-id for all notes absolutely requires
     // the calling of dialog("destroy").remove() to not cause some really annoyingly strange behaviour..
     // Maybe FIX someday?
