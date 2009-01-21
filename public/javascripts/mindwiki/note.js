@@ -162,6 +162,8 @@ Note.prototype.disconnectEdgeToById = function(edgeId){
   this.removeEdge(this.edgesTo, edgeId);
 }
 
+
+// Moves the viewpoint to center on this note
 Note.prototype.center = function(){
   var thisnote = this;
   // scrollTo scrolls the upper left corner to the coordinates it is given. 
@@ -317,6 +319,7 @@ Note.prototype.redraw = function() {
   });
 
   // Center the selected note on the viewport, if the user prefers so.
+  // FIXME: Clicking the content stops bubbling into this event.
   $(this.div).mouseup( function(e){
     if(e.detail == 1 && graph.globalStartNote == null && graph.scrollToSelected)
       thisnote.center();

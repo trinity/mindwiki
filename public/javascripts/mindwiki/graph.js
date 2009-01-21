@@ -83,32 +83,29 @@ function Graph() {
     event.stopPropagation();
   });
 		
-  /*$("#mindwiki_world").hover( function()
-  {
-    $("#context_help").empty().append("Create new notes by double clicking");
-  }
-  );
 
-  $(".note").livequery(function()
-  {
-    $(this).hover(function()
-    {
-      $("#context_help").empty().append("Double click to edit content");
-    }
-    );
-  }
-  );*/
+  /*
+   * Context help
+   */
 
-  // Does not work for some reason
-  /*$(".arrowButton").livequery(function()
-  {
-    $(this).hover(function()
-    {
-      $("#context_help").empty().append("Create connected note");
-    }
-    );
-  }
-  );*/
+  $("#mindwiki_world").mouseover( function(){
+    $("#context_help").empty().append("Create new notes by double clicking the background.");
+  });
+
+  // TODO: Change css
+  $(".noteSelected").mouseover(function(){
+    $("#context_help").empty().append("Double click to edit content");
+  });
+
+  $(".noteArrowButton").mouseover(function(){
+    $("#context_help").empty().append("Create connected note");
+  });
+
+  /*
+   * End Context help
+   */
+
+  
 		
   $(".noteTitleTD").livequery("dblclick", function(event){
     // this event is not used. we just prevent the dblclick
@@ -123,7 +120,39 @@ function Graph() {
   $(".stop_propagation").livequery("mousedown", function(e){
     e.stopPropagation();
   });
-}
+
+  // Load notes after scrolled
+  $("#vport").scroll(function(){
+    var vpX = $("#vport").scrollLeft();
+    var vpY = $("#vport").scrollTop();
+    
+  });
+
+  /*
+   * Context help
+   */
+
+  $("#mindwiki_world").mouseover( function(){
+    $("#context_help").empty().append("<b>Create new notes</b> by double clicking the background.");
+    // The final event, no need to stop propagation
+  });
+
+  $(".note").livequery("mouseover", function(e){
+    $("#context_help").empty().append("<b>Edit content</b> by double clicking the content area.");
+    e.stopPropagation();
+  });
+
+  $(".noteArrowButton").livequery("mouseover", function(e){
+    $("#context_help").empty().append("<b>Create a connection</b> by clicking the arrow button of the first note, and then clicking the second note.");
+    e.stopPropagation();
+  });
+
+  /*
+   * End Context help
+   */
+
+
+} // end constructor
 
 Graph.prototype.getNoteById = function(id){
   var l = this.notes.length;
