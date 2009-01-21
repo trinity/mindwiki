@@ -162,6 +162,21 @@ Note.prototype.disconnectEdgeToById = function(edgeId){
   this.removeEdge(this.edgesTo, edgeId);
 }
 
+Note.prototype.center = function(){
+  var thisnote = this;
+  // scrollTo scrolls the upper left corner to the coordinates it is given. 
+  // To center the note, we need to calculate offsets according to the size of the viewport.
+  var vpWidth = $("#vport").width();
+  var vpHeight = $("#vport").height();
+  var xOffset = Math.floor(vpWidth/2)-Math.floor(thisnote.width/2);
+  var yOffset = Math.floor(vpHeight/2)-Math.floor(thisnote.height/2);
+  var moveToX = thisnote.x - xOffset;
+  var moveToY = thisnote.y - yOffset;
+  if(moveToX<0)moveToX=0;
+  if(moveToY<0)moveToY=0;
+  $("#vport").scrollTo({left:moveToX, top:moveToY},100,{axis:"xy"}); // 100 is the scroll time
+}
+
 // Just remove the div of the note from the DOM-tree. 
 // Basically just hides the note from the UI.
 // Used in note deletion and before redraw.
@@ -295,11 +310,17 @@ Note.prototype.redraw = function() {
 		}
 		// Normal note selection (not in the edge creation mode)
 		else {
-			thisnote.selected = true;
-			thisnote.update();
+        		thisnote.selected = true;
+ 			thisnote.update();
 		}
 	}
-  });      
+  });
+
+  // Center the selected note on the viewport, if the user prefers so.
+  $(this.div).mouseup( function(e){
+    if(e.detail == 1 && graph.globalStartNote == null && graph.scrollToSelected)
+      thisnote.center();
+  });
  
 
   // Content

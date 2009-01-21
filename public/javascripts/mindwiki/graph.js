@@ -30,6 +30,9 @@ function Graph() {
   this.notes = [];
   this.edges = [];
 
+  // Do we want to center the selected note? TODO: Move to user preferences.
+  this.scrollToSelected = true;
+
   var thisgraph = this; // To be used in submethods
 
   // Load graph ID from the path variable.
@@ -51,6 +54,7 @@ function Graph() {
     tmp.y = event.pageY - $(this).offset().top;
     tmp.newID();
     tmp.redraw();
+    tmp.center(); // Center on create regardless of user preferences
     // Let's select the new note right away, too.
     tmp.selected = true;
     tmp.update();		
