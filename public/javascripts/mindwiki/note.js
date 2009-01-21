@@ -59,6 +59,24 @@ Note.prototype.update = function() {
   $(this.titleTD).html(this.name);
 }
 
+Note.prototype.getEdgeToById = function(id){
+  var l = this.edgesTo.length;
+  for(var i=0;i<l;i++){
+    if(this.edgesTo[i].id == id)
+      return this.edgesTo[i];   
+  }
+  return null;
+}
+
+Note.prototype.getEdgeFromById = function(id){
+  var l = this.edgesFrom.length;
+  for(var i=0;i<l;i++){
+    if(this.edgesFrom[i].id == id)
+      return this.edgesFrom[i];   
+  }
+  return null;
+}
+
 
 // Notifies the controller of updated coordinates
 

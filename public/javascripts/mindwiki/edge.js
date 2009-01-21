@@ -19,7 +19,7 @@ function Edge ()
   this.title = "";
   this.directed = true;
   this.selected = false;
-  this.rCanvas = null;  // Raphael canvas
+  this.rCanvas = graph.rc;  // Raphael canvas
   this.canvasPath = null; // Raphael canvas.path
   this.canvasPath2 = null;
   this.arrowSize = 10;
@@ -44,6 +44,14 @@ Edge.prototype.setEndNote = function (note)
 // This updates edge position and angle based on values of the notes.
 // Used before updating or drawing the edge with Raphael.
 Edge.prototype.update = function(){
+
+  // Hmm.
+  if (this.startNote == null || this.endNote == null)
+  {
+    alert("Trying to draw an edge (id:"+this.id+"), which has a null note!");
+    return;
+  }
+
   var sx = this.startNote.x + this.startNote.width / 2;
   var sy = this.startNote.y + this.startNote.height / 2;
   var ex = this.endNote.x + this.endNote.width / 2;
@@ -89,11 +97,6 @@ Edge.prototype.update = function(){
 
 Edge.prototype.redraw = function()
 {
-  if (this.startNote == null || this.endNote == null)
-  {
-    alert("Trying to draw an edge, which has a null note!");
-    return;
-  }
 
   this.update();
 

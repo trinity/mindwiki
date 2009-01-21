@@ -5,8 +5,8 @@ class Note < ActiveRecord::Base
   validates_presence_of :graph
   
   # Edges don't depend on other objects, so :delete_all is safe. (Faster than :destroy)
-  has_many :edges_to, :foreign_key => "source_id", :class_name => "Edge", :dependent => :delete_all
-  has_many :edges_from, :foreign_key => "target_id", :class_name => "Edge", :dependent => :delete_all
+  has_many :edges_from, :foreign_key => "source_id", :class_name => "Edge", :dependent => :delete_all
+  has_many :edges_to, :foreign_key => "target_id", :class_name => "Edge", :dependent => :delete_all
 
   validates_presence_of :name
   # No checking of "traditionally sane" x/y values, cause after viewport integration these

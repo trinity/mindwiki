@@ -106,5 +106,17 @@ class GraphsController < ApplicationController
       end
     end
   end  
+  
+  # Returns all notes within a certain viewport
+  def get_notes_in_vport
+    respond_to do |format|
+      if params[:id].nil?
+        format.xml { render :xml => @graph.errors, :status => :unprocessable_entity }
+      end
+      @graph = Graph.find(params[:id],:select => "id")
+      @vp_notes = @graph.notes_within(params[:vport_x], params[:vport_y], params[:vport_width], params[:vport_height]);
+      format.xml { render :xml => @vp_notes.to_xml(:include => [:article, :edges_to, :edges_from]) }
+    end
+  end
 
 end #EOF

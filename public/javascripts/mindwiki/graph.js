@@ -16,6 +16,14 @@ function Graph() {
   $(this.world).attr("id","mindwiki_world");
   $("#vport").append(this.world);
 
+  // To use in the scroll-event, so we are not loading stuff too aggressively
+  this.vpLastUpdatedX = 0;
+  this.vpLastUpdatedY = 0;
+  this.vpLastUpdatedWidth = 0;
+  this.vpLastUpdatedHeight = 0;
+  // Reloads data via ajax every x pixels scrolled.
+  this.reloadDistance = 500; 
+
   this.rc_container = document.createElement("div");
   $(this.rc_container).attr("id","rc_container");
   $(this.world).append(this.rc_container);
@@ -113,7 +121,9 @@ function Graph() {
     event.stopPropagation();
   });
 
-  this.loadAllNotes();
+  //this.loadAllNotes();
+  this.loadViewportNotes(); // viewport scroll action goes right away atm
+  this.reloadDistance = 100;
 
   // Stop events in class stop_propagation
   // Used for youtube-videos, for instance..
@@ -121,12 +131,36 @@ function Graph() {
     e.stopPropagation();
   });
 
+  var thisnote = this;
   // Load notes after scrolled
   $("#vport").scroll(function(){
     var vpX = $("#vport").scrollLeft();
     var vpY = $("#vport").scrollTop();
-    
+    var rd = thisnote.reloadDistance;
+    // Reload, if we have moved beyond the reload distance
+    if(vpX>thisnote.vpLastUpdatedX+rd || vpX<thisnote.vpLastUpdatedX-rd ||
+       vpY>thisnote.vpLastUpdatedY+rd || vpY<thisnote.vpLastUpdatedY-rd)
+    {
+      thisnote.loadViewportNotes();
+      thisnote.vpLastUpdatedX = vpX;
+      thisnote.vpLastUpdatedY = vpY;
+    }
   });
+
+  // Load more notes after window has been resized enough
+  window.onresize = function(){
+    var vpW = $("#vport").width();
+    var vpH = $("#vport").height();
+    var rd = thisnote.reloadDistance;
+    // Reload, if we have moved beyond the reload distance
+    if(vpW>thisnote.vpLastUpdatedWidth+rd || vpW<thisnote.vpLastUpdatedWidth-rd ||
+       vpH>thisnote.vpLastUpdatedHeight+rd || vpH<thisnote.vpLastUpdatedHeight-rd)
+    {
+      thisnote.loadViewportNotes();
+      thisnote.vpLastUpdatedWidth = vpW;
+      thisnote.vpLastUpdatedHeight = vpH;
+    }
+  };
 
   /*
    * Context help
@@ -154,6 +188,13 @@ function Graph() {
 
 } // end constructor
 
+// Loads more notes and edges after viewport size or scrolling has been changed.
+// They could be in different methods to increase performance somewhat.
+Graph.prototype.viewportChanged = function()
+{
+
+}
+
 Graph.prototype.getNoteById = function(id){
   var l = this.notes.length;
   for(var i=0;i<l;i++){
@@ -173,7 +214,125 @@ Graph.prototype.getEdgeById = function(id){
 }
 
 
-// Loads all notes from the database
+// Load all notes within the current viewport
+Graph.prototype.loadViewportNotes = function() {
+  var thisgraph = this;
+  $.ajax({
+    url: "/graphs/get_notes_in_vport/" + thisgraph.id,
+    dataType: "xml",
+    data: {
+      "vport_x": $("#vport").scrollLeft(),
+      "vport_y": $("#vport").scrollTop(),
+      "vport_width": $("#vport").width(),
+      "vport_height": $("#vport").height()
+    },
+    success: function(data){
+      $("note",data).each(function(i){
+          var tmp = new Note();
+          tmp.id = parseInt($(this).find("id:first").text());
+          tmp.name = $(this).find("name:first").text();
+          tmp.x = parseInt($(this).find("x:first").text());
+          tmp.y = parseInt($(this).find("y:first").text());
+          tmp.width = parseInt($(this).find("width:first").text());
+          tmp.height = parseInt($(this).find("height:first").text());
+          tmp.color = $(this).find("color:first").text();
+
+          $("article",this).each(function(j){ // There's really only one :)
+            tmp.content = $(this).find("content_rendered:first").text();
+            var contentType = parseInt($(this).find("content_type:first").text());
+            if(contentType == 1) // RedCloth-parse included
+              tmp.editableContent = $(this).find("content:first").text();
+          });
+
+          // Only add the note to the graph if it is not already in.
+          // TODO: Check timestamps to see if update is in order.
+          if(!thisgraph.getNoteById(tmp.id)){
+            thisgraph.notes.push(tmp);
+            tmp.redraw();
+          }
+    
+          // Escapes the edges-to array first, then loops edges-to -fields inside
+          $("edges-to",$(this).find("edges-to:first")).each(function(k){
+            thisgraph.updateEdge(
+              parseInt($(this).find("id:first").text()),
+              $(this).find("name:first").text(),
+              $(this).find("color:first").text(),
+              parseInt($(this).find("source-id").text()),
+              parseInt($(this).find("target-id").text())
+            );
+          });
+          // Escapes the edges-to array first, then loops edges-to -fields inside
+          $("edges-from",$(this).find("edges-from:first")).each(function(l){
+            thisgraph.updateEdge(
+              parseInt($(this).find("id:first").text()),
+              $(this).find("name:first").text(),
+              $(this).find("color:first").text(),
+              parseInt($(this).find("source-id").text()),
+              parseInt($(this).find("target-id").text())
+            );
+          });
+      });
+
+    },
+    error: function(a,b,c){
+      alert("Cannot load notes: "+a+" "+b+" "+c);
+    }
+  });
+};
+
+// Updates edge. This is for tiled note loading.
+// (When we load the edge for the first time, the second note may not be read yet)
+Graph.prototype.updateEdge = function(id,title,color,sourceId, targetId){
+  var thisgraph = this;
+  var edge = null;
+
+  // The edge already exists (second hit)
+  if(thisgraph.getEdgeById(id) != null){
+    edge = thisgraph.getEdgeById(id);
+
+    // Is the edge already okay?
+    if(edge.startNote && edge.endNote)
+      return;
+
+    edge.title = title;
+    edge.color = color;
+
+    if(!edge.startNote)
+      edge.startNote = thisgraph.getNoteById(sourceId);
+    if(!edge.endNote)
+      edge.endNote = thisgraph.getNoteById(targetId);
+
+    // References to this edge:
+    // Startnote
+    if(edge.startNote){
+      if(!edge.startNote.getEdgeFromById(edge.id)) {
+        edge.startNote.edgesFrom.push(edge);
+      }
+    }
+    // Endnote
+    if(edge.endNote){
+      if(!edge.endNote.getEdgeToById(edge.id)) {
+        edge.endNote.edgesTo.push(edge);
+      }
+    }
+    // If we have both references, the edge can be drawn
+    if(edge.startNote && edge.endNote){
+      edge.draw();
+    }
+    
+  // New edge (first hit)
+  } else {
+    edge = new Edge();
+    edge.id = id;
+    // In new edge it is okay to just assign straight away, since the methods just return null on "not found"
+    if(sourceId) edge.startNote = thisgraph.getNoteById(sourceId);
+    if(targetId) edge.endNote = thisgraph.getNoteById(targetId);
+    thisgraph.edges.push(edge);
+  }
+}
+
+// Load all notes within the graph (one at a time)
+// deprecated
 Graph.prototype.loadAllNotes = function() {
   var thisgraph = this; // To be used in submethods
   // get ids
@@ -191,6 +350,10 @@ Graph.prototype.loadAllNotes = function() {
   });
 };
 
+
+
+// Load just one note
+// deprecated
 Graph.prototype.loadNote = function(noteId) {
   var thisgraph = this; // To be used in submethods
   $.ajax({
@@ -243,6 +406,8 @@ Graph.prototype.loadNote = function(noteId) {
 
 
 
+// Load just one edge
+// deprecated
 Graph.prototype.loadEdge = function(edgeId) {
   var thisgraph = this; // To be used in submethods
 
