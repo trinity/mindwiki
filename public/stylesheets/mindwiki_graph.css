@@ -162,9 +162,9 @@
 }
 
 /* DIV style */
+/*
 .noteArticle
 {
-	/*width: 100%;*/
 	right: 0px;
 	bottom: 0px;
 	background-color: white;
@@ -172,9 +172,25 @@
         margin-top: -15px;
         margin-left: 0px;
         margin-bottom: -1px;
-	position: /*absolute*/relative;
+	position: relative;
 	top: 28px;
 	padding: 2px;
+	overflow: auto;
+}*/
+.noteArticle
+{
+	top: 40px;
+	left: 0px;
+	right: 0px;
+	bottom: 20px;
+	background-color: white;
+	color: black;
+        margin-top: -15px;
+        margin-left: 0px;
+        margin-bottom: -1px;
+	position: absolute;
+	padding: 2px;
+	overflow: auto;
 }
 
 
