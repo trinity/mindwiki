@@ -40,8 +40,7 @@ Note.prototype.update = function() {
 
     graph.last_selected_note = this;
 
-
-    $(this.titleTD).addClass("noteTitleTD").css({"backgroundColor": this.color});
+    $(this.titleTD).addClass("noteTitleTD").css({"backgroundColor": lightenColor(this.color)});
     $(this.div).addClass("note").css({
       "backgroundColor" : this.color, // doesn't really show -> bars and content overwrite
       "position" : "absolute",
@@ -368,7 +367,7 @@ Note.prototype.redraw = function() {
 
 	
   // titleTD
-  $(titleTD).addClass("noteTitleTD").css({"backgroundColor": this.color}).append(this.name);
+  $(titleTD).addClass("noteTitleTD").css({"backgroundColor": lightenColor(this.color)}).append(this.name);
   thisnote.titleTD = titleTD;
 
   // article (div)
@@ -447,4 +446,38 @@ Note.prototype.redraw = function() {
   $(this.div).append(titleTD);
 
   $("#mindwiki_world").append(this.div);
+}
+
+function lightenColor (color) {
+  mult = 1.3;
+  color = color.substring(1,7);
+  color = parseInt(color, 16);
+  r = (color >> 16) & 255;
+  g = (color >> 8) & 255;
+  b = (color >> 0) & 255;
+  
+  maxx = 0;
+  maxx = r * mult > maxx ? maxx = r * mult : maxx;
+  maxx = g * mult > maxx ? maxx = g * mult : maxx;
+  maxx = b * mult > maxx ? maxx = b * mult : maxx;
+  if (maxx > 255)
+    mult = 1 - (mult - 1);
+  r *= mult;
+  g *= mult;
+  b *= mult;
+  if (mult < 1.0) {
+    r = r < 0 ? 0 : r;
+    g = g < 0 ? 0 : g;
+    b = b < 0 ? 0 : b;
+  }
+  /*
+  r = r > 255 ? 255 : r;
+  g = g > 255 ? 255 : g;
+  b = b > 255 ? 255 : b;*/
+  
+  color = (r << 16) | (g << 8) | b;
+  color = color.toString(16);
+  while(color.length < 6)
+  	color = "0" + color;
+  return "#" + color;
 }
