@@ -42,6 +42,7 @@
 	width: 16px;
 	height: 16px;
 	background-image: url("/images/resize.png");
+	z-index: 100000;
 }
 
 .context_help
@@ -61,37 +62,6 @@
 	
 }
 
-/* TABLE style */
-.noteTable
-{
-	position: absolute;
-	top: 0px;
-	left: 0px;
-	border-style: none;
-	border-spacing: 0px;
-	width: 100%;
-	height: 100%;
-}
-
-/* TR style */
-.noteButtonRow
-{
-	height: 20px;
-}
-
-
-/* TR style */
-.noteTitleRow
-{
-	height: 20px;
-}
-
-/* TR style */
-.noteArticleRow
-{
-	height: 100%;
-}
-
 /* A style */
 /*
 .noteButton
@@ -103,43 +73,74 @@
 {
 	background-image: url("/images/arrow_btn.png");
 	background-repeat: no-repeat;
-	width: 16px;
-	height: 16px;
+	width: 28px;
+	height: 28px;
 	position: absolute;
-	left: 2px;
+	top: 0;
+	left: 0px;
 }
 
 .noteColorButton
 {
 	background-image: url("/images/color_btn.png");
 	background-repeat: no-repeat;
-	width: 16px;
-	height: 16px;
+	width: 28px;
+	height: 28px;
 	position: absolute;
-	left: 20px;
+	top: 0;
+	left: 28px;
 }
 
 .noteDeleteButton
 {
 	background-image: url("/images/delete_btn.png");
 	background-repeat: no-repeat;
-	width: 16px;
-	height: 16px;
+	width: 28px;
+	height: 28px;
 	position: absolute;
-	right: 2px;
+	top: 0;
+	right: -4px;
+}
+
+/* Pressed buttons ought to share some of this. */
+.noteArrowButtonPressed
+{
+	background-image: url("/images/arrow_pressed_btn.png");
+	background-repeat: no-repeat;
+	width: 28px;
+	height: 28px;
+	position: absolute;
+	top: 0;
+	left: 0px;
+}
+
+.noteColorButtonPressed
+{
+	background-image: url("/images/color_pressed_btn.png");
+	background-repeat: no-repeat;
+	width: 28px;
+	height: 28px;
+	position: absolute;
+	top: 0;
+	left: 28px;
+}
+
+.noteDeleteButtonPressed
+{
+	background-image: url("/images/delete_pressed_btn.png");
+	background-repeat: no-repeat;
+	width: 28px;
+	height: 28px;
+	position: absolute;
+	top: 0;
+	right: -4px;
 }
 
 
 /* TD style */
 .noteButtonTD
 {
-	border: none;
-	font-size: smaller;
-	background-image: url("/images/bar.png");
-	/*background-color: #ffff00;*/
-	color: black;
-	height: 16px;
-	padding: 1px;
+	z-index: 1000;
 }
 
 /* TD style */
@@ -147,35 +148,33 @@
 {
 	border-bottom: black solid thin;
 	border-top: none;
+	position: absolute;
+	top: 0px;
+	height: 20px;
+	left: 0px;
+	right: 0px;
 	border-left: none;
 	border-right: none;
-	font-size: smaller;
+	font-weight: bold;
 	background-color: #ccc; 
 	color: black;
-	height: 20px;
-	padding: 1px;
-}
-
-/* TD style */
-.noteArticleTD
-{
-	border: none;
-	font-size: smaller;
-	background-color: white;
-	color: red;
-	padding: 0px;
+	padding: 2px;
 }
 
 /* DIV style */
 .noteArticle
 {
-	width: 100%;
-	height: 100%;
+	/*width: 100%;*/
+	right: 0px;
+	bottom: 0px;
 	background-color: white;
 	color: black;
         margin-top: -15px;
         margin-left: 0px;
         margin-bottom: -1px;
+	position: /*absolute*/relative;
+	top: 28px;
+	padding: 2px;
 }
 
 

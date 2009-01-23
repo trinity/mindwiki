@@ -131,6 +131,54 @@ function Graph() {
     e.stopPropagation();
   });
 
+  
+  
+  // Initialize controls 
+  this.buttonsDiv = document.createElement("div");
+  
+  // Buttons
+  this.deleteButton = document.createElement("div");
+  this.colorButton = document.createElement("div");
+  this.arrowButton = document.createElement("div");
+
+  $(this.buttonsDiv).addClass("noteButtonTD").hide();
+
+  // arrow button
+  $(this.arrowButton).addClass("noteArrowButton");
+  $(this.buttonsDiv).append(this.arrowButton);
+	
+  // color button
+  $(this.colorButton).addClass("noteColorButton");
+  $(this.buttonsDiv).append(this.colorButton);
+
+  // delete button
+  $(this.deleteButton).addClass("noteDeleteButton");
+  $(this.buttonsDiv).append(this.deleteButton);
+
+  $(this.arrowButton).mousedown(function () {
+    $(graph.arrowButton).removeClass().addClass("noteArrowButtonPressed");
+  });
+  $(this.arrowButton).mouseout(function () {
+    $(graph.arrowButton).removeClass().addClass("noteArrowButton");
+  });
+
+  $(this.deleteButton).mousedown(function () {
+    $(graph.deleteButton).removeClass().addClass("noteDeleteButtonPressed");
+  });
+  $(this.deleteButton).mouseout(function () {
+    $(graph.deleteButton).removeClass().addClass("noteDeleteButton");
+  });
+
+  $(this.colorButton).mousedown(function () {
+    $(graph.colorButton).removeClass().addClass("noteColorButtonPressed");
+  });
+  $(this.colorButton).mouseout(function () {
+    $(graph.colorButton).removeClass().addClass("noteColorButton");
+  });
+
+  $("#vport").append(this.buttonsDiv);
+  
+
   var thisnote = this;
   // Load notes after scrolled
   $("#vport").scroll(function(){
@@ -176,10 +224,23 @@ function Graph() {
     e.stopPropagation();
   });
 
-  $(".noteArrowButton").livequery("mouseover", function(e){
+  $(this.arrowButton).mouseover(function()
+  {
     $("#context_help").empty().append("<b>Create a connection</b> by clicking the arrow button of the first note, and then clicking the second note.");
-    e.stopPropagation();
-  });
+  }, function() {}
+  );
+
+  $(this.colorButton).mouseover(function()
+  {
+    $("#context_help").empty().append("<b>Change color.</b>");
+  }, function() {}
+  );
+  
+  $(this.deleteButton).mouseover(function()
+  {
+    $("#context_help").empty().append("<b>Delete note.</b>");
+  }, function() {}
+  );
 
   /*
    * End Context help
@@ -193,6 +254,66 @@ function Graph() {
 Graph.prototype.viewportChanged = function()
 {
 
+}
+
+Graph.prototype.attachControls = function(thisnote){
+
+  $(this.buttonsDiv).show();
+  
+  $(this.arrowButton).click(function () {
+    graph.globalStartNote = thisnote;
+  });
+  this.selectedNote = thisnote;
+
+  $(this.colorButton).ColorPicker({
+    onBeforeShow: function () {
+      /* Need to fetch it. */
+      $(this).ColorPickerSetColor(graph.selectedNote.color);
+    },
+    onShow: function(picker){
+      $(picker).fadeIn(100);
+      return false;
+    },
+    onHide: function(picker){
+      $(picker).fadeOut(100);
+      return false;
+    },
+    onSubmit: function(hsb, hex, rgb){
+      graph.selectedNote.color = "#"+hex;
+      graph.selectedNote.update();
+      $.ajax({
+        url: "/notes/update/"+graph.selectedNote.id,
+        data: { "note[color]" : "#"+hex },
+        dataType: "html",
+        success: function(data){
+          // :)
+        }
+      });
+    }
+  });
+  $(".colorpicker").css({"zIndex": 9999999});
+  
+  $(this.deleteButton).click(function () {
+    graph.selectedNote.remove();
+    graph.selectedNote = null; /* some strange behaviour without this... */
+  });
+  
+  this.dragControls(thisnote);
+}
+
+Graph.prototype.dragControls = function(thisnote){
+  $(this.buttonsDiv).addClass("noteButtonTD").css({
+    "position" : "absolute",
+    "top" : (thisnote.y-26) +"px", /* FIXME: -26 */
+    "left" : thisnote.x+"px",
+    "width" : thisnote.width+"px",
+    "height" : "28px"
+  });
+}
+
+Graph.prototype.detachControls = function(thisnote){
+  if (this.selectedNote == null || thisnote.id == this.selectedNote.id)
+    $(this.buttonsDiv).hide();
 }
 
 Graph.prototype.getNoteById = function(id){

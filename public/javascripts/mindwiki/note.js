@@ -27,6 +27,7 @@ function Note() {
 Note.prototype.update = function() {
   // Maybe split into smaller functions?
 
+  graph.dragControls(this);
   // SELECTION.
   // Multiselection is not implemented, yet!
   if(this.selected){
@@ -39,13 +40,24 @@ Note.prototype.update = function() {
 
     graph.last_selected_note = this;
 
-    // Update this to have seleced appearance
-    $(this.div).addClass("noteSelected").find(".noteButtonRow").show();
+
+    $(this.titleTD).addClass("noteTitleTD").css({"backgroundColor": this.color});
+    $(this.div).addClass("note").css({
+      "backgroundColor" : this.color, // doesn't really show -> bars and content overwrite
+      "position" : "absolute",
+      "top" : this.y +"px",
+      "left" : this.x+"px",
+      "width" : this.width+"px"});
+
+    $(this.div).addClass("noteSelected");
+    graph.attachControls(this);
+    
     graph.runningZ++;
     $(this.div).css({"zIndex":graph.runningZ}); // Bring selected to front. This is a temporary solution.
 
   } else {
-    $(this.div).removeClass("noteSelected").find(".noteButtonRow").hide();
+    $(this.div).removeClass("noteSelected");
+    /* graph.detachControls(thisnote); */
   }
 
   // Content rendering after edit
@@ -123,6 +135,9 @@ Note.prototype.updateSize = function() {
 // Delete note.
 Note.prototype.remove = function() {
   var thisnote = this;
+
+  // Make sure controls are not visible on this one
+  graph.detachControls(thisnote);
 
   // First hide/delete edges and the note from client viewing:
   if(this.edgesTo != null){
@@ -279,6 +294,7 @@ Note.prototype.redraw = function() {
       for(var i=0;i<l;i++){
         thisnote.edgesFrom[i].redraw();
       }
+      graph.dragControls(thisnote);
     }
   })
   .draggable(
@@ -303,7 +319,7 @@ Note.prototype.redraw = function() {
       for(var i=0;i<l;i++){
         thisnote.edgesFrom[i].redraw();
       }
-      
+      graph.dragControls(thisnote);
     }
   });
 
@@ -347,76 +363,13 @@ Note.prototype.redraw = function() {
   // Content
 
   // Creating note elements
-  var noteTable = document.createElement("table");
-  var titleTD = document.createElement("td");
-  var articleTD = document.createElement("td");
-  var buttonRow = document.createElement("tr");
-  var titleRow = document.createElement("tr");
-  var articleRow = document.createElement("tr");
+  var titleTD = document.createElement("div");
   var article = document.createElement("div");
-
-  var buttonsTD = document.createElement("td");
-  var buttonsDiv = document.createElement("div");
-  
-  /* These should probably have alttexts. */
-  var deleteButton = document.createElement("div");
-  var colorButton = document.createElement("div");
-  var arrowButton = document.createElement("div");
-
-  $(buttonsDiv).addClass("noteButtonTD");
-
-  // arrow button
-  $(arrowButton).addClass("noteArrowButton");
-  $(arrowButton).click(function () {
-    graph.globalStartNote = thisnote;
-  });
-  $(buttonsDiv).append(arrowButton);
-	
-  // color button
-  $(colorButton).addClass("noteColorButton");
-  $(colorButton).ColorPicker({
-    color: thisnote.color,
-    onShow: function(picker){
-      $(picker).fadeIn(100);
-      return false;
-    },
-    onHide: function(picker){
-      $(picker).fadeOut(100);
-      return false;
-    },
-    onSubmit: function(hsb, hex, rgb){
-      thisnote.color = "#"+hex;
-      thisnote.update();
-      $.ajax({
-        url: "/notes/update/"+thisnote.id,
-        data: { "note[color]" : "#"+hex },
-        dataType: "html",
-        success: function(data){
-          // :)
-        }
-      });
-    }
-  });
-  $(".colorpicker").css({"zIndex": 9999999});
-  $(buttonsDiv).append(colorButton);
-
-  // delete button
-  $(deleteButton).addClass("noteDeleteButton");
-  $(deleteButton).click(function () { thisnote.remove(); });
-  $(buttonsDiv).append(deleteButton);
-  
-
-
-  $(buttonsTD).append(buttonsDiv);
-  // button row
-  $(buttonRow).addClass("noteButtonRow").append(buttonsTD);
 
 	
   // titleTD
-  $(titleTD).addClass("noteTitleTD").attr("colspan",3).append(this.name);
+  $(titleTD).addClass("noteTitleTD").css({"backgroundColor": this.color}).append(this.name);
   thisnote.titleTD = titleTD;
-  // title row
-  $(titleRow).addClass("noteTitleRow").append(titleTD);
 
   // article (div)
   $(article).addClass("noteArticle").css({"backgroundColor": this.color}).append(this.content);
@@ -486,16 +439,12 @@ Note.prototype.redraw = function() {
   });
 
   // articleTD
-  $(articleTD).addClass("noteArticleTD").css({"backgroundColor": this.color}).attr("colspan",3).append(article);
+  //$(articleTD).addClass("noteArticleTD").css({"backgroundColor": this.color}).attr("colspan",3).append(article);
   // article row
-  $(articleRow).addClass("noteArticleRow").append(articleTD);
- 	
+  $(this.div).append(article);
 
   // table
-  $(noteTable).addClass("noteTable").append(titleRow).append(buttonRow).append(articleRow);
-  $(this.div).append(noteTable);
-
-  $(buttonRow).hide();
+  $(this.div).append(titleTD);
 
   $("#mindwiki_world").append(this.div);
 }
