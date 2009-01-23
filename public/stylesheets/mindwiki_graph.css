@@ -1,12 +1,17 @@
 /* DIV style */
+
+/* Umm.  */
+#top-menu
+{
+	height: 23px;
+}
+
 .mindwiki_viewport
 {
 	position: absolute;
-	border: 1px solid black;
-	top: 15px;
-	margin: 10px;
-	width: 98%;
-	bottom: 25px;
+	top: 25px;
+	width: 100%;
+	bottom: 0px;
 	color: black;
         overflow: auto;
 }
@@ -48,7 +53,7 @@
 .context_help
 {
 	position: absolute;
-	bottom: 10px;
+	bottom: 20px;
 	left: 10px;
 	border: 1px solid black;
 
