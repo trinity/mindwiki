@@ -22,7 +22,10 @@ function Edge ()
   this.rCanvas = graph.rc;  // Raphael canvas
   this.canvasPath = null; // Raphael canvas.path
   this.canvasPath2 = null;
+  this.canvasPathSelected = null; // draw this when selected
+  this.circle = null;
   this.arrowSize = 10;
+  this.strokeWidth = 3;
 }
 
 Edge.prototype.setStartNote = function (note) 
@@ -61,12 +64,12 @@ Edge.prototype.update = function(){
   // as negative to use standard 2D algebra.
   var negsy = -sy;
   var negey = -ey;
-  var a = getAngle(sx, negsy, ex, negey);
+  var a = this.getAngle(sx, negsy, ex, negey);
   this.angle = a;
   
   var result = new Array();
   
-  rectangleIntersection(sx, negsy, this.startNote.width, this.startNote.height, a, result);
+  this.rectangleIntersection(sx, negsy, this.startNote.width, this.startNote.height, a, result);
   this.x1 = result[0];
   this.y1 = -result[1];
 
@@ -77,7 +80,7 @@ Edge.prototype.update = function(){
     a -= 2 * Math.PI;
   }
 
-  rectangleIntersection(ex, negey, this.endNote.width, this.endNote.height, a, result);
+  this.rectangleIntersection(ex, negey, this.endNote.width, this.endNote.height, a, result);
   this.x2 = result[0];
   this.y2 = -result[1];
 
@@ -97,9 +100,15 @@ Edge.prototype.update = function(){
 
 Edge.prototype.redraw = function()
 {
-
   this.update();
 
+  if (this.selected)
+  {
+    this.canvasPathSelected.path[0].arg = [this.x1,this.y1];
+    this.canvasPathSelected.path[1].arg = [this.x2,this.y2];
+    this.canvasPathSelected.redraw();
+  }
+  
   this.canvasPath.path[0].arg = [this.x1,this.y1];
   this.canvasPath.path[1].arg = [this.x2,this.y2];
   this.canvasPath.redraw();
@@ -108,28 +117,59 @@ Edge.prototype.redraw = function()
   this.canvasPath2.path[1].arg = [this.xLeft,this.yLeft];
   this.canvasPath2.path[2].arg = [this.xRight,this.yRight];
   this.canvasPath2.redraw();
+  
+  this.circle.attr({cx: this.x1, cy: this.y1});
 }
 
 // "Undraws" the edge.
-Edge.prototype.undraw = function()
+Edge.prototype.erase = function()
 {
-  // Notify the graph object
-  graph.disconnectEdge(this.id);
-
-  this.canvasPath.path = "";
-  this.canvasPath.redraw();
-
-  this.canvasPath2.path = "";
-  this.canvasPath2.redraw();
+  if (this.rCanvas == null)
+  {
+    alert("null canvas!");
+  }
+  if (this.canvasPathSelected != null)
+  {
+    this.canvasPathSelected.remove();
+  }
+  this.canvasPath.remove();
+  this.canvasPath2.remove();
+  this.circle.remove();
 }
 
 Edge.prototype.draw = function () 
 {
-  this.update();
-
-  this.canvasPath = this.rCanvas.path({stroke: this.color}).absolutely().moveTo(this.x1,this.y1).lineTo(this.x2,this.y2);
+  if (this.selected) 
+  {
+    this.canvasPathSelected = this.rCanvas.path({stroke: "#ffff00", "stroke-width": this.strokeWidth+4}).absolutely().moveTo(this.x1,this.y1).lineTo(this.x2,this.y2);
+  }
+  
+  this.canvasPath = this.rCanvas.path({stroke: this.color, "stroke-width": this.strokeWidth}).absolutely().moveTo(this.x1,this.y1).lineTo(this.x2,this.y2);
   this.canvasPath2 = this.rCanvas.path({stroke: this.color, fill: this.color}).absolutely().moveTo(this.x2,this.y2).lineTo(this.xLeft,this.yLeft).lineTo(this.xRight,this.yRight).andClose();
+  this.circle = this.rCanvas.circle(this.x1, this.y1, this.arrowSize / 2);
+  this.circle.attr({stroke: this.color, fill: this.color});
 }
+
+Edge.prototype.select = function () 
+{
+  if (!this.selected)
+  {
+    this.erase();
+    this.selected = true;
+    this.draw();
+  }
+}
+
+Edge.prototype.unselect = function () 
+{
+  if (this.selected)
+  {
+    this.erase();
+    this.selected = false;
+    this.draw();
+  }
+}
+
 
 // Checks if the given coordinates (x,y) are "close" to edge. The close means in
 // this case that we draw a rectangle arourd the edge and then add the given margin
@@ -169,7 +209,7 @@ Edge.prototype.isHit = function (x,y,margin)
     return false;
   }
   
-  var edgeLength = distance(this.x1, this.y1, this.x2, this.y2);
+  var edgeLength = this.distance(this.x1, this.y1, this.x2, this.y2);
   if (edgeLength < 1)
   {
     // the edge is actually a point.
@@ -188,7 +228,7 @@ Edge.prototype.isHit = function (x,y,margin)
   var cx = this.x1 + u*(this.x2-this.x1);
   var cy = this.y1 + u*(this.y2-this.y1);
   
-  if (distance(x,y,cx,cy) > margin)
+  if (this.distance(x,y,cx,cy) > margin)
   {
     return false;
   }
@@ -221,7 +261,7 @@ Edge.prototype.newID = function() {
   });
 }
 
-function getAngle(x1, y1, x2, y2) 
+Edge.prototype.getAngle = function(x1, y1, x2, y2)
 {
   // returns the angle (0 <= angle < 2*pi) from point (x1,y1) to (x2,y2).
   // assumes standrad coordinate system
@@ -258,38 +298,39 @@ function getAngle(x1, y1, x2, y2)
 
 // returns the intersection point of a given rectangle and a line, which starts
 // from the center point of the rectangle and goes to ang direction.
-function rectangleIntersection(cx,cy,width,height,ang,result)
+Edge.prototype.rectangleIntersection = function(cx,cy,width,height,ang,result)
 {
   // assumes standard coordinate system!
 
   var aLimit = Math.atan(height/width);
+  var padding = 2;
   
   if (ang <= aLimit || ang >= 2 * Math.PI - aLimit)
   {
-    result[0] = cx + width/2;
+    result[0] = cx + width/2 + 3*padding;
     result[1] = cy + Math.tan(ang) * width / 2;
   }
   else if (ang > aLimit && ang < Math.PI - aLimit)
   {
     // note: sin(a) > 0. no need to check division by zero.
     result[0] = cx + (Math.cos(ang) / Math.sin(ang)) * height / 2
-    result[1] = cy + height / 2;
+    result[1] = cy + height / 2 + padding;
   }
   else if (ang >= Math.PI - aLimit && ang <= Math.PI + aLimit)
   {
-    result[0] = cx - width/2;
+    result[0] = cx - width/2 - padding;
     result[1] = cy - Math.tan(ang) * width / 2;
   }
   else if (ang > Math.PI + aLimit && ang < 2 * Math.PI - aLimit)
   {
     // note: sin(a) < 0. no need to check division by zero.
     result[0] = cx - (Math.cos(ang) / Math.sin(ang)) * height / 2
-    result[1] = cy - height / 2;
+    result[1] = cy - height / 2 - 3*padding;
   }
 }
 
 // calculates the euclidean distance between points (x1,y1) and (x2,y2).
-function distance(x1,y1,x2,y2)
+Edge.prototype.distance = function(x1,y1,x2,y2)
 {
   var dx = x2 - x1;
   var dy = y2 - y1;

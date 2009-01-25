@@ -35,7 +35,6 @@ Note.prototype.update = function() {
     if(graph.last_selected_note != null && graph.last_selected_note != this){
       graph.last_selected_note.selected = false;
       graph.last_selected_note.update();
-      graph.last_selected_note = this;
     }
 
     graph.last_selected_note = this;
@@ -143,16 +142,19 @@ Note.prototype.remove = function() {
     for(var i=0;i<this.edgesTo.length;i++){
       // Disassociate from the other note
       this.edgesTo[i].startNote.disconnectEdgeFromById(this.edgesTo[i].id);
-      // Hide the edge
-      this.edgesTo[i].undraw();
+      // Erase the edge from the display
+      this.edgesTo[i].erase();
+      graph.disconnectEdge(this.edgesFrom[i].id);
     }
   }
   if(this.edgesFrom != null){
     for(var i=0;i<this.edgesFrom.length;i++){
       // Disassociate from the other note
       this.edgesFrom[i].endNote.disconnectEdgeToById(this.edgesFrom[i].id);
-      // Hide the edge
-      this.edgesFrom[i].undraw();
+      // Erase the edge from the display
+      this.edgesFrom[i].erase();
+      graph.disconnectEdge(this.edgesFrom[i].id);
+
     }
   }
   this.deleteDivFromDom();
@@ -339,6 +341,7 @@ Note.prototype.redraw = function() {
 			//add the edge to notes for updating
 			graph.globalStartNote.edgesFrom.push(tmpEdge);
 			thisnote.edgesTo.push(tmpEdge);
+      tmpEdge.update();
 			tmpEdge.draw(); // draws clientside
 			graph.globalStartNote = null; // ready for a new edge to be created
 			graph.edges.push(tmpEdge);

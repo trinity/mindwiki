@@ -10,6 +10,7 @@ $(document).ready(function(){
 function Graph() {
   this.id = -1;
   this.last_selected_note = null;
+  this.selectedEdge = null;
 
   // Viewport is a small window into the world.
   this.world = document.createElement("div");
@@ -65,6 +66,7 @@ function Graph() {
     tmp.center(); // Center on create regardless of user preferences
     // Let's select the new note right away, too.
     tmp.selected = true;
+    this.last_selected_note = tmp;
     tmp.update();		
   });
 		
@@ -73,17 +75,7 @@ function Graph() {
     var y = event.pageY - $(this).offset().top;
     var margin = 10;
     
-    var l = thisgraph.edges.length;
-    for (var i=0;i<l;i++) 
-    {
-      if (thisgraph.edges[i].isHit(x,y,margin))
-      {
-        // TODO: handle edge click
-        alert("Edge clicked");
-      }
-    }
-    
-    //thisgraph.edgeClick(x,y,margin);
+    thisgraph.edgeClick(x,y,margin);
   });
 		
   $(".note").livequery("dblclick", function(event){
@@ -294,8 +286,13 @@ Graph.prototype.attachControls = function(thisnote){
   $(".colorpicker").css({"zIndex": 9999999});
   
   $(this.deleteButton).click(function () {
-    graph.selectedNote.remove();
-    graph.selectedNote = null; /* some strange behaviour without this... */
+    // FIXME: when you create a new note and an edge and delete the note right away graph.selectedNote points to null.
+    // this if clause is just a quick-fix for the problem.
+    if (graph.selectedNote != null)
+    {
+      graph.selectedNote.remove();
+      graph.selectedNote = null; /* some strange behaviour without this... */
+    }
   });
   
   this.dragControls(thisnote);
@@ -438,6 +435,7 @@ Graph.prototype.updateEdge = function(id,title,color,sourceId, targetId){
     }
     // If we have both references, the edge can be drawn
     if(edge.startNote && edge.endNote){
+      edge.update();
       edge.draw();
     }
     
@@ -556,6 +554,7 @@ Graph.prototype.loadEdge = function(edgeId) {
           startNote.edgesFrom.push(tmp);
           endNote.edgesTo.push(tmp);
 
+          tmp.update();
           tmp.draw();
           thisgraph.edges.push(tmp);
         });
@@ -597,11 +596,22 @@ Graph.prototype.edgeClick = function(x,y,margin)
     var l = this.edges.length;
     for (var i=0;i<l;i++) 
     {
-      alert("graph: jep");
-
       if (this.edges[i].isHit(x,y,margin))
       {
-        // TODO: handle edge click
+        if (this.selectedEdge == null)
+        {
+          this.selectedEdge = this.edges[i];
+          this.selectedEdge.select();
+          return;
+        }
+        
+        if (this.selectedEdge != this.edges[i])
+        {
+          this.selectedEdge.unselect();
+          this.selectedEdge = this.edges[i];
+          this.selectedEdge.select();
+          return;
+        }
       }
     }
 }    
