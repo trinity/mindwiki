@@ -128,7 +128,7 @@ Edge.prototype.erase = function()
   {
     alert("null canvas!");
   }
-  if (this.canvasPathSelected != null)
+  if (this.selected)
   {
     this.canvasPathSelected.remove();
   }
