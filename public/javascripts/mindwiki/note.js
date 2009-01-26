@@ -23,10 +23,26 @@ function Note() {
   this.titleTD = null;
 }
 
+Note.prototype.updateCSS = function() {
+    $(this.titleTD).addClass("noteTitleTD").css({"backgroundColor": lightenColor(this.color)});
+    $(this.div).addClass("note").css({
+      "backgroundColor" : this.color, // doesn't really show -> bars and content overwrite
+      "position" : "absolute",
+      "top" : this.y +"px",
+      "left" : this.x+"px",
+      "width" : this.width+"px"});
+
+  // Color change
+  $(this.articleDiv).css({"backgroundColor": this.color});
+}
+
 // Update the note on the screen to reflect the note object.
 Note.prototype.update = function() {
   // Maybe split into smaller functions?
-
+  // -position and width changes
+  // -color changes
+  // -selection changes ... ?
+  
   graph.dragControls(this);
   // SELECTION.
   // Multiselection is not implemented, yet!
@@ -39,14 +55,7 @@ Note.prototype.update = function() {
 
     graph.last_selected_note = this;
 
-    $(this.titleTD).addClass("noteTitleTD").css({"backgroundColor": lightenColor(this.color)});
-    $(this.div).addClass("note").css({
-      "backgroundColor" : this.color, // doesn't really show -> bars and content overwrite
-      "position" : "absolute",
-      "top" : this.y +"px",
-      "left" : this.x+"px",
-      "width" : this.width+"px"});
-
+    this.updateCSS();
     $(this.div).addClass("noteSelected");
     graph.attachControls(this);
     
@@ -61,9 +70,6 @@ Note.prototype.update = function() {
   // Content rendering after edit
   if(this.articleDiv != null) 
     $(this.articleDiv).html(this.content);
-
-  // Color change
-  $(this.articleDiv).css({"backgroundColor": this.color});
 
   // Title change DOES NOT WORK! When did this break? :D
   $(this.titleTD).html(this.name);
@@ -349,6 +355,9 @@ Note.prototype.redraw = function() {
     if (ev.detail == 1) {
     		/* End edge creation mode if user clicks on same note. */
 		if (graph.globalStartNote == thisnote) {
+			/* Restore color. */
+			graph.globalStartNote.color = graph.globalStartNote.origColor;
+			graph.globalStartNote.updateCSS();
 			graph.globalStartNote = null; // ready for a new edge to be created
 			graph.ch.resetPriority(0);
 			graph.ch.set("");
@@ -356,6 +365,9 @@ Note.prototype.redraw = function() {
 		}
 		// Are we in the edge creation mode?
 		if (graph.globalStartNote != null) {
+			/* Restore color. */
+			graph.globalStartNote.color = graph.globalStartNote.origColor;
+			graph.globalStartNote.updateCSS();
 			// Create edge. No selection.
 			var tmpEdge = new Edge();
 			tmpEdge.rCanvas = graph.rc;
@@ -475,6 +487,28 @@ Note.prototype.redraw = function() {
   $(this.div).append(titleTD);
 
   $("#mindwiki_world").append(this.div);
+}
+
+function deColorize (color, factor) {
+  tr = 128;
+  tg = 128;
+  tb = 128;
+  
+  color = color.substring(1,7);
+  color = parseInt(color, 16);
+  r = (color >> 16) & 255;
+  g = (color >> 8) & 255;
+  b = (color >> 0) & 255;
+  
+  r += (tr - r) * factor;
+  g += (tg - g) * factor;
+  b += (tb - b) * factor;
+  
+  color = (r << 16) | (g << 8) | b;
+  color = color.toString(16);
+  while(color.length < 6)
+  	color = "0" + color;
+  return "#" + color;
 }
 
 function lightenColor (color) {

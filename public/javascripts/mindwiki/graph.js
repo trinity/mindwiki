@@ -144,6 +144,53 @@ function Graph() {
     $(graph.colorButton).removeClass().addClass("noteColorButton");
   });
 
+  /* Controls */
+  $(this.arrowButton).click(function () {
+    thisnote = graph.selectedNote;
+    graph.globalStartNote = thisnote;
+    graph.ch.setPriorityText("<b>Select target note</b> or click on active note to cancel.", 1);
+    thisnote.origColor = thisnote.color;
+    thisnote.color = deColorize (thisnote.color, 0.4);
+    thisnote.updateCSS();
+  });
+  $(this.colorButton).ColorPicker({
+    onBeforeShow: function () {
+      /* Need to fetch it. */
+      $(this).ColorPickerSetColor(graph.selectedNote.color);
+    },
+    onShow: function(picker){
+      $(picker).fadeIn(100);
+      return false;
+    },
+    onHide: function(picker){
+      $(picker).fadeOut(100);
+      return false;
+    },
+    onSubmit: function(hsb, hex, rgb){
+      graph.selectedNote.color = "#"+hex;
+      graph.selectedNote.update();
+      $.ajax({
+        url: "/notes/update/"+graph.selectedNote.id,
+        data: { "note[color]" : "#"+hex },
+        dataType: "html",
+        success: function(data){
+          // :)
+        }
+      });
+    }
+  });
+  $(".colorpicker").css({"zIndex": 9999999});
+  
+  $(this.deleteButton).click(function () {
+    // FIXME: when you create a new note and an edge and delete the note right away graph.selectedNote points to null.
+    // this if clause is just a quick-fix for the problem.
+    if (graph.selectedNote != null)
+    {
+      graph.selectedNote.remove();
+      graph.selectedNote = null; /* some strange behaviour without this... */
+    }
+  });
+
   $("#vport").append(this.buttonsDiv);
   
 
@@ -229,50 +276,7 @@ Graph.prototype.attachControls = function(thisnote){
 
   $(this.buttonsDiv).show();
   
-  $(this.arrowButton).click(function () {
-    graph.globalStartNote = thisnote;
-    graph.ch.setPriorityText("<b>Select target note</b> or click on active note to cancel.", 1);
-  });
   this.selectedNote = thisnote;
-
-  $(this.colorButton).ColorPicker({
-    onBeforeShow: function () {
-      /* Need to fetch it. */
-      $(this).ColorPickerSetColor(graph.selectedNote.color);
-    },
-    onShow: function(picker){
-      $(picker).fadeIn(100);
-      return false;
-    },
-    onHide: function(picker){
-      $(picker).fadeOut(100);
-      return false;
-    },
-    onSubmit: function(hsb, hex, rgb){
-      graph.selectedNote.color = "#"+hex;
-      graph.selectedNote.update();
-      $.ajax({
-        url: "/notes/update/"+graph.selectedNote.id,
-        data: { "note[color]" : "#"+hex },
-        dataType: "html",
-        success: function(data){
-          // :)
-        }
-      });
-    }
-  });
-  $(".colorpicker").css({"zIndex": 9999999});
-  
-  $(this.deleteButton).click(function () {
-    // FIXME: when you create a new note and an edge and delete the note right away graph.selectedNote points to null.
-    // this if clause is just a quick-fix for the problem.
-    if (graph.selectedNote != null)
-    {
-      graph.selectedNote.remove();
-      graph.selectedNote = null; /* some strange behaviour without this... */
-    }
-  });
-  
   this.dragControls(thisnote);
 }
 
