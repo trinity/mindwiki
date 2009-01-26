@@ -324,6 +324,24 @@ Note.prototype.redraw = function() {
     }
   });
 
+  $(this.div).mouseover( function()
+  {
+    /* Do not attempt to highlight note which we are creating edge from. */
+    if (graph.globalStartNote != null && graph.globalStartNote != thisnote) {
+      /* Guessing adding context help here is not necessary. */
+      $(thisnote.div).addClass("noteTargeted");
+      graph.lastTargetNote = thisnote;
+    }
+  });
+  
+  $(this.div).mouseout( function()
+  {
+    if (graph.lastTargetNote != null) {
+      $(thisnote.div).removeClass("noteTargeted");
+      graph.lastTargetNote = null;
+    }
+  });
+  
   // Selection
   $(this.div).mousedown( function(ev)
   {

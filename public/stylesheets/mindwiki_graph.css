@@ -40,6 +40,11 @@
 	color: black;
 }
 
+.noteTargeted
+{
+	border: 2px solid yellow;
+}
+
 .ui-resizable-se
 {
 	bottom: 0px;
