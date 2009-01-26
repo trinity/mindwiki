@@ -184,7 +184,7 @@ function Graph() {
   this.ch = new ContextHelp();
 
   $("#mindwiki_world").mouseover( function(){
-    graph.ch.set("Create new notes by double clicking the background...");
+    graph.ch.set("Create new notes by double clicking the background.");
     // The final event, no need to stop propagation
   });
 
