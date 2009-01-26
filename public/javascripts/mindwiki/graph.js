@@ -83,30 +83,6 @@ function Graph() {
     event.stopPropagation();
   });
 		
-
-  /*
-   * Context help
-   */
-
-  $("#mindwiki_world").mouseover( function(){
-    $("#context_help").empty().append("Create new notes by double clicking the background.");
-  });
-
-  // TODO: Change css
-  $(".noteSelected").mouseover(function(){
-    $("#context_help").empty().append("Double click to edit content");
-  });
-
-  $(".noteArrowButton").mouseover(function(){
-    $("#context_help").empty().append("Create connected note");
-  });
-
-  /*
-   * End Context help
-   */
-
-  
-		
   $(".noteTitleTD").livequery("dblclick", function(event){
     // this event is not used. we just prevent the dblclick
     // to bubble to parents.
@@ -205,32 +181,33 @@ function Graph() {
   /*
    * Context help
    */
+  this.ch = new ContextHelp();
 
   $("#mindwiki_world").mouseover( function(){
-    $("#context_help").empty().append("<b>Create new notes</b> by double clicking the background.");
+    graph.ch.set("Create new notes by double clicking the background...");
     // The final event, no need to stop propagation
   });
 
   $(".note").livequery("mouseover", function(e){
-    $("#context_help").empty().append("<b>Edit content</b> by double clicking the content area.");
+    graph.ch.set("<b>Edit content</b> by double clicking the content area.");
     e.stopPropagation();
   });
 
   $(this.arrowButton).mouseover(function()
   {
-    $("#context_help").empty().append("<b>Create a connection</b> by clicking the arrow button of the first note, and then clicking the second note.");
+    graph.ch.set("<b>Create a connection</b> by clicking the arrow button of the first note, and then clicking the second note.");
   }, function() {}
   );
 
   $(this.colorButton).mouseover(function()
   {
-    $("#context_help").empty().append("<b>Change color.</b>");
+    graph.ch.set("<b>Change color.</b>");
   }, function() {}
   );
   
   $(this.deleteButton).mouseover(function()
   {
-    $("#context_help").empty().append("<b>Delete note.</b>");
+    graph.ch.set("<b>Delete note.</b>");
   }, function() {}
   );
 
@@ -254,6 +231,7 @@ Graph.prototype.attachControls = function(thisnote){
   
   $(this.arrowButton).click(function () {
     graph.globalStartNote = thisnote;
+    graph.ch.setPriorityText("<b>Select target note</b> or click on active note to cancel.", 1);
   });
   this.selectedNote = thisnote;
 
@@ -615,4 +593,30 @@ Graph.prototype.edgeClick = function(x,y,margin)
       }
     }
 }    
+
+/* Maybe move these to a separate file. */
+function ContextHelp() {
+  this.priority = 0;
+}
+
+ContextHelp.prototype.set = function(text) {
+  this.setPriorityText(text, 0);
+}
+
+/* In some cases, such as when we are creating new edges,
+ * we want to discard less important help texts. Such texts should be set with
+ * higher priority and resetPriority called afterwards to restore showing old less
+ * important ones.
+ */
+ContextHelp.prototype.setPriorityText = function(text, p) {
+  if (p < this.priority)
+    return;
+  
+  this.priority = p;
+  $("#context_help").empty().append(text);
+}
+
+ContextHelp.prototype.resetPriority = function(p) {
+  this.priority = p;
+}
 

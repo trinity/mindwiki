@@ -36,7 +36,7 @@ Edge.prototype.setStartNote = function (note)
 Edge.prototype.setEndNote = function (note) 
 {
   if (note == this.startNote) {
-    graph.globalStartNote = null;
+    alert("Internal error 126623");
     // Does not exist: graph.globalEndNote = null;
     this.startNote = null;
   }

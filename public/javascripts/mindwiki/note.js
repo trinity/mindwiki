@@ -347,7 +347,13 @@ Note.prototype.redraw = function() {
   {
     // Checks whether it is a single or dblclick. 
     if (ev.detail == 1) {
-	
+    		/* End edge creation mode if user clicks on same note. */
+		if (graph.globalStartNote == thisnote) {
+			graph.globalStartNote = null; // ready for a new edge to be created
+			graph.ch.resetPriority(0);
+			graph.ch.set("");
+			return;
+		}
 		// Are we in the edge creation mode?
 		if (graph.globalStartNote != null) {
 			// Create edge. No selection.
@@ -363,6 +369,8 @@ Note.prototype.redraw = function() {
 			tmpEdge.draw(); // draws clientside
 			graph.globalStartNote = null; // ready for a new edge to be created
 			graph.edges.push(tmpEdge);
+			graph.ch.resetPriority(0);
+			graph.ch.set("");
 		}
 		// Normal note selection (not in the edge creation mode)
 		else {
