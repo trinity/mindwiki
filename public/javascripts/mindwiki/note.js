@@ -283,7 +283,7 @@ Note.prototype.redraw = function() {
     maxWidth: 800,
     maxHeight: 800,
     handles:  'se', // defines the resize handle location i.e. south east corner
-    // Update note size after dragging.
+    // Update note size after resizing.
     stop: function(event, ui){
       thisnote.width = ui.size.width;
       thisnote.height = ui.size.height;
@@ -306,7 +306,7 @@ Note.prototype.redraw = function() {
   })
   .draggable(
   {
-    zIndex: 10000,
+    zIndex: 10000, // Enough? Maybe not always.
     containment: "parent",
     // Update note position after dragging.
     stop: function(event, ui){
@@ -327,7 +327,8 @@ Note.prototype.redraw = function() {
         thisnote.edgesFrom[i].redraw();
       }
       graph.dragControls(thisnote);
-    }
+    },
+    //cancel: ":input,.noteArticle" // Cannot drag from article content
   });
 
   $(this.div).mouseover( function()

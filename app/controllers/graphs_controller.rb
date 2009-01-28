@@ -119,4 +119,11 @@ class GraphsController < ApplicationController
     end
   end
 
+  # Returns OK-header. Used for connection delay testing.
+  def request_empty
+    respond_to do |format|
+      format.text { head :ok }
+    end
+  end
+
 end #EOF

@@ -77,7 +77,7 @@ function Graph() {
     
     thisgraph.edgeClick(x,y,margin);
   });
-		
+
   $(".note").livequery("dblclick", function(event){
     // this event should never fire...
     event.stopPropagation();
@@ -261,6 +261,16 @@ function Graph() {
   /*
    * End Context help
    */
+
+  // TEMPORARY for performance testing:
+  // How long does it take for an empty ajax request to come back from the server?
+  // On my local testing desktop, it takes about 0.8 seconds!
+  $.ajax({
+    url: "/graphs/request_empty/" + thisgraph.id,
+    success: function() {
+      // no need
+    }
+  });
 
 
 } // end constructor
