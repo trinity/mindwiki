@@ -28,7 +28,9 @@
 }
 
 /* DIV style */
-.loadingDiv
+
+/* Ajax loading spinner big banner in the middle of the screen: */
+/*.loadingDiv
 {
   position: absolute;
   top: 40%;
@@ -43,6 +45,28 @@
   opacity: 0.9;
   z-index: 99999999; //top?
 }
+*/
+
+/* Ajax loading spinner in the left upper hand corner: */
+.loadingDiv
+{
+  position: absolute;
+  top: 25px;
+  left: 0px;
+  width: 100px;
+  height: 100px;
+  background-color: white;
+  border-top: 2px solid black;
+  border-bottom: 2px solid black;
+  border-right: 2px solid black;
+  background-image: url("/images/ajax_loading_spinner.gif");
+  background-repeat: no-repeat;
+  background-position: 50% 50%;
+  opacity: 0.6;
+  z-index: 99999999; //top?
+}
+
+
 
 .note
 {

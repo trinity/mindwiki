@@ -53,10 +53,10 @@ function Graph() {
   // Makes all ajax calls automatically call the loading()-method, 
   // so we do not necessarily need to manually use them all over the code
   $(function() {
-    $(document).ajaxSend(function(){
+    $(document).ajaxSend(function(e, request, options){
       thisgraph.loading(true);
     });
-    $(document).ajaxStop(function(){
+    $(document).ajaxStop(function(e, request, options){
       thisgraph.loading(false);
     });
   });
@@ -282,7 +282,7 @@ function Graph() {
 
   // TEMPORARY for performance testing:
   // How long does it take for an empty ajax request to come back from the server?
-  // On my local testing desktop, it takes about 0.8 seconds!
+  // On my local testing desktop, it takes about 0.8 seconds, which sounds pretty slow.
   $.ajax({
     url: "/graphs/request_empty/" + thisgraph.id,
     success: function() {
@@ -304,7 +304,7 @@ Graph.prototype.loading = function(isLoading){
   if(isLoading){
     $(".loadingDiv").show();
   } else {
-    $(".loadingDiv").hide("slow");
+    $(".loadingDiv").hide(400);
   }
 }
 
