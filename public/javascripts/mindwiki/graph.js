@@ -8,11 +8,6 @@ $(document).ready(function(){
 });
 
 function Graph() {
-  // Spinning loader
-  this.loadingDiv = document.createElement("div");  
-  $(this.loadingDiv).addClass("loadingDiv");
-  $("#world").append(this.loadingDiv);
-  this.loading(true); // The spinner should be shown asap
 
   this.id = -1;
   this.last_selected_note = null;
@@ -49,6 +44,23 @@ function Graph() {
   this.scrollToSelected = true;
 
   var thisgraph = this; // To be used in submethods
+
+  // Spinning loader
+  this.loadingDiv = document.createElement("div");  
+  $(this.loadingDiv).addClass("loadingDiv");
+  $("#world").append(this.loadingDiv);
+
+  // Makes all ajax calls automatically call the loading()-method, 
+  // so we do not necessarily need to manually use them all over the code
+  $(function() {
+    $(document).ajaxSend(function(){
+      thisgraph.loading(true);
+    });
+    $(document).ajaxStop(function(){
+      thisgraph.loading(false);
+    });
+  });
+
 
   // Load graph ID from the path variable.
   // Is ID the only numerical data in the path? Currently, yeah. Maybe sharpen up the regexp, still.
@@ -278,7 +290,6 @@ function Graph() {
     }
   });
 
-  this.loading(false); // tell the user we are done loading
 } // end constructor
 
 // Loads more notes and edges after viewport size or scrolling has been changed.
@@ -291,9 +302,9 @@ Graph.prototype.viewportChanged = function()
 // Show the user that we are loading...
 Graph.prototype.loading = function(isLoading){
   if(isLoading){
-    $(".loadingDiv").show("fast");
+    $(".loadingDiv").show();
   } else {
-    $(".loadingDiv").hide("fast");
+    $(".loadingDiv").hide("slow");
   }
 }
 
@@ -342,7 +353,6 @@ Graph.prototype.getEdgeById = function(id){
 // Load all notes within the current viewport
 Graph.prototype.loadViewportNotes = function() {
   var thisgraph = this;
-  this.loading(true);
   $.ajax({
     url: "/graphs/get_notes_in_vport/" + thisgraph.id,
     dataType: "xml",
@@ -404,7 +414,6 @@ Graph.prototype.loadViewportNotes = function() {
       alert("Cannot load notes: "+a+" "+b+" "+c);
     }
   });
-  this.loading(false);
 };
 
 // Updates edge. This is for tiled note loading.
