@@ -8,6 +8,12 @@ $(document).ready(function(){
 });
 
 function Graph() {
+  // Spinning loader
+  this.loadingDiv = document.createElement("div");  
+  $(this.loadingDiv).addClass("loadingDiv");
+  $("#world").append(this.loadingDiv);
+  this.loading(true); // The spinner should be shown asap
+
   this.id = -1;
   this.last_selected_note = null;
   this.selectedEdge = null;
@@ -272,7 +278,7 @@ function Graph() {
     }
   });
 
-
+  this.loading(false); // tell the user we are done loading
 } // end constructor
 
 // Loads more notes and edges after viewport size or scrolling has been changed.
@@ -280,6 +286,15 @@ function Graph() {
 Graph.prototype.viewportChanged = function()
 {
 
+}
+
+// Show the user that we are loading...
+Graph.prototype.loading = function(isLoading){
+  if(isLoading){
+    $(".loadingDiv").show("fast");
+  } else {
+    $(".loadingDiv").hide("fast");
+  }
 }
 
 Graph.prototype.attachControls = function(thisnote){
@@ -327,6 +342,7 @@ Graph.prototype.getEdgeById = function(id){
 // Load all notes within the current viewport
 Graph.prototype.loadViewportNotes = function() {
   var thisgraph = this;
+  this.loading(true);
   $.ajax({
     url: "/graphs/get_notes_in_vport/" + thisgraph.id,
     dataType: "xml",
@@ -388,6 +404,7 @@ Graph.prototype.loadViewportNotes = function() {
       alert("Cannot load notes: "+a+" "+b+" "+c);
     }
   });
+  this.loading(false);
 };
 
 // Updates edge. This is for tiled note loading.

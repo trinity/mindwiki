@@ -28,6 +28,22 @@
 }
 
 /* DIV style */
+.loadingDiv
+{
+  position: absolute;
+  top: 40%;
+  width: 100%;
+  height: 200px;
+  background-color: #d0d2f2;
+  border-top: 10px solid black;
+  border-bottom: 10px solid black;
+  background-image: url("/images/ajax_loading_spinner.gif");
+  background-repeat: no-repeat;
+  background-position: 50% 50%;
+  opacity: 0.9;
+  z-index: 99999999; //top?
+}
+
 .note
 {
 	position: absolute;
