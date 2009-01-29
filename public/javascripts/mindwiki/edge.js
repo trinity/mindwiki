@@ -247,7 +247,7 @@ Edge.prototype.newID = function() {
       "edge[color]" : thisedge.color,             
       "edge[source_id]" : thisedge.startNote.id,
       "edge[target_id]" : thisedge.endNote.id,        
-      "edge[directed]" : thisedge.directed,
+      "edge[directed]" : thisedge.directed
     },
     dataType: "xml",
     success: function(data){

@@ -327,10 +327,9 @@ Note.prototype.redraw = function() {
         thisnote.edgesFrom[i].redraw();
       }
       graph.dragControls(thisnote);
-    },
+    }
     //cancel: ":input,.noteArticle" // Cannot drag from article content
   });
-
   $(this.div).mouseover( function()
   {
     /* Do not attempt to highlight note which we are creating edge from. */
