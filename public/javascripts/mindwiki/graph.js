@@ -18,14 +18,6 @@ function Graph() {
   $(this.world).attr("id","mindwiki_world");
   $("#vport").append(this.world);
 
-  // To use in the scroll-event, so we are not loading stuff too aggressively
-  this.vpLastUpdatedX = 0;
-  this.vpLastUpdatedY = 0;
-  this.vpLastUpdatedWidth = 0;
-  this.vpLastUpdatedHeight = 0;
-  // Reloads data via ajax every x pixels scrolled.
-  this.reloadDistance = 500; 
-
   this.rc_container = document.createElement("div");
   $(this.rc_container).attr("id","rc_container");
   $(this.world).append(this.rc_container);
