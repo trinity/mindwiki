@@ -352,7 +352,7 @@ Note.prototype.redraw = function() {
   $(this.div).mousedown( function(ev)
   {
     // Checks whether it is a single or dblclick. 
-    if (ev.detail == 1) {
+    if (ev.detail == 1 || ev.detail == null) { // null makes things work in IE
     		/* End edge creation mode if user clicks on same note. */
 		if (graph.globalStartNote == thisnote) {
 			/* Restore color. */
