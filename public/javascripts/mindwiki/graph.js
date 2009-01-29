@@ -85,7 +85,7 @@ function Graph() {
     // Let's select the new note right away, too.
     tmp.selected = true;
     this.last_selected_note = tmp;
-    tmp.update();		
+    tmp.update(); // Might be the cause of "phantom notes"
   });
 		
   $("#mindwiki_world").click( function(event){
@@ -107,7 +107,6 @@ function Graph() {
     event.stopPropagation();
   });
 
-  //this.loadAllNotes();
   this.loadViewportNotes(); // viewport scroll action goes right away atm
   this.reloadDistance = 100;
 
@@ -244,7 +243,7 @@ function Graph() {
   };
 
   /*
-   * Context help
+   * Context help (Might be better inside context_help.js)
    */
   this.ch = new ContextHelp();
 
@@ -351,6 +350,7 @@ Graph.prototype.getEdgeById = function(id){
 
 
 // Load all notes within the current viewport
+// Note: this is not final.
 Graph.prototype.loadViewportNotes = function() {
   var thisgraph = this;
   $.ajax({
@@ -468,123 +468,6 @@ Graph.prototype.updateEdge = function(id,title,color,sourceId, targetId){
   }
 }
 
-// Load all notes within the graph (one at a time)
-// deprecated
-Graph.prototype.loadAllNotes = function() {
-  var thisgraph = this; // To be used in submethods
-  // get ids
-  $.ajax({
-    url: "/graphs/get_note_ids/" + thisgraph.id,
-    dataType: "xml",
-    success: function(data){
-      $("note",data).each(function(i) {
-        thisgraph.loadNote(parseInt($(this).find("id").text()));
-      });
-    },
-    error: function(a,b,c){
-      alert("Cannot load note IDs: "+a+" "+b+" "+c);
-    }
-  });
-};
-
-
-
-// Load just one note
-// deprecated
-Graph.prototype.loadNote = function(noteId) {
-  var thisgraph = this; // To be used in submethods
-  $.ajax({
-    url: "/notes/show/" + noteId,
-    dataType: "xml",
-    success: function(data){
-        var edgeIds = [];
-
-        // notes
-
-        $("note",data).each(function(i) {
-          var tmp = new Note();
-          tmp.id = parseInt($(this).find("id:first").text());
-          tmp.name = $(this).find("name:first").text();
-          tmp.x = parseInt($(this).find("x:first").text());
-          tmp.y = parseInt($(this).find("y:first").text());
-          tmp.width = parseInt($(this).find("width:first").text());
-          tmp.height = parseInt($(this).find("height:first").text());
-          tmp.color = $(this).find("color:first").text();
-
-          $("article",this).each(function(j){ // There's really only one :)
-            tmp.content = $(this).find("content_rendered:first").text();
-            var contentType = parseInt($(this).find("content_type:first").text());
-            if(contentType == 1) // RedCloth-parse included
-              tmp.editableContent = $(this).find("content:first").text();
-          });
-          
-          // Escapes the edges-to array first, then loops edges-to -fields inside
-          $("edges-to",$(this).find("edges-to:first")).each(function(k){
-            var id = parseInt($(this).find("id:first").text());
-            if(edgeIds.indexOf(id) == -1){ // doesn't work
-              edgeIds.push(id);
-            }
-          });
-
-          thisgraph.notes.push(tmp);
-          tmp.redraw();
-        });
-
-        // load the edges
-        jQuery.each(edgeIds, function(){
-          thisgraph.loadEdge(this);
-        });
-    },
-    error: function(a,b,c){
-      alert("Cannot load note: "+a+" "+b+" "+c);
-    }
-  });
-};
-
-
-
-// Load just one edge
-// deprecated
-Graph.prototype.loadEdge = function(edgeId) {
-  var thisgraph = this; // To be used in submethods
-
-  var tmp = null;
-  tmp = new Edge();
-
-  $.ajax({
-    url: "/edges/show/" + edgeId,
-    dataType: "xml",
-    success: function(data){
-      if(data != null && data != "" && data != "\n" && data != "E" && data != "E\n") {
-        $("edge",data).each(function(i) {
-          tmp.rCanvas = thisgraph.rc; // maybe somewhere else
-          tmp.id = parseInt($(this).find("id").text());
-          tmp.title = $(this).find("name").text();
-          tmp.color = $(this).find("color").text();
-          tmp.directed = true; // TODO!! $(this).find("content").text();
-
-          var startNote = thisgraph.getNoteById(parseInt($(this).find("source-id").text()));
-          var endNote = thisgraph.getNoteById(parseInt($(this).find("target-id").text()));
-          tmp.setStartNote(startNote); // Yikes for not checking!
-          tmp.setEndNote(endNote);
-
-          // Give notes the reference to this edge, also:
-          startNote.edgesFrom.push(tmp);
-          endNote.edgesTo.push(tmp);
-
-          tmp.update();
-          tmp.draw();
-          thisgraph.edges.push(tmp);
-        });
-      }
-    },
-    error: function(a,b,c){
-      alert("Cannot load edge: "+a+" "+b+" "+c);
-    }
-
-  });
-}
-
 // Helper function to remove objects from arrays (notes and edges).
 Graph.prototype.removeFromArray = function(arr, objId){
   var l = arr.length;
@@ -633,30 +516,3 @@ Graph.prototype.edgeClick = function(x,y,margin)
       }
     }
 }    
-
-/* Maybe move these to a separate file. */
-function ContextHelp() {
-  this.priority = 0;
-}
-
-ContextHelp.prototype.set = function(text) {
-  this.setPriorityText(text, 0);
-}
-
-/* In some cases, such as when we are creating new edges,
- * we want to discard less important help texts. Such texts should be set with
- * higher priority and resetPriority called afterwards to restore showing old less
- * important ones.
- */
-ContextHelp.prototype.setPriorityText = function(text, p) {
-  if (p < this.priority)
-    return;
-  
-  this.priority = p;
-  $("#context_help").empty().append(text);
-}
-
-ContextHelp.prototype.resetPriority = function(p) {
-  this.priority = p;
-}
-

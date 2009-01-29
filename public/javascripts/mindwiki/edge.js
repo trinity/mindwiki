@@ -64,12 +64,12 @@ Edge.prototype.update = function(){
   // as negative to use standard 2D algebra.
   var negsy = -sy;
   var negey = -ey;
-  var a = this.getAngle(sx, negsy, ex, negey);
+  var a = getAngle(sx, negsy, ex, negey);
   this.angle = a;
   
   var result = new Array();
   
-  this.rectangleIntersection(sx, negsy, this.startNote.width, this.startNote.height, a, result);
+  rectangleIntersection(sx, negsy, this.startNote.width, this.startNote.height, a, result);
   this.x1 = result[0];
   this.y1 = -result[1];
 
@@ -80,7 +80,7 @@ Edge.prototype.update = function(){
     a -= 2 * Math.PI;
   }
 
-  this.rectangleIntersection(ex, negey, this.endNote.width, this.endNote.height, a, result);
+  rectangleIntersection(ex, negey, this.endNote.width, this.endNote.height, a, result);
   this.x2 = result[0];
   this.y2 = -result[1];
 
@@ -209,7 +209,7 @@ Edge.prototype.isHit = function (x,y,margin)
     return false;
   }
   
-  var edgeLength = this.distance(this.x1, this.y1, this.x2, this.y2);
+  var edgeLength = distance(this.x1, this.y1, this.x2, this.y2);
   if (edgeLength < 1)
   {
     // the edge is actually a point.
@@ -228,7 +228,7 @@ Edge.prototype.isHit = function (x,y,margin)
   var cx = this.x1 + u*(this.x2-this.x1);
   var cy = this.y1 + u*(this.y2-this.y1);
   
-  if (this.distance(x,y,cx,cy) > margin)
+  if (distance(x,y,cx,cy) > margin)
   {
     return false;
   }
@@ -261,78 +261,3 @@ Edge.prototype.newID = function() {
   });
 }
 
-Edge.prototype.getAngle = function(x1, y1, x2, y2)
-{
-  // returns the angle (0 <= angle < 2*pi) from point (x1,y1) to (x2,y2).
-  // assumes standrad coordinate system
-	
-  // let's handle main axis first
-  if (x2 == x1)
-  {
-    if (y1 < y2)
-    {
-      return Math.PI / 2;
-    }
-    return 1.5 * Math.PI;
-  }
-  else if (y2 == y1)
-  {
-    if (x1 > x2)
-    {
-      return Math.PI;
-    }
-    return 0;
-  }
-
-  if (x1 > x2)
-  {
-    return Math.PI + Math.atan((y2-y1)/(x2-x1));
-  }
-  
-  if (y1 > y2)
-  {
-    return 2 * Math.PI + Math.atan((y2-y1)/(x2-x1));
-  }
-  return Math.atan((y2-y1)/(x2-x1));
-}
-
-// returns the intersection point of a given rectangle and a line, which starts
-// from the center point of the rectangle and goes to ang direction.
-Edge.prototype.rectangleIntersection = function(cx,cy,width,height,ang,result)
-{
-  // assumes standard coordinate system!
-
-  var aLimit = Math.atan(height/width);
-  var padding = 2;
-  
-  if (ang <= aLimit || ang >= 2 * Math.PI - aLimit)
-  {
-    result[0] = cx + width/2 + 3*padding;
-    result[1] = cy + Math.tan(ang) * width / 2;
-  }
-  else if (ang > aLimit && ang < Math.PI - aLimit)
-  {
-    // note: sin(a) > 0. no need to check division by zero.
-    result[0] = cx + (Math.cos(ang) / Math.sin(ang)) * height / 2
-    result[1] = cy + height / 2 + padding;
-  }
-  else if (ang >= Math.PI - aLimit && ang <= Math.PI + aLimit)
-  {
-    result[0] = cx - width/2 - padding;
-    result[1] = cy - Math.tan(ang) * width / 2;
-  }
-  else if (ang > Math.PI + aLimit && ang < 2 * Math.PI - aLimit)
-  {
-    // note: sin(a) < 0. no need to check division by zero.
-    result[0] = cx - (Math.cos(ang) / Math.sin(ang)) * height / 2
-    result[1] = cy - height / 2 - 3*padding;
-  }
-}
-
-// calculates the euclidean distance between points (x1,y1) and (x2,y2).
-Edge.prototype.distance = function(x1,y1,x2,y2)
-{
-  var dx = x2 - x1;
-  var dy = y2 - y1;
-  return Math.sqrt(dx*dx + dy*dy);
-}
