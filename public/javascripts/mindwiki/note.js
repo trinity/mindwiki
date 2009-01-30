@@ -247,6 +247,7 @@ Note.prototype.newID = function() {
     success: function(data){
       $("note", data).each(function(i) {
         thisnote.id = parseInt($(this).find("id").text());
+        graph.notes.push(thisnote);
       });
     },
     error: function(a,b,c){
