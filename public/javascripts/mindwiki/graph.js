@@ -3,7 +3,8 @@
 $(document).ready(function(){
   var graphs = /\/graphs\/\d+/; // regexp to identify pathnames that should have mindwiki graphs
   if(graphs.exec(document.location.pathname)){
-    graph = new Graph(); // graph is now global.
+    // Please note the sad global nature of these variables.
+    graph = new Graph();
   }
 });
 
@@ -18,7 +19,9 @@ function Graph() {
   $(this.world).attr("id","mindwiki_world");
   $("#vport").append(this.world);
 
-  //I'm pretty sure that this code causes the ghost bug, so it needs to be changed. 
+  // Creating and attaching the server-syncer
+  this.sync = new Sync();
+  this.sync.graph = this;
 
   // To use in the scroll-event, so we are not loading stuff too aggressively
   this.vpLastUpdatedX = 0;
@@ -47,34 +50,12 @@ function Graph() {
 
   var thisgraph = this; // To be used in submethods
 
-  // Spinning loader
-  this.loadingDiv = document.createElement("div");  
-  $(this.loadingDiv).addClass("loadingDiv");
-  $("#world").append(this.loadingDiv);
-
-  // Makes all ajax calls automatically call the loading()-method, 
-  // so we do not necessarily need to manually use them all over the code
-  $(function() {
-    $(document).ajaxSend(function(e, request, options){
-      thisgraph.loading(true);
-    });
-    $(document).ajaxStop(function(e, request, options){
-      thisgraph.loading(false);
-    });
-  });
-
-
   // Load graph ID from the path variable.
   // Is ID the only numerical data in the path? Currently, yeah. Maybe sharpen up the regexp, still.
   var id_from_pathname = new RegExp(/\d+/).exec(location.pathname);
   this.id = parseInt(id_from_pathname[0]); // RegExp.exec puts matches into an array
-  $.ajax({
-    url: "/graphs/get_color/" + thisgraph.id,        
-    success: function(data){
-      thisgraph.color = data;
-      $("#mindwiki_world").css({"backgroundColor" : data});
-    }
-  });
+
+  this.sync.getColor();
 
   // NEW NOTE creation by double clicking in the viewport
   $("#mindwiki_world").dblclick( function(event){
@@ -289,9 +270,10 @@ function Graph() {
     success: function() {
       // no need
     }
-  });
+  });  
 
 } // end constructor
+
 
 // Loads more notes and edges after viewport size or scrolling has been changed.
 // They could be in different methods to increase performance somewhat.
