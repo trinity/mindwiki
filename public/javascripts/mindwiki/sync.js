@@ -87,7 +87,7 @@ Sync.prototype.getGraphColor = function(){
 
 
 /****************************************************************************
-  Inform the server about a note color change.
+  Inform the server about a NOTE COLOR change.
  ****************************************************************************/
 
 Sync.prototype.setNoteColor = function(noteId, newColor){
@@ -95,6 +95,116 @@ Sync.prototype.setNoteColor = function(noteId, newColor){
     url: "/notes/update/"+noteId,
     data: { "note[color]" : newColor },
     dataType: "html"
+  });
+}
+
+
+/****************************************************************************
+  Inform the server about a NOTE POSITION change.
+ ****************************************************************************/
+
+Sync.prototype.setNotePosition = function(noteId, newx, newy){
+  $.ajax({
+    url: "/notes/update/"+noteId,
+    dataType: "html",
+    data: {
+      "note[x]" : newx,
+      "note[y]" : newy
+    }
+  });
+}
+
+
+/****************************************************************************
+  Inform the server about a NOTE SIZE change.
+ ****************************************************************************/
+
+Sync.prototype.setNoteSize = function(noteId, neww, newh){
+  $.ajax({
+    url: "/notes/update/"+noteId,
+    dataType: "html",
+    data: {
+      "note[width]" : neww,
+      "note[height]" : newh
+    }
+  });
+}
+
+
+/****************************************************************************
+  Inform the server about a NOTE NAME change.
+ ****************************************************************************/
+
+Sync.prototype.setNoteName = function(note, newName){
+  var n = note;
+  $.ajax({
+    url: "/notes/update/"+n.id,
+    dataType: "html",
+    data: { "note[name]" : newName },
+    success: function(data){
+      n.name=newName;
+      n.update();
+    }
+  });
+}
+
+
+/****************************************************************************
+  Inform the server about a NOTE CONTENT change.
+ ****************************************************************************/
+
+Sync.prototype.setNoteContent = function(note, newContent){
+  var n = note;
+  $.ajax({
+    url: "/notes/update_content/"+n.id,
+    data: { "newContent" : newContent },
+    dataType: "html",
+    success: function(data){
+      n.content=data;
+      n.update();
+    }
+  });
+}
+
+
+/****************************************************************************
+  Inform the server about a NOTE DELETION.
+ ****************************************************************************/
+
+Sync.prototype.deleteNote = function(noteId){
+  $.ajax({ url: "/notes/destroy/"+noteId });
+}
+
+
+/****************************************************************************
+  Inform the server about a NEW NOTE.
+  Gives the note a server assigned id number.
+ ****************************************************************************/
+
+Sync.prototype.createNote = function(note){
+  var n = note;
+  $.ajax({
+    url: "/notes/create",
+    type: "POST",
+    data: {
+      "graph_id" : graph.id,
+      "note[name]" : n.name,
+      "note[color]" : n.color,
+      "note[x]" : n.x,
+      "note[y]" : n.y,
+      "note[width]" : n.width,
+      "note[height]" : n.height,
+      "article_content" : n.content
+    },
+    dataType: "xml",
+    success: function(data){
+      $("note", data).each(function(i) {
+        n.id = parseInt($(this).find("id:first").text());
+      });
+    },   
+    error: function(a,b,c){
+      alert("Cannot create new note to db: "+a+b+c);
+    }
   });
 }
 
@@ -169,7 +279,7 @@ Sync.prototype.getViewportNotes = function(){
 
     },
     error: function(a,b,c){
-      alert("Cannot load notes: "+a+" "+b+" "+c);
+      //alert("Cannot load notes: "+a+" "+b+" "+c);
     }
   });
 }

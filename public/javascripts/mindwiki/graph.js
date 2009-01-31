@@ -68,7 +68,7 @@ function Graph() {
     // Let's select the new note right away, too.
     tmp.selected = true;
     this.last_selected_note = tmp;
-    tmp.update(); // Might be the cause of "phantom notes"
+    tmp.update();
   });
 		
   $("#mindwiki_world").click( function(event){
@@ -187,7 +187,6 @@ function Graph() {
   $("#vport").append(this.buttonsDiv);
   
 
-  //var thisnote = this;
   // Load notes after scrolled
   $("#vport").scroll(function(){
     var vpX = $("#vport").scrollLeft();

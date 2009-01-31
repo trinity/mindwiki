@@ -93,49 +93,6 @@ Note.prototype.getEdgeFromById = function(id){
   return null;
 }
 
-
-// Notifies the controller of updated coordinates
-
-// Warning: jQuery does not validate empty page with OK status as 
-// success without (for example) dataType: "html"
-
-Note.prototype.updatePosition = function() {
-  var thisnote = this;
-  $.ajax({
-    url: "/notes/update/"+thisnote.id,
-    dataType: "html",
-    data: {
-      "note[x]" : thisnote.x,
-      "note[y]" : thisnote.y
-    },
-    success: function(data){
-      // ...
-    },
-    error: function(a,b,c){
-      // ...
-    }
-  });
-}
-
-// Notifies the controller of updated size
-Note.prototype.updateSize = function() {
-  var thisnote = this;
-  $.ajax({
-    url: "/notes/update/"+thisnote.id,
-    dataType: "html",
-    data: {
-      "note[width]" : thisnote.width,
-      "note[height]" : thisnote.height
-    },
-    success: function(data){
-      // ...
-    },
-    error: function(a,b,c){
-      // ...
-    }
-  });
-}
-
 // Delete note.
 Note.prototype.remove = function() {
   var thisnote = this;
@@ -165,16 +122,13 @@ Note.prototype.remove = function() {
   }
   this.deleteDivFromDom();
 
+  // TODO: Have graph object call the sync/delete also.
   // Notify the graph object
   graph.disconnectNote(this.id);
-
   // Notify the server
-  $.ajax({
-    url: "/notes/destroy/"+thisnote.id,
-    error: function(a,b,c){
-      alert("Cannot delete note id "+thisnote.id+" from database: "+a+b+c);
-    }
-  });
+  graph.sync.deleteNote(thisnote.id);
+
+  // Delete the object
   delete this;
 }
 
@@ -229,31 +183,8 @@ Note.prototype.deleteDivFromDom = function() {
 // Get new ID from DB.
 // Use after creating a new note.
 Note.prototype.newID = function() {
-  var thisnote = this;
-  $.ajax({
-    url: "/notes/create",
-    type: "POST",
-    data: {
-      "graph_id" : graph.id,
-      "note[name]" : thisnote.name,    
-      "note[color]" : thisnote.color,             
-      "note[x]" : thisnote.x,                        
-      "note[y]" : thisnote.y,        
-      "note[width]" : thisnote.width,         
-      "note[height]" : thisnote.height,        
-      "article_content" : thisnote.content
-    },
-    dataType: "xml",
-    success: function(data){
-      $("note", data).each(function(i) {
-        thisnote.id = parseInt($(this).find("id").text());
-        graph.notes.push(thisnote);
-      });
-    },
-    error: function(a,b,c){
-      alert("Cannot create new note to db: "+a+b+c);
-    }
-  });
+  graph.sync.createNote(this);
+  graph.notes.push(this);
 }
 
 // This function (re)constructs the whole div!
@@ -288,7 +219,7 @@ Note.prototype.redraw = function() {
     stop: function(event, ui){
       thisnote.width = ui.size.width;
       thisnote.height = ui.size.height;
-      thisnote.updateSize();
+      graph.sync.setNoteSize(thisnote.id, thisnote.width, thisnote.height);
     },
     resize: function(event, ui){
       thisnote.width = ui.size.width;
@@ -313,7 +244,7 @@ Note.prototype.redraw = function() {
     stop: function(event, ui){
       thisnote.x = ui.position.left;
       thisnote.y = ui.position.top;
-      thisnote.updatePosition();
+      graph.sync.setNotePosition(thisnote.id, thisnote.x, thisnote.y);
     },
     drag: function(event, ui){
       thisnote.x = ui.position.left;
@@ -436,43 +367,18 @@ Note.prototype.redraw = function() {
           $(this).dialog("destroy").remove();
         },
         "Save": function(){
-           
-          // Yes, it would be faster to have only one ajax-call...
 
           // Updating the title
           var newTitle = $("#titleInputField").val();
           if(thisnote.name != newTitle){
-            $.ajax({
-              url: "/notes/update/"+thisnote.id,
-              dataType: "html",
-              data: { "note[name]" : newTitle },
-              success: function(data){
-                // yay!
-                thisnote.name = newTitle;
-                thisnote.update();
-              },
-              error: function(a,b,c){
-                //alert("Cannot update title: "+a+b+c);
-              }
-            });
+            graph.sync.setNoteName(thisnote, newTitle);
           }
 
           // Updating the content
           var boxContents = $("#editableContentBox").val();
           thisnote.editableContent = boxContents;
-          thisnote.content = "Rendering edited content, please wait..."; // Javascript isn't actually threaded, so user never sees this :(
-          $.ajax({
-            url: "/notes/update_content/"+thisnote.id,
-            data: { "newContent" : boxContents },
-            dataType: "html",
-            success: function(data){
-              thisnote.content=data;
-              thisnote.update();
-            },
-            error: function(a,b,c){
-              alert("Cannot update content: "+a+b+c);
-            }
-          });
+          thisnote.content = "Rendering edited content, please wait...";
+          graph.sync.setNoteContent(thisnote, boxContents);
           $(this).dialog("destroy").remove(); // Don't edit lightly :)
         }
       }
