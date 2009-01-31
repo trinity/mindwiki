@@ -75,11 +75,15 @@
 	height: 300px;
 	background-color: white;
 	color: black;
+	/* Workaround to avoid content shifting when changing border to 3px. */	
+	margin: 1px;
 }
 
 .noteTargeted
 {
-	border: 2px solid yellow;
+	border: 3px solid yellow;
+	/* Workaround to avoid content shifting when changing border to 3px. */	
+	margin: 0px;
 }
 
 .ui-resizable-se
@@ -112,9 +116,9 @@
 /* DIV style */
 .noteSelected
 {
-	border-bottom: 4px solid black;
-	border-right: 4px solid black;
-	
+	border: 3px solid yellow;
+	/* Workaround to avoid content shifting when changing border to 3px. */	
+	margin: 0px;
 }
 
 /* A style */
