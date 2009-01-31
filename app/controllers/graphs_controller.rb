@@ -121,12 +121,16 @@ class GraphsController < ApplicationController
 
   def updated_since
     respond_to do |format|
-      if params[:id].nil? || params[:time].nil?
+      if params[:id].nil? || params[:timestamp].nil?
         format.xml { render :xml => @graph.errors, :status => :unprocessable_entity }
         format.json { render :json => @graph.errors, :status => :unprocessable_entity }
       end
       @graph = Graph.find(params[:id])
-      @changed_notes = @graph.notes.find(:all, :conditions => ["updated_at >= ?", params[:time]])
+      # SQL-injection-safe?
+      # TODO: Check for changes in articles or edges, too.
+      @changed_notes = @graph.notes.find(:all, :conditions => ["updated_at > ? OR created_at > ?", params[:timestamp], params[:timestamp]])
+      format.xml { render :xml => @changed_notes.to_xml(:include => [:article, :edges_to, :edges_from]) }
+      format.json { render :json => @changed_notes.to_json(:include => [:article, :edges_to, :edges_from]) }
     end
   end
 

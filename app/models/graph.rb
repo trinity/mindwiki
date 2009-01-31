@@ -53,8 +53,6 @@ class Graph < ActiveRecord::Base
       end
     end
 
-
-
     return vp_notes
   end
   

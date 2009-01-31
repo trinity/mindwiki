@@ -12,6 +12,7 @@ function Sync() {
   var thissync = this;     // For submethods
   this.graph = null;       // Remember to set in graph
   this.refreshTime = 4000; // How ofter do we poll the server for updates? (in milliseconds)
+  this.timestamp = "";     // The latest timestamp from the server
 
 
  /****************************************************************************
@@ -54,13 +55,108 @@ function Sync() {
 
 function checkServerForUpdates(syncObject){
   var sync = syncObject;
+  var thisgraph = syncObject.graph;
+
   $.ajax({
-    url: "/graphs/request_empty/1",
-    success: function() {
-      // no need
+    url: "/graphs/updated_since/" + sync.graph.id,
+    data: { "timestamp" : sync.timestamp },
+    dataType: "xml",
+    success: function(data){
+      sync.updateTimestamp(data);
+      $("note",data).each(function(i){
+          var tmp = new Note();
+          tmp.id = parseInt($(this).find("id:first").text());
+          tmp.name = $(this).find("name:first").text();
+          tmp.x = parseInt($(this).find("x:first").text());
+          tmp.y = parseInt($(this).find("y:first").text());
+          tmp.width = parseInt($(this).find("width:first").text());  
+          tmp.height = parseInt($(this).find("height:first").text());
+          tmp.color = $(this).find("color:first").text();
+
+          $("article",this).each(function(j){ // There's really only one :)
+            tmp.content = $(this).find("content_rendered:first").text();
+            var contentType = parseInt($(this).find("content_type:first").text());
+            if(contentType == 1) // RedCloth-parse included
+              tmp.editableContent = $(this).find("content:first").text();
+          });
+
+          // Only add the note to the graph if it is not already in.
+          // TODO: Check timestamps to see if update is in order.
+          if(!thisgraph.getNoteById(tmp.id)){
+            thisgraph.notes.push(tmp);
+            tmp.redraw();
+          }
+
+          // Escapes the edges-to array first, then loops edges-to -fields inside
+          $("edges-to",$(this).find("edges-to:first")).each(function(k){
+            thisgraph.updateEdge(
+              parseInt($(this).find("id:first").text()),
+              $(this).find("name:first").text(), 
+              $(this).find("color:first").text(),
+              parseInt($(this).find("source-id").text()),
+              parseInt($(this).find("target-id").text())
+            );
+          });
+          // Escapes the edges-to array first, then loops edges-to -fields inside
+          $("edges-from",$(this).find("edges-from:first")).each(function(l){
+            thisgraph.updateEdge(
+              parseInt($(this).find("id:first").text()),
+              $(this).find("name:first").text(),
+              $(this).find("color:first").text(),
+              parseInt($(this).find("source-id").text()),
+              parseInt($(this).find("target-id").text()) 
+            );
+          }); 
+      });
+
     }
   });
+
   setTimeout(checkServerForUpdates, sync.refreshTime, sync); // reference to global :(
+}
+
+
+/****************************************************************************
+  Update sync-object's timestamp from server returned data
+ ****************************************************************************/
+
+Sync.prototype.updateTimestamp = function(data){
+  var sync = this;
+ 
+
+  $("note",data).each(function(i){
+      sync.updateTimestampIfBigger( $(this).find("updated-at:first").text() );
+      sync.updateTimestampIfBigger( $(this).find("created-at:first").text() );
+
+      $("article",this).each(function(j){ // There's really only one :)
+        sync.updateTimestampIfBigger( $(this).find("updated-at:first").text() );
+        sync.updateTimestampIfBigger( $(this).find("created-at:first").text() );
+      });
+
+      // Escapes the edges-to array first, then loops edges-to -fields inside
+      $("edges-to",$(this).find("edges-to:first")).each(function(k){
+  
+          sync.updateTimestampIfBigger( $(this).find("updated-at:first").text() );
+          sync.updateTimestampIfBigger( $(this).find("created-at:first").text() );
+       
+      });
+      // Escapes the edges-to array first, then loops edges-to -fields inside
+      $("edges-from",$(this).find("edges-from:first")).each(function(l){
+      
+          sync.updateTimestampIfBigger( $(this).find("updated-at:first").text() );
+          sync.updateTimestampIfBigger( $(this).find("created-at:first").text() );
+       
+      }); 
+  });
+}
+
+
+/****************************************************************************
+   Compare a timestamp to the current one, and keep the bigger one.
+ ****************************************************************************/
+
+Sync.prototype.updateTimestampIfBigger = function(s){
+  this.timestamp = (this.timestamp < s) ? s : this.timestamp;
 }
 
 
@@ -231,6 +327,7 @@ Sync.prototype.getViewportNotes = function(){
       "vport_height": $("#vport").height()
     },
     success: function(data){
+      thissync.updateTimestamp(data);
       $("note",data).each(function(i){
           var tmp = new Note();
           tmp.id = parseInt($(this).find("id:first").text());
