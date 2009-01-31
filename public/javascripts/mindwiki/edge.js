@@ -238,26 +238,7 @@ Edge.prototype.isHit = function (x,y,margin)
 
 // Sends a newly created edge to server, and gets a database id in return.
 Edge.prototype.newID = function() {
-  var thisedge = this;
-  $.ajax({
-    url: "/edges/create",
-    type: "POST",
-    data: {
-      "edge[name]" : thisedge.title,    
-      "edge[color]" : thisedge.color,             
-      "edge[source_id]" : thisedge.startNote.id,
-      "edge[target_id]" : thisedge.endNote.id,        
-      "edge[directed]" : thisedge.directed
-    },
-    dataType: "xml",
-    success: function(data){
-      $("edge", data).each(function(i) {
-        thisedge.id = parseInt($(this).find("id").text());
-      });
-    },
-    error: function(a,b,c){
-      alert("Cannot create a new edge: "+a+b+c);
-    }
-  });
+  graph.sync.createEdge(this);
+  graph.edges.push(this);
 }
 

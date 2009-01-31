@@ -283,3 +283,34 @@ Sync.prototype.getViewportNotes = function(){
     }
   });
 }
+
+
+/****************************************************************************
+  Inform the server about a NEW EDGE.
+  Gives the edge a server assigned id number.
+ ****************************************************************************/
+
+Sync.prototype.createEdge = function(edge){
+  var e = edge;
+  $.ajax({
+    url: "/edges/create",
+    type: "POST",
+    data: {
+      "edge[name]" : e.title,            
+      "edge[color]" : e.color,           
+      "edge[source_id]" : e.startNote.id,
+      "edge[target_id]" : e.endNote.id,
+      "edge[directed]" : e.directed
+    },
+    dataType: "xml",
+    success: function(data){
+      $("edge", data).each(function(i) {
+        e.id = parseInt($(this).find("id:first").text());
+      });
+    },
+    error: function(a,b,c){
+      alert("Cannot create a new edge: "+a+b+c);
+    }
+  });
+}
+

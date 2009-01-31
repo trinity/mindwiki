@@ -16,7 +16,7 @@ class EdgesController < ApplicationController
 
     respond_to do |format|
       if @edge.save
-        format.xml  { render :xml => @edge, :status => :created, :location => @edge }
+        format.xml  { render :xml => @edge.to_xml(:only => [:id]), :status => :created }
       else
         format.xml  { render :xml => @edge.errors, :status => :unprocessable_entity }
       end

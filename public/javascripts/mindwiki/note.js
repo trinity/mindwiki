@@ -107,7 +107,7 @@ Note.prototype.remove = function() {
       this.edgesTo[i].startNote.disconnectEdgeFromById(this.edgesTo[i].id);
       // Erase the edge from the display
       this.edgesTo[i].erase();
-      graph.disconnectEdge(this.edgesFrom[i].id);
+      graph.disconnectEdge(this.edgesTo[i].id);
     }
   }
   if(this.edgesFrom != null){
