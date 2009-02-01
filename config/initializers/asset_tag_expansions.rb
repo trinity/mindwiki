@@ -4,7 +4,7 @@
 ActionView::Helpers::AssetTagHelper.register_javascript_expansion :mindwiki_graph => [
  "jquery-1.2.6.min", "jquery.livequery", "jquery.url", "ui/ui.core", "ui/ui.draggable", "ui/ui.selectable", "ui/ui.resizable", "ui/ui.slider", "ui/ui.dialog", "raphael", "colorpicker",
  "markitup/jquery.markitup", "markitup/sets/textile/set", "jquery.scrollTo", "mindwiki/misc", "mindwiki/context_help", "mindwiki/sync", "mindwiki/note", 
- "mindwiki/edge", "mindwiki/graph"]
+ "mindwiki/edge", "mindwiki/graph", "mindwiki/viewport"]
 
 ActionView::Helpers::AssetTagHelper.register_javascript_expansion :graph_color_picker => ["jquery-1.2.6.min", "colorpicker", "graph_color_init"]
  
