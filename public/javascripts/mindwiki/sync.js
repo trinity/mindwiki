@@ -411,3 +411,12 @@ Sync.prototype.createEdge = function(edge){
   });
 }
 
+/****************************************************************************
+  Inform the server about a EDGE DELETION.
+ ****************************************************************************/
+
+Sync.prototype.deleteEdge = function(edgeId){
+  $.ajax({ url: "/edges/destroy/"+edgeId });
+}
+
+

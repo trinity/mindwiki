@@ -102,13 +102,16 @@ function Graph() {
   
   // Initialize controls 
   this.buttonsDiv = document.createElement("div");
+  this.edgeButtonsDiv = document.createElement("div");
   
   // Buttons
   this.deleteButton = document.createElement("div");
   this.colorButton = document.createElement("div");
   this.arrowButton = document.createElement("div");
+  this.deleteEdgeButton = document.createElement("div");
 
   $(this.buttonsDiv).addClass("noteButtonTD").hide();
+  $(this.edgeButtonsDiv).addClass("noteButtonTD").hide();
 
   // arrow button
   $(this.arrowButton).addClass("noteArrowButton");
@@ -121,6 +124,9 @@ function Graph() {
   // delete button
   $(this.deleteButton).addClass("noteDeleteButton");
   $(this.buttonsDiv).append(this.deleteButton);
+
+  $(this.deleteEdgeButton).addClass("noteDeleteButton");
+  $(this.edgeButtonsDiv).append(this.deleteEdgeButton);
 
   $(this.arrowButton).mousedown(function () {
     $(graph.arrowButton).removeClass().addClass("noteArrowButtonPressed");
@@ -181,24 +187,19 @@ function Graph() {
       graph.selectedNote.remove();
       graph.selectedNote = null; /* some strange behaviour without this... */
     }
-
-
-  /*{
-    var x, y;
-    for (x = 0; x < 100; x++)
-      for (y = 0; y < 100; y++) {
-        var tmp = new Note();
-        tmp.x = x * 4 + 1000;
-        tmp.y = y * 4 + 1000;
-        tmp.newID();
-      }
-  }*/
-
-
   });
 
+  $(this.deleteEdgeButton).click(function () {
+    if (graph.selectedEdge != null)
+    {
+      graph.selectedEdge.remove();
+      graph.selectedEdge = null;
+    }
+  });
+  
   //$("#vport").append(this.buttonsDiv);
   $("#mindwiki_world").append(this.buttonsDiv);
+  $("#mindwiki_world").append(this.edgeButtonsDiv);
   
   this.vp = new Viewport(this.newViewport);
   this.vp.graph = this;
@@ -364,6 +365,24 @@ Graph.prototype.detachControls = function(thisnote){
     $(this.buttonsDiv).hide();
 }
 
+
+Graph.prototype.attachControlsToEdge = function(thisedge,x,y){
+
+  $(this.edgeButtonsDiv).show();
+  $(this.edgeButtonsDiv).addClass("noteButtonTD").css({
+    "position" : "absolute",
+    "top" : y-26 +"px",
+    "left" : x-15 +"px",
+    "width" : 32+"px",
+    "height" : "28px"
+  });
+}
+
+Graph.prototype.detachControlsFromEdge = function(thisedge){
+  $(this.edgeButtonsDiv).hide();
+}
+
+
 Graph.prototype.getNoteById = function(id){
   var l = this.notes.length;
   for(var i=0;i<l;i++){
@@ -468,7 +487,7 @@ Graph.prototype.edgeClick = function(x,y,margin)
         if (this.selectedEdge == null)
         {
           this.selectedEdge = this.edges[i];
-          this.selectedEdge.select();
+          this.selectedEdge.select(x,y);
           return;
         }
         
@@ -476,10 +495,16 @@ Graph.prototype.edgeClick = function(x,y,margin)
         {
           this.selectedEdge.unselect();
           this.selectedEdge = this.edges[i];
-          this.selectedEdge.select();
+          this.selectedEdge.select(x,y);
           return;
         }
       }
+    }
+    // if we missed all edges, then unselect possible selected edge.
+    if (this.selectedEdge != null)
+    {
+      this.selectedEdge.unselect();
+      this.selectedEdge = null;
     }
 }    
 

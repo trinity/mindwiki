@@ -24,13 +24,14 @@ function Note() {
 }
 
 Note.prototype.updateCSS = function() {
-    $(this.titleTD).addClass("noteTitleTD").css({"backgroundColor": lightenColor(this.color)});
-    $(this.div).addClass("note").css({
-      "backgroundColor" : this.color, // doesn't really show -> bars and content overwrite
-      "position" : "absolute",
-      "top" : graph.vp.toLocalY(this.y) + "px",
-      "left" : graph.vp.toLocalX(this.x) + "px",
-      "width" : this.width+"px"});
+  $(this.titleTD).addClass("noteTitleTD").css({"backgroundColor": lightenColor(this.color)});
+  $(this.div).addClass("note").css({
+    "backgroundColor" : this.color, // doesn't really show -> bars and content overwrite
+    "position" : "absolute",
+    "top" : graph.vp.toLocalY(this.y) + "px",
+    "left" : graph.vp.toLocalX(this.x) + "px",
+    "width" : this.width+"px"
+  });
 
   // Color change
   $(this.articleDiv).css({"backgroundColor": this.color});
@@ -289,43 +290,43 @@ Note.prototype.redraw = function() {
   {
     // Checks whether it is a single or dblclick. 
     if (ev.detail == 1 || ev.detail == null) { // null makes things work in IE
-    		/* End edge creation mode if user clicks on same note. */
-		if (graph.globalStartNote == thisnote) {
-			/* Restore color. */
-			graph.globalStartNote.color = graph.globalStartNote.origColor;
-			graph.globalStartNote.updateCSS();
-			graph.globalStartNote = null; // ready for a new edge to be created
-			graph.ch.resetPriority(0);
-			graph.ch.set("");
-			return;
-		}
-		// Are we in the edge creation mode?
-		if (graph.globalStartNote != null) {
-			/* Restore color. */
-			graph.globalStartNote.color = graph.globalStartNote.origColor;
-			graph.globalStartNote.updateCSS();
-			// Create edge. No selection.
-			var tmpEdge = new Edge();
-			tmpEdge.rCanvas = graph.rc;
-			tmpEdge.setStartNote(graph.globalStartNote);
-			tmpEdge.setEndNote(thisnote);
-			tmpEdge.newID(); // notifies server
-			//add the edge to notes for updating
-			graph.globalStartNote.edgesFrom.push(tmpEdge);
-			thisnote.edgesTo.push(tmpEdge);
-      tmpEdge.update();
-			tmpEdge.draw(); // draws clientside
-			graph.globalStartNote = null; // ready for a new edge to be created
-			graph.edges.push(tmpEdge);
-			graph.ch.resetPriority(0);
-			graph.ch.set("");
-		}
-		// Normal note selection (not in the edge creation mode)
-		else {
-        		thisnote.selected = true;
- 			thisnote.update();
-		}
-	}
+    	/* End edge creation mode if user clicks on same note. */
+      if (graph.globalStartNote == thisnote) {
+        /* Restore color. */
+        graph.globalStartNote.color = graph.globalStartNote.origColor;
+        graph.globalStartNote.updateCSS();
+        graph.globalStartNote = null; // ready for a new edge to be created
+        graph.ch.resetPriority(0);
+        graph.ch.set("");
+        return;
+      }
+      // Are we in the edge creation mode?
+      if (graph.globalStartNote != null) {
+        /* Restore color. */
+        graph.globalStartNote.color = graph.globalStartNote.origColor;
+        graph.globalStartNote.updateCSS();
+        // Create edge. No selection.
+        var tmpEdge = new Edge();
+        tmpEdge.rCanvas = graph.rc;
+        tmpEdge.setStartNote(graph.globalStartNote);
+        tmpEdge.setEndNote(thisnote);
+        tmpEdge.newID(); // notifies server
+        //add the edge to notes for updating
+        graph.globalStartNote.edgesFrom.push(tmpEdge);
+        thisnote.edgesTo.push(tmpEdge);
+        tmpEdge.update();
+        tmpEdge.draw(); // draws clientside
+        graph.globalStartNote = null; // ready for a new edge to be created
+        graph.edges.push(tmpEdge);
+        graph.ch.resetPriority(0);
+        graph.ch.set("");
+      }
+      // Normal note selection (not in the edge creation mode)
+      else {
+        thisnote.selected = true;
+        thisnote.update();
+      }
+    }
   });
 
   // Center the selected note on the viewport, if the user prefers so.

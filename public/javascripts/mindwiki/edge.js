@@ -28,6 +28,27 @@ function Edge ()
   this.strokeWidth = 3;
 }
 
+Edge.prototype.remove = function() {
+
+  this.erase();
+  
+  // Make sure controls are not visible on this one
+  if (this.selected) {
+    graph.detachControlsFromEdge(this);
+  }
+  
+  this.startNote.disconnectEdgeFromById(this.id);
+  this.endNote.disconnectEdgeToById(this.id);
+
+  // Notify the graph object
+  graph.disconnectEdge(this.id);
+  // Notify the server
+  graph.sync.deleteEdge(this.id);
+
+  // Delete the object
+  delete this;
+}
+
 Edge.prototype.setStartNote = function (note) 
 {
   this.startNote = note;
@@ -151,13 +172,14 @@ Edge.prototype.draw = function ()
   this.circle.attr({stroke: this.color, fill: this.color});
 }
 
-Edge.prototype.select = function () 
+Edge.prototype.select = function (x,y) 
 {
   if (!this.selected)
   {
     this.erase();
     this.selected = true;
     this.draw();
+    graph.attachControlsToEdge(this,x,y);
   }
 }
 
@@ -168,6 +190,7 @@ Edge.prototype.unselect = function ()
     this.erase();
     this.selected = false;
     this.draw();
+    graph.detachControlsFromEdge(this);
   }
 }
 
