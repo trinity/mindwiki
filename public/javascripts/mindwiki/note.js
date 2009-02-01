@@ -28,8 +28,8 @@ Note.prototype.updateCSS = function() {
     $(this.div).addClass("note").css({
       "backgroundColor" : this.color, // doesn't really show -> bars and content overwrite
       "position" : "absolute",
-      "top" : this.y +"px",
-      "left" : this.x+"px",
+      "top" : graph.vp.toLocalY(this.y) + "px",
+      "left" : graph.vp.toLocalX(this.x) + "px",
       "width" : this.width+"px"});
 
   // Color change
@@ -170,7 +170,11 @@ Note.prototype.center = function(){
   var moveToY = thisnote.y - yOffset;
   if(moveToX<0)moveToX=0;
   if(moveToY<0)moveToY=0;
-  $("#vport").scrollTo({left:moveToX, top:moveToY},100,{axis:"xy"}); // 100 is the scroll time
+  
+  if (graph.newViewport == true)
+    graph.vp.setView(moveToX, moveToY);
+  else
+    $("#vport").scrollTo({left:moveToX, top:moveToY},100,{axis:"xy"}); // 100 is the scroll time
 }
 
 // Just remove the div of the note from the DOM-tree. 
@@ -200,8 +204,8 @@ Note.prototype.redraw = function() {
   $(this.div).addClass("note").css({
     "backgroundColor" : this.color, // doesn't really show -> bars and content overwrite
     "position" : "absolute",
-    "top" : this.y+"px",
-    "left" : this.x+"px",
+    "top" : graph.vp.toLocalY(this.y) + "px",
+    "left" : graph.vp.toLocalX(this.x) + "px",
     "width" : this.width+"px",
     "height" : this.height+"px"
   });
@@ -242,13 +246,13 @@ Note.prototype.redraw = function() {
     containment: "parent",
     // Update note position after dragging.
     stop: function(event, ui){
-      thisnote.x = ui.position.left;
-      thisnote.y = ui.position.top;
+      thisnote.x = graph.vp.toWorldX(ui.position.left);
+      thisnote.y = graph.vp.toWorldY(ui.position.top);
       graph.sync.setNotePosition(thisnote.id, thisnote.x, thisnote.y);
     },
     drag: function(event, ui){
-      thisnote.x = ui.position.left;
-      thisnote.y = ui.position.top;
+      thisnote.x = graph.vp.toWorldX(ui.position.left);
+      thisnote.y = graph.vp.toWorldY(ui.position.top);
       // let's update the related edges:
       var l = thisnote.edgesTo.length;
       for(var i=0;i<l;i++){

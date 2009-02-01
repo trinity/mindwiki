@@ -31,11 +31,7 @@ function Graph() {
   // Reloads data via ajax every x pixels scrolled.
   this.reloadDistance = 500; 
 
-  this.rc_container = document.createElement("div");
-  $(this.rc_container).attr("id","rc_container");
-  $(this.world).append(this.rc_container);
-  
-  this.rc = Raphael("rc_container", 9999, 9999); // Raphael canvas, FIXME: static size
+  this.rc = Raphael("mindwiki_world", 9999, 9999); // Raphael canvas, FIXME: static size
   this.color = "#dddddd";
 
   this.globalStartNote = null; // Used when creating new edges
@@ -47,6 +43,9 @@ function Graph() {
 
   // Do we want to center the selected note? TODO: Move to user preferences.
   this.scrollToSelected = true;
+
+  // Use new viewport?
+  this.newViewport = false;
 
   var thisgraph = this; // To be used in submethods
 
@@ -60,13 +59,14 @@ function Graph() {
   // NEW NOTE creation by double clicking in the viewport
   $("#mindwiki_world").dblclick( function(event){
     var tmp = new Note();
-    tmp.x = event.pageX - $(this).offset().left;
-    tmp.y = event.pageY - $(this).offset().top;
+    tmp.x = graph.vp.toWorldX(event.pageX - $(this).offset().left);
+    tmp.y = graph.vp.toWorldY(event.pageY - $(this).offset().top);
     tmp.newID();
     tmp.redraw();
     tmp.center(); // Center on create regardless of user preferences
     // Let's select the new note right away, too.
     tmp.selected = true;
+    graph.notes.push(tmp);
     this.last_selected_note = tmp;
     tmp.update();
   });
@@ -74,8 +74,10 @@ function Graph() {
   $("#mindwiki_world").click( function(event){
     var x = event.pageX - $(this).offset().left;
     var y = event.pageY - $(this).offset().top;
-    var margin = 10;
     
+    var margin = 10;
+
+    /* edges are in local coordinates. */
     thisgraph.edgeClick(x,y,margin);
   });
 
@@ -89,9 +91,6 @@ function Graph() {
     // to bubble to parents.
     event.stopPropagation();
   });
-
-  this.sync.getViewportNotes(); // viewport scroll action goes right away atm
-  this.reloadDistance = 100;
 
   // Stop events in class stop_propagation
   // Used for youtube-videos, for instance..
@@ -182,40 +181,101 @@ function Graph() {
       graph.selectedNote.remove();
       graph.selectedNote = null; /* some strange behaviour without this... */
     }
+
+
+  /*{
+    var x, y;
+    for (x = 0; x < 100; x++)
+      for (y = 0; y < 100; y++) {
+        var tmp = new Note();
+        tmp.x = x * 4 + 1000;
+        tmp.y = y * 4 + 1000;
+        tmp.newID();
+      }
+  }*/
+
+
   });
 
-  $("#vport").append(this.buttonsDiv);
+  //$("#vport").append(this.buttonsDiv);
+  $("#mindwiki_world").append(this.buttonsDiv);
   
+  this.vp = new Viewport(this.newViewport);
+  this.vp.x1 = this.vp.y1 = 0;
+  this.vp.x2 = this.vp.y2 = 9999;
+  this.vp.windowW = $("#vport").width();
+  this.vp.windowH = $("#vport").height();
+  this.vp.scrollableY = this.vp.y2-this.vp.y1-this.vp.windowH;
+  this.vp.scrollableX = this.vp.x2-this.vp.x1-this.vp.windowW;
+  
+  vScrollbar = document.createElement("div");
+  $(vScrollbar).addClass("vScrollbar");
+
+  vScrollbarIndicator = document.createElement("div");
+  $(vScrollbarIndicator).addClass("vScrollbarIndicator");
+  $(vScrollbar).append(vScrollbarIndicator);
+  
+  $(vScrollbarIndicator).css("height", this.vp.windowH / this.vp.scrollableY *640 /*scrollbarSize.y*/);
+  $(vScrollbar).slider({
+    //accept: ".vScrollbarIndicator",
+    handle: ".vScrollbarIndicator",
+    /*min: 0,
+    max: 1,*/
+    max: 1000,
+    step: 1,
+    axis: "vertical",
+    slide: function(ev, ui) {
+      var y = (ui.value/1000.0 * graph.vp.scrollableY);
+      y = Math.floor(y);
+      
+      if (graph.newViewport == true)
+        graph.vp.setViewYScrolled(y);
+      else
+        $("#mindwiki_world").css('top', -y + "px");
+    }
+  });
+  $("#vport").append(vScrollbar);
+
+
+  hScrollbar = document.createElement("div");
+  $(hScrollbar).addClass("hScrollbar");
+
+  hScrollbarIndicator = document.createElement("div");
+  $(hScrollbarIndicator).addClass("hScrollbarIndicator");
+  $(hScrollbar).append(hScrollbarIndicator);
+  
+  $(hScrollbarIndicator).css("width", this.vp.windowW / this.vp.scrollableX *640 /*scrollbarSize.x*/);
+  $(hScrollbar).slider({
+    //accept: ".vScrollbarIndicator",
+    handle: ".hScrollbarIndicator",
+    /*min: 0,
+    max: 1,*/
+    max: 1000,
+    step: 1,
+    axis: "horizontal",
+    slide: function(ev, ui) {
+      var x = (ui.value/1000.0 * graph.vp.scrollableX);
+      x = Math.floor(x);
+      
+      if (graph.newViewport == true)
+        graph.vp.setViewXScrolled(x);
+      else
+        $("#mindwiki_world").css('left', -x + "px");
+    }
+  });
+  
+  $("#vport").append(hScrollbar);
+
+
+  /* HIDE since they do not really work right... */
+  if (this.newViewport == false) {
+    $(vScrollbar).hide();
+    $(hScrollbar).hide();
+  }
 
   // Load notes after scrolled
-  $("#vport").scroll(function(){
-    var vpX = $("#vport").scrollLeft();
-    var vpY = $("#vport").scrollTop();
-    var rd = thisgraph.reloadDistance;
-    // Reload, if we have moved beyond the reload distance
-    if(vpX>thisgraph.vpLastUpdatedX+rd || vpX<thisgraph.vpLastUpdatedX-rd ||
-       vpY>thisgraph.vpLastUpdatedY+rd || vpY<thisgraph.vpLastUpdatedY-rd)
-    {
-      thisgraph.sync.getViewportNotes();
-      thisgraph.vpLastUpdatedX = vpX;
-      thisgraph.vpLastUpdatedY = vpY;
-    }
-  });
+  $("#vport").scroll(this.vp.addNewNotes);
 
-  // Load more notes after window has been resized enough
-  window.onresize = function(){
-    var vpW = $("#vport").width();
-    var vpH = $("#vport").height();
-    var rd = thisgraph.reloadDistance;
-    // Reload, if we have moved beyond the reload distance
-    if(vpW>thisgraph.vpLastUpdatedWidth+rd || vpW<thisgraph.vpLastUpdatedWidth-rd ||
-       vpH>thisgraph.vpLastUpdatedHeight+rd || vpH<thisgraph.vpLastUpdatedHeight-rd)
-    {
-      thisgraph.sync.getViewportNotes();
-      thisgraph.vpLastUpdatedWidth = vpW;
-      thisgraph.vpLastUpdatedHeight = vpH;
-    }
-  };
 
   /*
    * Context help (Might be better inside context_help.js)
@@ -254,6 +314,8 @@ function Graph() {
    * End Context help
    */
 
+  this.sync.getViewportNotes(); // viewport scroll action goes right away atm
+  this.reloadDistance = 100;
 } // end constructor
 
 
@@ -284,8 +346,8 @@ Graph.prototype.attachControls = function(thisnote){
 Graph.prototype.dragControls = function(thisnote){
   $(this.buttonsDiv).addClass("noteButtonTD").css({
     "position" : "absolute",
-    "top" : (thisnote.y-26) +"px", /* FIXME: -26 */
-    "left" : thisnote.x+"px",
+    "top" : (graph.vp.toLocalY(thisnote.y)-26) +"px", /* FIXME: -26 */
+    "left" : graph.vp.toLocalX(thisnote.x)+"px",
     "width" : thisnote.width+"px",
     "height" : "28px"
   });
@@ -313,8 +375,6 @@ Graph.prototype.getEdgeById = function(id){
   }
   return null;
 }
-
-
 
 // Updates edge. This is for tiled note loading.
 // (When we load the edge for the first time, the second note may not be read yet)
@@ -416,3 +476,136 @@ Graph.prototype.edgeClick = function(x,y,margin)
       }
     }
 }    
+
+Graph.prototype.UpdateAllNotesCSS = function() {
+  for (var i = 0; i < this.notes.length; i++) {
+    this.notes[i].updateCSS();
+    
+    for (var ii = 0; ii < this.notes[i].edgesTo.length; ii++)
+      this.notes[i].edgesTo[ii].redraw();
+  }
+}
+
+function Viewport(newViewport) {
+  this.newViewport = newViewport;
+  if (this.newViewport == false) {
+    this.x1 = this.y1 = 0;
+  }
+
+}
+
+Viewport.prototype.worldLeft = function() {
+}
+
+Viewport.prototype.worldTop = function() {
+}
+
+Viewport.prototype.setView = function(left, top) {
+  this.x1 = left;
+  this.y1 = top;
+  
+  this.addNewNotes();
+  graph.UpdateAllNotesCSS();
+  if (graph.selectedNote != null)
+    graph.dragControls(graph.selectedNote);
+}
+
+Viewport.prototype.setViewXScrolled = function(left) {
+  this.x1 = left;
+
+  this.addNewNotes();
+  graph.UpdateAllNotesCSS();
+  if (graph.selectedNote != null)
+    graph.dragControls(graph.selectedNote);
+}
+
+Viewport.prototype.setViewYScrolled = function(top) {
+  this.y1 = top;
+
+  this.addNewNotes();
+  graph.UpdateAllNotesCSS();
+  if (graph.selectedNote != null)
+    graph.dragControls(graph.selectedNote);
+}
+
+Viewport.prototype.setViewX = function(left) {
+  /* TODO: update scrollbar position */
+  /*$(graph.hScrollbar).slider("value", 500);*/
+  if (this.newViewport == true)
+    this.setViewXScrolled(left);
+}
+
+Viewport.prototype.setViewY = function(top) {
+  /* TODO: update scrollbar position */
+  /*$(graph.vScrollbar).slider("value", 500);*/
+  if (this.newViewport == true)
+    this.setViewYScrolled(top);
+}
+
+
+Viewport.prototype.viewLeft = function() {
+  if (this.newViewport == true) {
+    return this.x1;
+  } else {
+    return $("#vport").scrollLeft();
+  }
+}
+
+Viewport.prototype.viewTop = function() {
+  if (this.newViewport == true) {
+    return this.y1;
+  } else {
+    return $("#vport").scrollTop();
+  }
+}
+
+Viewport.prototype.toLocalX = function(x) {
+  if (this.newViewport == true)
+    return x - this.viewLeft();
+  else
+    return x;
+    
+}
+
+Viewport.prototype.toLocalY = function(y) {
+  if (this.newViewport == true)
+    return y - this.viewTop();
+  else
+    return y;
+}
+
+Viewport.prototype.toWorldX = function(x) {
+  if (this.newViewport == true)
+    return this.viewLeft() + x;
+  else
+    return x;
+}
+
+Viewport.prototype.toWorldY = function(y) {
+  if (this.newViewport == true)
+    return this.viewTop() + y;
+  else
+    return y;
+}
+
+
+  // Load more notes after window has been resized enough
+Viewport.prototype.addNewNotes = function() {
+  // Load notes after scrolled
+  if (this.newViewport == true) {
+    var vpX = graph.vp.viewLeft();
+    var vpY = graph.vp.viewTop();
+  } else {
+    $("#vport").scrollLeft();
+    $("#vport").scrollTop();
+  }
+  var rd = graph.reloadDistance;
+  // Reload, if we have moved beyond the reload distance
+  if(vpX>graph.vpLastUpdatedX+rd || vpX<graph.vpLastUpdatedX-rd ||
+     vpY>graph.vpLastUpdatedY+rd || vpY<graph.vpLastUpdatedY-rd)
+  {
+    graph.sync.getViewportNotes();
+    graph.vpLastUpdatedX = vpX;
+    graph.vpLastUpdatedY = vpY;
+  }
+}

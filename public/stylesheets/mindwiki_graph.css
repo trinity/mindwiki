@@ -1,4 +1,11 @@
 /* DIV style */
+#vport {
+	position: absolute;
+	right: 0px;
+	bottom: 0px;
+	left: 0px;
+	top: 25px;
+}
 
 /* Umm.  */
 #top-menu
@@ -10,10 +17,11 @@
 {
 	position: absolute;
 	top: 25px;
-	width: 100%;
-	bottom: 0px;
+	/*width: 100%;
+	bottom: 0px;*/
 	color: black;
         overflow: auto;
+	/*overflow: hidden;*/
 }
 
 #mindwiki_world
@@ -21,6 +29,39 @@
   position: absolute;
   height: 9999px;
   width: 9999px;
+  overflow: hidden;
+}
+
+.vScrollbar {
+  position: absolute;
+  top: 0px;
+  bottom: 16px;
+  right: 0px;
+  width: 16px;
+  background-color: green;
+  z-index: 99999999; /*top?*/
+}
+
+.vScrollbarIndicator {
+  position: absolute;
+  background-color: yellow;
+  width: 14px;
+}
+
+.hScrollbar {
+  position: absolute;
+  left: 0px;
+  bottom: 0px;
+  right: 16px;
+  height: 16px;
+  background-color: green;
+  z-index: 99999999; /*top?*/
+}
+
+.hScrollbarIndicator {
+  position: absolute;
+  background-color: yellow;
+  height: 14px;
 }
 
 #rc-container
@@ -60,7 +101,7 @@
   background-repeat: no-repeat;
   background-position: 50% 50%;
   opacity: 0.6;
-  z-index: 99999999; //top?
+  z-index: 99999999; /*top?*/
 }
 
 

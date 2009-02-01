@@ -55,10 +55,11 @@ Edge.prototype.update = function(){
     return;
   }
 
-  var sx = this.startNote.x + this.startNote.width / 2;
-  var sy = this.startNote.y + this.startNote.height / 2;
-  var ex = this.endNote.x + this.endNote.width / 2;
-  var ey = this.endNote.y + this.endNote.height / 2;
+  // Less writing if we assume edges are in local coords all the way.
+  var sx = graph.vp.toLocalX(this.startNote.x) + this.startNote.width / 2;
+  var sy = graph.vp.toLocalY(this.startNote.y) + this.startNote.height / 2;
+  var ex = graph.vp.toLocalX(this.endNote.x) + this.endNote.width / 2;
+  var ey = graph.vp.toLocalY(this.endNote.y) + this.endNote.height / 2;
 
   // viewport doesn't have standard coordinate system. that's why we count each y-coordinate
   // as negative to use standard 2D algebra.

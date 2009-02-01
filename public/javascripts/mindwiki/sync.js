@@ -321,8 +321,8 @@ Sync.prototype.getViewportNotes = function(){
     url: "/graphs/get_notes_in_vport/" + thisgraph.id,
     dataType: "xml",
     data: {
-      "vport_x": $("#vport").scrollLeft(),
-      "vport_y": $("#vport").scrollTop(), 
+      "vport_x": thisgraph.vp.viewLeft(),
+      "vport_y": thisgraph.vp.viewTop(), 
       "vport_width": $("#vport").width(), 
       "vport_height": $("#vport").height()
     },
