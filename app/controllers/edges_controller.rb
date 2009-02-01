@@ -36,4 +36,15 @@ class EdgesController < ApplicationController
       end
     end
   end
+  
+  def destroy
+    @edge = Edge.find(params[:id])
+    
+    @edge.destroy
+    
+    respond_to do |format|
+      format.html { head :ok }
+      format.xml { head :ok }
+    end
+  end
 end
