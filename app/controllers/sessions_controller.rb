@@ -14,7 +14,7 @@ class SessionsController < ApplicationController
         current_user.remember_me unless current_user.remember_token?
         cookies[:auth_token] = { :value => self.current_user.remember_token , :expires => self.current_user.remember_token_expires_at }
       end
-      redirect_back_or_default('/')
+      redirect_back_or_default('/graphs')
       flash[:notice] = "Logged in successfully"
     else
       render :action => 'new'
@@ -25,7 +25,7 @@ class SessionsController < ApplicationController
     self.current_user.forget_me if logged_in?
     cookies.delete :auth_token
     reset_session
-    flash[:notice] = "You have been logged out."
-    redirect_back_or_default('/')
+    flash[:notice] = "You have been logged out." # So this no longer works...
+    redirect_back_or_default('/session/new') # But this seems to do the trick for IE without breaking FF
   end
 end
