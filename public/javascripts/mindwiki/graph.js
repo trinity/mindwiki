@@ -201,6 +201,7 @@ function Graph() {
   $("#mindwiki_world").append(this.buttonsDiv);
   
   this.vp = new Viewport(this.newViewport);
+  this.vp.graph = this;
   this.vp.x1 = this.vp.y1 = 0;
   this.vp.x2 = this.vp.y2 = 9999;
   this.vp.windowW = $("#vport").width();
@@ -313,8 +314,13 @@ function Graph() {
   /*
    * End Context help
    */
-
-  this.sync.getViewportNotes(); // viewport scroll action goes right away atm
+  if (this.newViewport == true) {
+    this.vp.initFromURL();
+  
+    this.vp.setView(this.vp.x1, this.vp.y1);
+  } else {
+    this.sync.getViewportNotes(); // viewport scroll action goes right away atm
+  }
   this.reloadDistance = 100;
 } // end constructor
 
@@ -500,32 +506,51 @@ Viewport.prototype.worldLeft = function() {
 Viewport.prototype.worldTop = function() {
 }
 
+Viewport.prototype.initFromURL = function() {
+  var anchor = jQuery.url.attr("anchor");
+  if (anchor == null)
+    return ;
+  
+  /* Use url plugin to parse it. Cheap I know..*/
+  anchor = "?" + anchor;
+
+  this.x1 = jQuery.url.setUrl(anchor).param("left");
+  this.y1 = jQuery.url.setUrl(anchor).param("top");
+}
+
+Viewport.prototype.updateURL = function() {
+  window.location.href = "#left=" + this.x1 + "&top=" + this.y1;
+}
+
 Viewport.prototype.setView = function(left, top) {
   this.x1 = left;
   this.y1 = top;
   
   this.addNewNotes();
-  graph.UpdateAllNotesCSS();
-  if (graph.selectedNote != null)
-    graph.dragControls(graph.selectedNote);
+  this.graph.UpdateAllNotesCSS();
+  if (this.graph.selectedNote != null)
+    this.graph.dragControls(graph.selectedNote);
+  this.updateURL();
 }
 
 Viewport.prototype.setViewXScrolled = function(left) {
   this.x1 = left;
 
   this.addNewNotes();
-  graph.UpdateAllNotesCSS();
-  if (graph.selectedNote != null)
-    graph.dragControls(graph.selectedNote);
+  this.graph.UpdateAllNotesCSS();
+  if (this.graph.selectedNote != null)
+    this.graph.dragControls(graph.selectedNote);
+  this.updateURL();
 }
 
 Viewport.prototype.setViewYScrolled = function(top) {
   this.y1 = top;
 
   this.addNewNotes();
-  graph.UpdateAllNotesCSS();
-  if (graph.selectedNote != null)
-    graph.dragControls(graph.selectedNote);
+  this.graph.UpdateAllNotesCSS();
+  if (this.graph.selectedNote != null)
+    this.graph.dragControls(graph.selectedNote);
+  this.updateURL();
 }
 
 Viewport.prototype.setViewX = function(left) {
@@ -593,19 +618,19 @@ Viewport.prototype.toWorldY = function(y) {
 Viewport.prototype.addNewNotes = function() {
   // Load notes after scrolled
   if (this.newViewport == true) {
-    var vpX = graph.vp.viewLeft();
-    var vpY = graph.vp.viewTop();
+    var vpX = this.viewLeft();
+    var vpY = this.viewTop();
   } else {
     $("#vport").scrollLeft();
     $("#vport").scrollTop();
   }
-  var rd = graph.reloadDistance;
+  var rd = this.graph.reloadDistance;
   // Reload, if we have moved beyond the reload distance
-  if(vpX>graph.vpLastUpdatedX+rd || vpX<graph.vpLastUpdatedX-rd ||
-     vpY>graph.vpLastUpdatedY+rd || vpY<graph.vpLastUpdatedY-rd)
+  if(vpX>this.graph.vpLastUpdatedX+rd || vpX<this.graph.vpLastUpdatedX-rd ||
+     vpY>this.graph.vpLastUpdatedY+rd || vpY<this.graph.vpLastUpdatedY-rd)
   {
-    graph.sync.getViewportNotes();
-    graph.vpLastUpdatedX = vpX;
-    graph.vpLastUpdatedY = vpY;
+    this.graph.sync.getViewportNotes();
+    this.graph.vpLastUpdatedX = vpX;
+    this.graph.vpLastUpdatedY = vpY;
   }
 }
