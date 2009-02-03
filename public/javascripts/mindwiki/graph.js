@@ -362,7 +362,7 @@ Graph.prototype.loading = function(isLoading){
   if(isLoading){
     $(".loadingDiv").show();
   } else {
-    $(".loadingDiv").hide(400);
+    $(".loadingDiv").fadeOut(400);
   }
 }
 
