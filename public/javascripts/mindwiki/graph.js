@@ -341,6 +341,9 @@ function Graph() {
     }
    });
    
+  this.controlsAfterDrag = false;
+  this.config.newOption("checkbox", "controlsAfterDrag", function(value) { graph.controlsAfterDrag = value; });
+
   this.config.newOption("button", "Hide", function() { $(graph.config.div).hide("slow"); });
 
   $("#vport").append(this.config.getHandle());
@@ -365,7 +368,7 @@ Graph.prototype.loading = function(isLoading){
 
 Graph.prototype.attachControls = function(thisnote){
 
-  $(this.buttonsDiv).show();
+  $(this.buttonsDiv).show(graph.controlsAfterDrag ? "fast" : "");
   
   this.selectedNote = thisnote;
   this.dragControls(thisnote);
@@ -381,7 +384,7 @@ Graph.prototype.dragControls = function(thisnote){
 
 Graph.prototype.detachControls = function(thisnote){
   if (this.selectedNote == null || thisnote.id == this.selectedNote.id)
-    $(this.buttonsDiv).hide();
+    $(this.buttonsDiv).hide(graph.controlsAfterDrag ? "fast" : "");
 }
 
 

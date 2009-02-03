@@ -44,7 +44,6 @@ Note.prototype.update = function() {
   // -color changes
   // -selection changes ... ?
   
-  graph.dragControls(this);
   // SELECTION.
   // Multiselection is not implemented, yet!
   if(this.selected){
@@ -246,10 +245,16 @@ Note.prototype.redraw = function() {
     zIndex: 10000, // Enough? Maybe not always.
     containment: "parent",
     // Update note position after dragging.
+    start: function(event, ui){
+      if (graph.controlsAfterDrag == true)
+        graph.detachControls(thisnote);
+    },
     stop: function(event, ui){
       thisnote.x = graph.vp.toWorldX(ui.position.left);
       thisnote.y = graph.vp.toWorldY(ui.position.top);
       graph.sync.setNotePosition(thisnote.id, thisnote.x, thisnote.y);
+      if (graph.controlsAfterDrag == true)
+        graph.attachControls(thisnote);
     },
     drag: function(event, ui){
       thisnote.x = graph.vp.toWorldX(ui.position.left);
@@ -263,7 +268,8 @@ Note.prototype.redraw = function() {
       for(var i=0;i<l;i++){
         thisnote.edgesFrom[i].redraw();
       }
-      graph.dragControls(thisnote);
+      if (graph.controlsAfterDrag == false)
+        graph.dragControls(thisnote);
 
       // Safari 3.2 redraw workaround.
       if ($.browser.safari && $.browser.version <= 3)

@@ -21,7 +21,11 @@ ContextHelp.prototype.setPriorityText = function(text, p) {
     return;
   
   this.priority = p;
+  if (text == this.text)
+    return;
+  
   $("#context_help").empty().append(text);
+  this.text = text;
 }
 
 ContextHelp.prototype.resetPriority = function(p) {
