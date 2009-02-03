@@ -86,7 +86,7 @@ function Graph() {
     event.stopPropagation();
   });
 		
-  $(".noteTitleTD").livequery("dblclick", function(event){
+  $(".noteTitle").livequery("dblclick", function(event){
     // this event is not used. we just prevent the dblclick
     // to bubble to parents.
     event.stopPropagation();
@@ -110,8 +110,8 @@ function Graph() {
   this.arrowButton = document.createElement("div");
   this.deleteEdgeButton = document.createElement("div");
 
-  $(this.buttonsDiv).addClass("noteButtonTD").hide();
-  $(this.edgeButtonsDiv).addClass("noteButtonTD").hide();
+  $(this.buttonsDiv).addClass("noteButton").hide();
+  $(this.edgeButtonsDiv).addClass("noteButton").hide();
 
   // arrow button
   $(this.arrowButton).addClass("noteArrowButton");
@@ -372,12 +372,10 @@ Graph.prototype.attachControls = function(thisnote){
 }
 
 Graph.prototype.dragControls = function(thisnote){
-  $(this.buttonsDiv).addClass("noteButtonTD").css({
-    "position" : "absolute",
+  $(this.buttonsDiv).css({
     "top" : (graph.vp.toLocalY(thisnote.y)-26) +"px", /* FIXME: -26 */
     "left" : graph.vp.toLocalX(thisnote.x)+"px",
     "width" : thisnote.width+"px",
-    "height" : "28px"
   });
 }
 
@@ -390,12 +388,10 @@ Graph.prototype.detachControls = function(thisnote){
 Graph.prototype.attachControlsToEdge = function(thisedge,x,y){
 
   $(this.edgeButtonsDiv).show();
-  $(this.edgeButtonsDiv).addClass("noteButtonTD").css({
-    "position" : "absolute",
+  $(this.edgeButtonsDiv).css({
     "top" : y-26 +"px",
     "left" : x-15 +"px",
     "width" : 32+"px",
-    "height" : "28px"
   });
 }
 

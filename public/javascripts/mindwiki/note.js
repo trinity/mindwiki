@@ -24,8 +24,8 @@ function Note() {
 }
 
 Note.prototype.updateCSS = function() {
-  $(this.titleTD).addClass("noteTitleTD").css({"backgroundColor": lightenColor(this.color)});
-  $(this.div).addClass("note").css({
+  $(this.titleTD).css({"backgroundColor": lightenColor(this.color)});
+  $(this.div).css({
     "backgroundColor" : this.color, // doesn't really show -> bars and content overwrite
     "position" : "absolute",
     "top" : graph.vp.toLocalY(this.y) + "px",
@@ -351,7 +351,7 @@ Note.prototype.redraw = function() {
 
 	
   // titleTD
-  $(titleTD).addClass("noteTitleTD").css({"backgroundColor": lightenColor(this.color)}).append(this.name);
+  $(titleTD).addClass("noteTitle").css({"backgroundColor": lightenColor(this.color)}).append(this.name);
   thisnote.titleTD = titleTD;
 
   // article (div)

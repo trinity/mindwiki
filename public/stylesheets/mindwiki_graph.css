@@ -249,13 +249,15 @@
 
 
 /* TD style */
-.noteButtonTD
+.noteButton
 {
+	position: absolute;
+	height: 28px;
 	z-index: 1000;
 }
 
 /* TD style */
-.noteTitleTD
+.noteTitle
 {
 	border-bottom: black solid thin;
 	border-top: none;
