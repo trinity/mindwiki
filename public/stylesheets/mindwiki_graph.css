@@ -32,6 +32,17 @@
   overflow: hidden;
 }
 
+.config {
+  position: fixed;
+  top: 25px;
+  right: 30px;
+  padding: 5px;
+  background-color: gray;
+  z-index: 99999999; /*top?*/
+  overflow: auto;
+  opacity: 0.5;
+}
+
 .vScrollbar {
   position: absolute;
   top: 0px;

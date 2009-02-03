@@ -157,6 +157,7 @@ function Graph() {
     thisnote.origColor = thisnote.color;
     thisnote.color = deColorize (thisnote.color, 0.4);
     thisnote.updateCSS();
+    $("div").css({"cursor": "pointer"});
   });
   $(this.colorButton).ColorPicker({
     onBeforeShow: function () {
@@ -201,7 +202,7 @@ function Graph() {
   $("#mindwiki_world").append(this.buttonsDiv);
   $("#mindwiki_world").append(this.edgeButtonsDiv);
   
-  this.vp = new Viewport(this.newViewport);
+  this.vp = new Viewport();
   this.vp.graph = this;
   this.vp.x1 = this.vp.y1 = 0;
   this.vp.x2 = this.vp.y2 = 9999;
@@ -323,6 +324,26 @@ function Graph() {
     this.sync.getViewportNotes(); // viewport scroll action goes right away atm
   }
   this.reloadDistance = 100;
+  this.config = new Config();
+  //this.config.newOption("text", "example", function(value) { alert("text is " + value); });
+  this.config.newOption("checkbox", "scrollToSelected", function(value) { graph.scrollToSelected = value; });
+
+  this.config.newOption("checkbox", "newViewport", function(value) { 
+    graph.newViewport = value;
+    if (graph.newViewport == false) {
+      $(vScrollbar).hide();
+      $(hScrollbar).hide();
+    } else {
+      $(vScrollbar).show();
+      $(hScrollbar).show();
+    this.vp.initFromURL();
+    this.vp.setView(this.vp.x1, this.vp.y1);
+    }
+   });
+   
+  this.config.newOption("button", "Hide", function() { $(graph.config.div).hide("slow"); });
+
+  $("#vport").append(this.config.getHandle());
 } // end constructor
 
 

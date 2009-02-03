@@ -1,9 +1,5 @@
-function Viewport(newViewport) {
-  this.newViewport = newViewport;
-  if (this.newViewport == false) {
+function Viewport() {
     this.x1 = this.y1 = 0;
-  }
-
 }
 
 Viewport.prototype.worldLeft = function() {
@@ -62,20 +58,20 @@ Viewport.prototype.setViewYScrolled = function(top) {
 Viewport.prototype.setViewX = function(left) {
   /* TODO: update scrollbar position */
   /*$(graph.hScrollbar).slider("value", 500);*/
-  if (this.newViewport == true)
+  if (this.graph.newViewport == true)
     this.setViewXScrolled(left);
 }
 
 Viewport.prototype.setViewY = function(top) {
   /* TODO: update scrollbar position */
   /*$(graph.vScrollbar).slider("value", 500);*/
-  if (this.newViewport == true)
+  if (this.graph.newViewport == true)
     this.setViewYScrolled(top);
 }
 
 
 Viewport.prototype.viewLeft = function() {
-  if (this.newViewport == true) {
+  if (this.graph.newViewport == true) {
     return this.x1;
   } else {
     return $("#vport").scrollLeft();
@@ -83,7 +79,7 @@ Viewport.prototype.viewLeft = function() {
 }
 
 Viewport.prototype.viewTop = function() {
-  if (this.newViewport == true) {
+  if (this.graph.newViewport == true) {
     return this.y1;
   } else {
     return $("#vport").scrollTop();
@@ -91,7 +87,7 @@ Viewport.prototype.viewTop = function() {
 }
 
 Viewport.prototype.toLocalX = function(x) {
-  if (this.newViewport == true)
+  if (this.graph.newViewport == true)
     return x - this.viewLeft();
   else
     return x;
@@ -99,21 +95,21 @@ Viewport.prototype.toLocalX = function(x) {
 }
 
 Viewport.prototype.toLocalY = function(y) {
-  if (this.newViewport == true)
+  if (this.graph.newViewport == true)
     return y - this.viewTop();
   else
     return y;
 }
 
 Viewport.prototype.toWorldX = function(x) {
-  if (this.newViewport == true)
+  if (this.graph.newViewport == true)
     return this.viewLeft() + x;
   else
     return x;
 }
 
 Viewport.prototype.toWorldY = function(y) {
-  if (this.newViewport == true)
+  if (this.graph.newViewport == true)
     return this.viewTop() + y;
   else
     return y;
@@ -123,7 +119,7 @@ Viewport.prototype.toWorldY = function(y) {
   // Load more notes after window has been resized enough
 Viewport.prototype.addNewNotes = function() {
   // Load notes after scrolled
-  if (this.newViewport == true) {
+  if (this.graph.newViewport == true) {
     var vpX = this.viewLeft();
     var vpY = this.viewTop();
   } else {
