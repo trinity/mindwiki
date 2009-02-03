@@ -336,8 +336,8 @@ function Graph() {
     } else {
       $(vScrollbar).show();
       $(hScrollbar).show();
-    this.vp.initFromURL();
-    this.vp.setView(this.vp.x1, this.vp.y1);
+      graph.vp.initFromURL();
+      graph.vp.setView(graph.vp.x1, graph.vp.y1);
     }
    });
    
