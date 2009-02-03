@@ -277,7 +277,7 @@ function Graph() {
   }
 
   // Load notes after scrolled
-  $("#vport").scroll(this.vp.addNewNotes);
+  $("#vport").scroll(function() { graph.vp.addNewNotes(); });
 
 
   /*
