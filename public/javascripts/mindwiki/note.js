@@ -302,6 +302,7 @@ Note.prototype.redraw = function() {
         graph.globalStartNote = null; // ready for a new edge to be created
         graph.ch.resetPriority(0);
         graph.ch.set("");
+	$("div").css({"cursor": "default"});
         return;
       }
       // Are we in the edge creation mode?
@@ -324,6 +325,7 @@ Note.prototype.redraw = function() {
         graph.edges.push(tmpEdge);
         graph.ch.resetPriority(0);
         graph.ch.set("");
+	$("div").css({"cursor": "default"});
       }
       // Normal note selection (not in the edge creation mode)
       else {
