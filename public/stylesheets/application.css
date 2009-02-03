@@ -1,4 +1,10 @@
-#top-menu {background: #2C4056; color: #fff; height:1.8em; font-size: 0.8em; padding: 2px 2px 0px 6px;}
+#top-menu {
+	background: #2C4056 url(/images/top-menu-bg.gif) repeat-x;
+	color: #fff; 
+	height:1.8em; 
+	font-size: 0.8em; 
+	padding: 2px 2px 0px 6px;
+}
 #top-menu ul {margin: 0;  padding: 0;}
 #top-menu li {
   float:left;
