@@ -9,8 +9,8 @@ function Note() {
   this.width = 300;
   this.height = 200;
   this.color = "#dddddd";
-  this.content = "<p>Default content.</p>"; // <p> -tag bumps the layout ~10px down. What?-o
-  this.editableContent = "Default content."; // RedCloth-syntax. What the user edits.
+  this.content = ""; // <p> -tag bumps the layout ~10px down. What?-o
+  this.editableContent = ""; // RedCloth-syntax. What the user edits.
 
   this.edgesTo = [];
   this.edgesFrom = [];
