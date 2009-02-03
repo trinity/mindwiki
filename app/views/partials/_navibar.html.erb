@@ -7,7 +7,7 @@
   <div id="loggedas">Logged in as <%= current_user.login %>
   </div>
   <ul>
-    <li><a href="/graphs" class="graphs">Graphs</a> <% if @graph %> : <%= @graph.name %> <%= link_to "[Edit]", edit_graph_url(:id=> @graph.id) %><% end %></li>
+    <li><a href="/graphs" class="graphs">Graphs</a><% if @graph %> : <%= link_to @graph.name, graph_url(:id=>@graph.id) %><%= link_to "[Edit]", edit_graph_url(:id=> @graph.id) %><% end %></li>
   </ul>
 </div>
 
