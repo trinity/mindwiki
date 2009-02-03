@@ -159,10 +159,10 @@
 	position: absolute;
 	bottom: 20px;
 	left: 10px;
-	border: 1px solid black;
+	padding: 2px;
 	background-color: #ccc;
 	z-index: 1000000;
-
+	opacity: 0.6;
 }
 
 /* DIV style */
