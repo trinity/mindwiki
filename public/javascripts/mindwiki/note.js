@@ -264,6 +264,10 @@ Note.prototype.redraw = function() {
         thisnote.edgesFrom[i].redraw();
       }
       graph.dragControls(thisnote);
+
+      // Safari 3.2 redraw workaround.
+      if ($.browser.safari && $.browser.version <= 3)
+        graph.rc.circle(0, 0, 10).remove();
     }
     //cancel: ":input,.noteArticle" // Cannot drag from article content
   });
