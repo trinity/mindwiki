@@ -280,7 +280,7 @@ Note.prototype.redraw = function() {
   $(this.div).mouseover( function()
   {
     /* Do not attempt to highlight note which we are creating edge from. */
-    if (graph.globalStartNote != null && graph.globalStartNote != thisnote) {
+    if (graph.globalStartNote != null || graph.globalStartNote != thisnote) {
       /* Guessing adding context help here is not necessary. */
       $(thisnote.div).addClass("noteTargeted");
       graph.lastTargetNote = thisnote;

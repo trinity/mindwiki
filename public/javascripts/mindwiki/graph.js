@@ -378,7 +378,7 @@ Graph.prototype.dragControls = function(thisnote){
   $(this.buttonsDiv).css({
     "top" : (graph.vp.toLocalY(thisnote.y)-26) +"px", /* FIXME: -26 */
     "left" : graph.vp.toLocalX(thisnote.x)+"px",
-    "width" : thisnote.width+"px",
+    "width" : thisnote.width+"px"
   });
 }
 
@@ -394,7 +394,7 @@ Graph.prototype.attachControlsToEdge = function(thisedge,x,y){
   $(this.edgeButtonsDiv).css({
     "top" : y-26 +"px",
     "left" : x-15 +"px",
-    "width" : 32+"px",
+    "width" : 32+"px"
   });
 }
 
