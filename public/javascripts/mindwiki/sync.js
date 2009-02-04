@@ -161,17 +161,37 @@ Sync.prototype.updateTimestampIfBigger = function(s){
 
 
 /****************************************************************************
-  Get color from the server. 
-  TODO: Have just one init-call to handle all graph initialization, including color.
+  Get graph information (color & extents) from the server. 
  ****************************************************************************/
 
-Sync.prototype.getGraphColor = function(){
+Sync.prototype.initGraph = function(){
+  // TODO: Have just one ajax-call to handle all graph initialization
   var thissync = this;
+  var thisgraph = this.graph;
   $.ajax({
     url: "/graphs/get_color/" + thissync.graph.id,
     success: function(data){ 
       thissync.graph.color = data;
       $("#mindwiki_world").css({"backgroundColor" : data});
+    }
+  });
+
+  // Gets extents of the graph and calculates the middle point, also.
+  $.ajax({
+    url: "/graphs/get_extents/" + thissync.graph.id,
+    success: function(data){
+      $("extents",data).each(function(i){
+          $("min_point",this).each(function(j){
+            thisgraph.extents.min.x = parseInt($(this).find("x:first").text());
+            thisgraph.extents.min.y = parseInt($(this).find("y:first").text());
+          });
+          $("max_point",this).each(function(j){
+            thisgraph.extents.max.x = parseInt($(this).find("x:first").text());
+            thisgraph.extents.max.y = parseInt($(this).find("y:first").text());
+          });
+      });
+      thisgraph.extents.mid.x = Math.round((thisgraph.extents.min.x+thisgraph.extents.max.x)/2);
+      thisgraph.extents.mid.y = Math.round((thisgraph.extents.min.y+thisgraph.extents.max.y)/2);
     }
   });
 

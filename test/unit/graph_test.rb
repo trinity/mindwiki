@@ -53,6 +53,26 @@ class GraphTest < ActiveSupport::TestCase
     assert note.update_attributes(:color => "yElLoW")
     assert_equal false, note.update_attributes(:color => "pink")
   end
-                                               
+
+  test "Extent finding text" do
+    graph = Graph.find(graphs(:ruby_graph).id)
+    extents = graph.get_extents()
+    assert_equal 50, extents[:minX]
+    assert_equal 10, extents[:minY]
+    assert_equal 900, extents[:maxX]
+    assert_equal 650, extents[:maxY]
+  end                                               
+
+  test "Viewport loading" do
+    graph = Graph.find(graphs(:ruby_graph).id)
+
+    # Example graph should have four notes total
+    assert_equal 4, graph.notes.count
+
+    # Should hit one note within the viewport, and load both directly related notes
+    # but not the third one, which is out of the viewport and not directly related.
+    notes_in_vp_and_related = graph.notes_within(0,0,100,100)
+    assert_equal 3, notes_in_vp_and_related.count
+  end
 
 end

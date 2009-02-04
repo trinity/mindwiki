@@ -14,6 +14,18 @@ function Graph() {
   this.last_selected_note = null;
   this.selectedEdge = null;
 
+  // Graph extent-variables for Aapo:
+  this.extents = new Object();
+  this.extents.min = new Object();
+  this.extents.max = new Object();
+  this.extents.mid = new Object();
+  this.extents.min.x = 0;
+  this.extents.min.y = 0;
+  this.extents.max.x = 0;
+  this.extents.max.y = 0;
+  this.extents.mid.x = 0;
+  this.extents.mid.y = 0;
+
   // Viewport is a small window into the world.
   this.world = document.createElement("div");
   $(this.world).attr("id","mindwiki_world");
@@ -54,7 +66,7 @@ function Graph() {
   var id_from_pathname = new RegExp(/\d+/).exec(location.pathname);
   this.id = parseInt(id_from_pathname[0]); // RegExp.exec puts matches into an array
 
-  this.sync.getGraphColor();
+  this.sync.initGraph();
 
   // NEW NOTE creation by double clicking in the viewport
   $("#mindwiki_world").dblclick( function(event){

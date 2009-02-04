@@ -105,7 +105,19 @@ class GraphsController < ApplicationController
         format.text { render :text => "#dddddd" }
       end
     end
-  end  
+  end
+  
+  # Returns graph extents and midpoint.
+  def get_extents
+    respond_to do |format|
+      if params[:id].nil?
+        format.xml { render :xml => @graph.errors, :status => :unprocessable_entity }
+      end
+      if @graph = Graph.find(params[:id])
+        format.xml { render :xml => @graph.extents_to_xml() }
+      end
+    end
+  end
   
   # Returns all notes within a certain viewport
   def get_notes_in_vport

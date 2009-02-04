@@ -56,4 +56,50 @@ class Graph < ActiveRecord::Base
     return vp_notes
   end
   
+  # Returns the extents and the middle point of the graph
+  # [ min[x, y], max[x, y], mid[x, y] ]
+  def get_extents
+    
+    # e for extents
+    e = {:minX => nil, :maxX => nil, :minY => nil, :maxY => nil}
+    self.notes.each do |n|
+      # First object
+      e[:minX] = e[:minX].nil? ? n.x : e[:minX]
+      e[:minY] = e[:minY].nil? ? n.y : e[:minY]
+      e[:maxX] = e[:maxX].nil? ? n.x+n.width : e[:maxX]
+      e[:maxY] = e[:maxY].nil? ? n.y+n.height : e[:maxY]
+      # Other objects
+      e[:minX] = n.x < e[:minX] ? n.x : e[:minX]
+      e[:minY] = n.y < e[:minY] ? n.y : e[:minY]
+      e[:maxX] = e[:maxX] < n.x+n.width ? n.x+n.width : e[:maxX]
+      e[:maxY] = e[:maxY] < n.y+n.height ? n.y+n.height : e[:maxY]
+    end
+
+    # Take care of a graph with no notes
+    e[:minX] = e[:minX].nil? ? 0 : e[:minX]
+    e[:minY] = e[:minY].nil? ? 0 : e[:minY]
+    e[:maxX] = e[:maxX].nil? ? 0 : e[:maxX]
+    e[:maxY] = e[:maxY].nil? ? 0 : e[:maxY]
+
+    return e
+  end
+  
+  # Return extents as xml
+  def extents_to_xml(options = {})
+    e = get_extents()
+    options[:indent] ||= 2
+    xml = options[:builder] ||= Builder::XmlMarkup.new(:indent => options[:indent])
+    xml.instruct! unless options[:skip_instruct]
+    xml.extents do
+      xml.min_point do
+        xml.tag!(:x, e[:minX])
+        xml.tag!(:y, e[:minY])
+      end
+      xml.max_point do
+        xml.tag!(:x, e[:maxX])
+        xml.tag!(:y, e[:maxY])
+      end
+    end
+  end
+  
 end
