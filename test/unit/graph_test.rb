@@ -4,7 +4,6 @@ class GraphTest < ActiveSupport::TestCase
   fixtures :graphs, :notes, :edges, :users
 
   test "Creation" do
-    flunk "TEMP FAIL TO TEST CRUISE CONTROL!"
     assert_difference "Graph.count" do
       graph = Graph.new({:name => ""})
       
