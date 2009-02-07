@@ -51,6 +51,7 @@ function rectangleIntersection(cx,cy,width,height,ang,result)
   // assumes standard coordinate system!
 
   var aLimit = Math.atan(height/width);
+  // padding is added to make edges start and stop a few pixels before notes.
   var padding = 2;
 
   if (ang <= aLimit || ang >= 2 * Math.PI - aLimit)

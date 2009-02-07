@@ -11,7 +11,7 @@ $(document).ready(function(){
 function Graph() {
 
   this.id = -1;
-  this.last_selected_note = null;
+  this.selectedNote = null;
   this.selectedEdge = null;
 
   // Graph extent-variables for Aapo:
@@ -79,7 +79,7 @@ function Graph() {
     // Let's select the new note right away, too.
     tmp.selected = true;
     graph.notes.push(tmp);
-    this.last_selected_note = tmp;
+    this.selectedNote = tmp;
     tmp.update();
   });
 		
@@ -91,8 +91,33 @@ function Graph() {
 
     /* edges are in local coordinates. */
     thisgraph.edgeClick(x,y,margin);
+    
+    // if clicked empty space, note is unselected.
+    if (thisgraph.selectedNote != null)
+    {
+      thisgraph.selectedNote.selected = false;
+      thisgraph.selectedNote.update();
+      thisgraph.detachControls(thisgraph.selectedNote);
+      if (!thisgraph.selectedNote.enabled) 
+      {
+        thisgraph.selectedNote.enable();
+        thisgraph.selectedNote.enableTargetNotes();
+      }
+      thisgraph.selectedNote = null;
+    }
+    
+    if (thisgraph.globalStartNote != null)
+    {
+      thisgraph.globalStartNote = null;
+    }
   });
 
+  $(".note").livequery("click", function(event){
+    // note's click event is handled in the note class, but this is
+    // needed here to prevent click event to bubble to background.
+    event.stopPropagation();
+  });
+		
   $(".note").livequery("dblclick", function(event){
     // this event should never fire...
     event.stopPropagation();
@@ -162,14 +187,12 @@ function Graph() {
   });
 
   /* Controls */
-  $(this.arrowButton).click(function () {
-    thisnote = graph.selectedNote;
-    graph.globalStartNote = thisnote;
+  $(this.arrowButton).click(function (event) {
+    graph.globalStartNote = graph.selectedNote;
     graph.ch.setPriorityText("<b>Select target note</b> or click on active note to cancel.", 1);
-    thisnote.origColor = thisnote.color;
-    thisnote.color = deColorize (thisnote.color, 0.4);
-    thisnote.updateCSS();
-    $("div").css({"cursor": "pointer"});
+    graph.selectedNote.disable();
+    graph.selectedNote.disableTargetNotes();
+    event.stopPropagation();
   });
   $(this.colorButton).ColorPicker({
     onBeforeShow: function () {
@@ -193,8 +216,6 @@ function Graph() {
   $(".colorpicker").css({"zIndex": 9999999});
   
   $(this.deleteButton).click(function () {
-    // FIXME: when you create a new note and an edge and delete the note right away graph.selectedNote points to null.
-    // this if clause is just a quick-fix for the problem.
     if (graph.selectedNote != null)
     {
       graph.selectedNote.remove();
@@ -486,25 +507,31 @@ Graph.prototype.updateEdge = function(id,title,color,sourceId, targetId){
 }
 
 // Helper function to remove objects from arrays (notes and edges).
-Graph.prototype.removeFromArray = function(arr, objId){
+Graph.prototype.removeFromArray = function(arr, objId)
+{
   var l = arr.length;
-  var delIndex = -1;   
-  for(var i=0;i<l;i++){
-    if(arr[i].id == objId){
-      delIndex = i;
-      break;
+  for (var i=0;i<l;i++)
+  {
+    if(arr[i].id == objId)
+    {
+      arr.splice(i,1);
+      return;
     }
-  }
-  if(delIndex >= 0){
-    arr.splice(delIndex,1);
   }
 }
 
-Graph.prototype.disconnectEdge = function(edgeId){
+Graph.prototype.addEdge = function(edge)
+{
+  this.edges.push(edge);
+}
+
+Graph.prototype.disconnectEdge = function(edgeId)
+{
   this.removeFromArray(this.edges,edgeId);
 }
 
-Graph.prototype.disconnectNote = function(noteId){
+Graph.prototype.disconnectNote = function(noteId)
+{
   this.removeFromArray(this.notes,noteId);
 }
 
@@ -539,6 +566,15 @@ Graph.prototype.edgeClick = function(x,y,margin)
       this.selectedEdge = null;
     }
 }    
+
+Graph.prototype.unselectEdge = function()
+{
+  if (this.selectedEdge != null) 
+  {
+    this.selectedEdge.unselect();
+    this.selectedEdge = null;
+  }
+}
 
 Graph.prototype.UpdateAllNotesCSS = function() {
   for (var i = 0; i < this.notes.length; i++) {

@@ -263,6 +263,5 @@ Edge.prototype.isHit = function (x,y,margin)
 // Sends a newly created edge to server, and gets a database id in return.
 Edge.prototype.newID = function() {
   graph.sync.createEdge(this);
-  graph.edges.push(this);
 }
 

@@ -9,6 +9,7 @@ function Note() {
   this.width = 300;
   this.height = 200;
   this.color = "#dddddd";
+  this.origColor = "#dddddd";
   this.content = ""; // <p> -tag bumps the layout ~10px down. What?-o
   this.editableContent = ""; // RedCloth-syntax. What the user edits.
 
@@ -16,6 +17,7 @@ function Note() {
   this.edgesFrom = [];
 
   this.selected = false;
+  this.enabled = true;
 
   // These make updating easier
   this.div = null;
@@ -48,12 +50,12 @@ Note.prototype.update = function() {
   // Multiselection is not implemented, yet!
   if(this.selected){
     // last note exists and isn't this one -> deselect it
-    if(graph.last_selected_note != null && graph.last_selected_note != this){
-      graph.last_selected_note.selected = false;
-      graph.last_selected_note.update();
+    if(graph.selectedNote != null && graph.selectedNote != this){
+      graph.selectedNote.selected = false;
+      graph.selectedNote.update();
     }
 
-    graph.last_selected_note = this;
+    graph.selectedNote = this;
 
     this.updateCSS();
     $(this.div).addClass("noteSelected");
@@ -91,6 +93,47 @@ Note.prototype.getEdgeFromById = function(id){
       return this.edgesFrom[i];   
   }
   return null;
+}
+
+Note.prototype.enable = function() 
+{
+  $(this.div).removeClass("noteDisabled");
+  this.color = this.origColor;
+  this.updateCSS();
+  // TODO: make real css classes for these, if these are accepted?
+  $(this.titleTD).css({"cursor": "default", "color" : "black", "opacity" : "1.0"});
+  $(this.articleDiv).css({"cursor": "default", "color" : "black", "opacity" : "1.0"});
+  this.enabled = true;
+}
+
+Note.prototype.disable = function() 
+{
+  if (!this.enabled)
+  {
+    // already disabled
+    return;
+  }
+  this.origColor = this.color;
+  this.color = deColorize ("#ffffff", 0.4);
+  this.updateCSS();
+  // FIXME: "not-allowed" is not supported in all browsers. find better one...
+  // TODO: make real css classes for these, if these are accepted?
+  $(this.titleTD).css({"cursor": "not-allowed", "color" : "gray", "opacity" : "0.3"}); 
+  $(this.articleDiv).css({"cursor": "not-allowed", "color" : "gray", "opacity" : "0.3"});
+  $(this.div).addClass("noteDisabled");
+  this.enabled = false;
+}
+
+Note.prototype.enableTargetNotes = function() {
+  for(var i=0;i<this.edgesFrom.length;i++){
+    this.edgesFrom[i].endNote.enable();
+  }
+}
+
+Note.prototype.disableTargetNotes = function() {
+  for(var i=0;i<this.edgesFrom.length;i++){
+    this.edgesFrom[i].endNote.disable();
+  }
 }
 
 // Delete note.
@@ -298,24 +341,28 @@ Note.prototype.redraw = function() {
   // Selection
   $(this.div).mousedown( function(ev)
   {
+    ev.stopPropagation();
+    
+    if (!thisnote.enabled) {
+      return;
+    }
+    
     // Checks whether it is a single or dblclick. 
     if (ev.detail == 1 || ev.detail == null) { // null makes things work in IE
     	/* End edge creation mode if user clicks on same note. */
       if (graph.globalStartNote == thisnote) {
         /* Restore color. */
-        graph.globalStartNote.color = graph.globalStartNote.origColor;
-        graph.globalStartNote.updateCSS();
+        thisnote.enable();
+        thisnote.enableTargetNotes();
         graph.globalStartNote = null; // ready for a new edge to be created
         graph.ch.resetPriority(0);
         graph.ch.set("");
-	$("div").css({"cursor": "default"});
         return;
       }
       // Are we in the edge creation mode?
       if (graph.globalStartNote != null) {
-        /* Restore color. */
-        graph.globalStartNote.color = graph.globalStartNote.origColor;
-        graph.globalStartNote.updateCSS();
+        graph.globalStartNote.enable();
+        graph.globalStartNote.enableTargetNotes();
         // Create edge. No selection.
         var tmpEdge = new Edge();
         tmpEdge.rCanvas = graph.rc;
@@ -328,13 +375,13 @@ Note.prototype.redraw = function() {
         tmpEdge.update();
         tmpEdge.draw(); // draws clientside
         graph.globalStartNote = null; // ready for a new edge to be created
-        graph.edges.push(tmpEdge);
+        graph.addEdge(tmpEdge);
         graph.ch.resetPriority(0);
         graph.ch.set("");
-	$("div").css({"cursor": "default"});
       }
       // Normal note selection (not in the edge creation mode)
       else {
+        graph.unselectEdge();
         thisnote.selected = true;
         thisnote.update();
       }
@@ -369,6 +416,11 @@ Note.prototype.redraw = function() {
     // This code might be a bit flakey, still. Using the same textbox-id for all notes absolutely requires
     // the calling of dialog("destroy").remove() to not cause some really annoyingly strange behaviour..
     // Maybe FIX someday?
+
+    if (!thisnote.enabled)
+    {
+      return;
+    }
 
     $("#mindwiki_world").append('<div id="editWindow" class="flora"></div>');
     $("#editWindow").append('<p>Title<br /><input type="text" size="30" id="titleInputField" value="'+thisnote.name+'"/></p><p>Content<br /><textarea rows="15" cols="75" id="editableContentBox">'+thisnote.editableContent+'</textarea></p>');
