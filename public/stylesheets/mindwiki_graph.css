@@ -43,6 +43,22 @@
   opacity: 0.5;
 }
 
+.zoomScrollbar {
+  position: absolute;
+  height: 200px;
+  bottom: 50px;
+  left: 20px;
+  width: 16px;
+  background-color: green;
+  z-index: 99999999; /*top?*/
+}
+
+.zoomScrollbarIndicator {
+  position: absolute;
+  background-color: yellow;
+  width: 14px;
+}
+
 .vScrollbar {
   position: absolute;
   top: 0px;
