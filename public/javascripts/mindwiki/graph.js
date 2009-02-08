@@ -83,6 +83,33 @@ function Graph() {
     tmp.update();
   });
 		
+  this.downX = -1; /* Set to -1 when no drag is in progress. */
+  $("#mindwiki_world").mousedown(function (event) {
+    $("#mindwiki_world").css({"cursor": "move"});
+    graph.downX = event.pageX;
+    graph.downY = event.pageY;
+  });
+  
+  $("#mindwiki_world").mousemove(function (event) {
+    if (graph.downX == -1)
+      return;
+      
+    var x = -(event.pageX - graph.downX);
+    var y = -(event.pageY - graph.downY);
+
+    if (graph.newViewport == true)
+      graph.vp.setViewFastMove(graph.vp.viewLeft() + x, graph.vp.viewTop() + y);
+      
+    graph.downX = event.pageX;
+    graph.downY = event.pageY;
+  });
+  
+  $("#mindwiki_world").mouseup(function (event) {
+    $("#mindwiki_world").css({"cursor": "default"});
+    graph.downX = -1;
+    graph.vp.updateURL();
+  });
+
   $("#mindwiki_world").click( function(event){
     var x = event.pageX - $(this).offset().left;
     var y = event.pageY - $(this).offset().top;
@@ -364,11 +391,17 @@ function Graph() {
   this.config.newOption("checkbox", "newViewport", function(value) { 
     graph.newViewport = value;
     if (graph.newViewport == false) {
+      $(".mindwiki_viewport").css({"overflow": "auto"});
       $(vScrollbar).hide();
       $(hScrollbar).hide();
+      graph.vp.setView(0, 0);
     } else {
-      $(vScrollbar).show();
-      $(hScrollbar).show();
+      $(".mindwiki_viewport").css({"overflow": "hidden"});
+      $("#vport").scrollTo({left:0, top:0},100,{axis:"xy"}); // 100 is the scroll time
+      
+      graph.vp.setViewSize($("#vport").width(), $("#vport").height());
+      /*$(vScrollbar).show();
+      $(hScrollbar).show();*/
       graph.vp.initFromURL();
       graph.vp.setView(graph.vp.x1, graph.vp.y1);
     }
@@ -547,7 +580,7 @@ Graph.prototype.edgeClick = function(x,y,margin)
         {
           this.selectedEdge = this.edges[i];
           this.selectedEdge.select(x,y);
-          return;
+          return true;
         }
         
         if (this.selectedEdge != this.edges[i])
@@ -555,7 +588,7 @@ Graph.prototype.edgeClick = function(x,y,margin)
           this.selectedEdge.unselect();
           this.selectedEdge = this.edges[i];
           this.selectedEdge.select(x,y);
-          return;
+          return true;
         }
       }
     }
@@ -565,6 +598,7 @@ Graph.prototype.edgeClick = function(x,y,margin)
       this.selectedEdge.unselect();
       this.selectedEdge = null;
     }
+    return false;
 }    
 
 Graph.prototype.unselectEdge = function()

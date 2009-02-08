@@ -211,13 +211,15 @@ Note.prototype.center = function(){
   var yOffset = Math.floor(vpHeight/2)-Math.floor(thisnote.height/2);
   var moveToX = thisnote.x - xOffset;
   var moveToY = thisnote.y - yOffset;
-  if(moveToX<0)moveToX=0;
-  if(moveToY<0)moveToY=0;
   
-  if (graph.newViewport == true)
-    graph.vp.setView(moveToX, moveToY);
-  else
+  if (graph.newViewport == true) /* Does not currently work perfectly. */
+    ;//graph.vp.setViewFastMove(moveToX, moveToY);
+    //graph.vp.setView(moveToX, moveToY);
+  else {
+    if(moveToX<0)moveToX=0;
+    if(moveToY<0)moveToY=0;
     $("#vport").scrollTo({left:moveToX, top:moveToY},100,{axis:"xy"}); // 100 is the scroll time
+  }
 }
 
 // Just remove the div of the note from the DOM-tree. 
