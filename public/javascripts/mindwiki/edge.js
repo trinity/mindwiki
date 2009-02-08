@@ -77,10 +77,10 @@ Edge.prototype.update = function(){
   }
 
   // Less writing if we assume edges are in local coords all the way.
-  var sx = graph.vp.toLocalX(this.startNote.x) + this.startNote.width / 2;
-  var sy = graph.vp.toLocalY(this.startNote.y) + this.startNote.height / 2;
-  var ex = graph.vp.toLocalX(this.endNote.x) + this.endNote.width / 2;
-  var ey = graph.vp.toLocalY(this.endNote.y) + this.endNote.height / 2;
+  var sx = graph.vp.toLocalX(this.startNote.x) + graph.vp.scaleToView(this.startNote.width / 2);
+  var sy = graph.vp.toLocalY(this.startNote.y) + graph.vp.scaleToView(this.startNote.height / 2);
+  var ex = graph.vp.toLocalX(this.endNote.x) + graph.vp.scaleToView(this.endNote.width / 2);
+  var ey = graph.vp.toLocalY(this.endNote.y) + graph.vp.scaleToView(this.endNote.height / 2);
 
   // viewport doesn't have standard coordinate system. that's why we count each y-coordinate
   // as negative to use standard 2D algebra.
@@ -91,7 +91,7 @@ Edge.prototype.update = function(){
   
   var result = new Array();
   
-  rectangleIntersection(sx, negsy, this.startNote.width, this.startNote.height, a, result);
+  rectangleIntersection(sx, negsy, graph.vp.scaleToView(this.startNote.width), graph.vp.scaleToView(this.startNote.height), a, result);
   this.x1 = result[0];
   this.y1 = -result[1];
 
@@ -102,7 +102,7 @@ Edge.prototype.update = function(){
     a -= 2 * Math.PI;
   }
 
-  rectangleIntersection(ex, negey, this.endNote.width, this.endNote.height, a, result);
+  rectangleIntersection(ex, negey, graph.vp.scaleToView(this.endNote.width), graph.vp.scaleToView(this.endNote.height), a, result);
   this.x2 = result[0];
   this.y2 = -result[1];
 

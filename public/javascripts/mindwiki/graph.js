@@ -330,10 +330,36 @@ function Graph() {
   $("#vport").append(hScrollbar);
 
 
+  /* Zoom scrollbar */
+  zoomScrollbar = document.createElement("div");
+  $(zoomScrollbar).addClass("zoomScrollbar");
+
+  zoomScrollbarIndicator = document.createElement("div");
+  $(zoomScrollbarIndicator).addClass("zoomScrollbarIndicator");
+  $(zoomScrollbar).append(zoomScrollbarIndicator);
+  
+  $(zoomScrollbarIndicator).css("height", this.vp.windowH / this.vp.scrollableY *480 /*scrollbarSize.x*/);
+  $(zoomScrollbar).slider({
+    //accept: ".vScrollbarIndicator",
+    handle: ".zoomScrollbarIndicator",
+    /*min: 0,
+    max: 1,*/
+    max: 20,
+    steps: 10,
+    axis: "vertical",
+    slide: function(ev, ui) {
+      if (graph.newViewport == true)
+        graph.vp.setScale(1 - (ui.value/20.0));
+    }
+  });
+  
+  $("#vport").append(zoomScrollbar);
+  
   /* HIDE since they do not really work right... */
   if (this.newViewport == false) {
     $(vScrollbar).hide();
     $(hScrollbar).hide();
+    $(zoomScrollbar).hide();
   }
 
   // Load notes after scrolled
@@ -394,8 +420,11 @@ function Graph() {
       $(".mindwiki_viewport").css({"overflow": "auto"});
       $(vScrollbar).hide();
       $(hScrollbar).hide();
+      $(zoomScrollbar).hide();
       graph.vp.setView(0, 0);
     } else {
+      $(zoomScrollbar).show();
+      graph.ch.setPriorityText("<h3>Warning: currently this feature might damage to your graph.</>", 100);
       $(".mindwiki_viewport").css({"overflow": "hidden"});
       $("#vport").scrollTo({left:0, top:0},100,{axis:"xy"}); // 100 is the scroll time
       
@@ -444,7 +473,7 @@ Graph.prototype.dragControls = function(thisnote){
   $(this.buttonsDiv).css({
     "top" : (graph.vp.toLocalY(thisnote.y)-26) +"px", /* FIXME: -26 */
     "left" : graph.vp.toLocalX(thisnote.x)+"px",
-    "width" : thisnote.width+"px"
+    "width" : graph.vp.scaleToView(thisnote.width) + "px"
   });
 }
 

@@ -9,6 +9,7 @@
 */
 function Viewport() {
     this.x1 = this.y1 = 0;
+    this.scale = 1;
 }
 
 Viewport.prototype.worldLeft = function() {
@@ -66,7 +67,7 @@ Viewport.prototype.setView = function(left, top) {
   this.x1 = left;
   this.y1 = top;
   
-  this.canvasX1 = left - 200;
+  this.canvasX1 = left - 200; /* 200 for the scrollable area */
   this.canvasY1 = top - 200;
   this.canvasX2 = left + this.viewW + 200;
   this.canvasY2 = top + this.viewH + 200;
@@ -131,34 +132,55 @@ Viewport.prototype.canvasTop = function() {
 }
 
 Viewport.prototype.toLocalX = function(x) {
+  var mid = this.canvasLeft() + (this.viewW + 400)/2; /* 400 for 2x scrollable area */
   if (this.graph.newViewport == true)
-    return x - this.canvasLeft();
+    //return x - this.canvasLeft();
+    return Math.floor((x - mid) * this.scale + mid) - this.canvasLeft();
   else
     return x;
     
 }
 
 Viewport.prototype.toLocalY = function(y) {
+  var mid = this.canvasTop() + (this.viewH + 400)/2;
   if (this.graph.newViewport == true)
-    return y - this.canvasTop();
+    //return y - this.canvasTop();
+    return Math.floor((y - mid) * this.scale + mid) - this.canvasTop();
   else
     return y;
 }
 
 Viewport.prototype.toWorldX = function(x) {
+  var mid = (this.viewW + 400)/2;
   if (this.graph.newViewport == true)
-    return this.canvasLeft() + x;
+    return Math.floor((x - mid) / this.scale + mid) + this.canvasLeft();
+    //return this.canvasLeft() + x;
   else
     return x;
 }
 
 Viewport.prototype.toWorldY = function(y) {
+  var mid = (this.viewH + 400)/2;
   if (this.graph.newViewport == true)
-    return this.canvasTop() + y;
+    return Math.floor((y - mid) / this.scale + mid) + this.canvasTop();
+    //return this.canvasTop() + y;
   else
     return y;
 }
 
+Viewport.prototype.setScale = function(scale) {
+  this.scale = scale;
+  this.graph.ch.setPriorityText("Scale " + scale, 20);
+  this.setView(this.x1, this.y1);
+}
+
+Viewport.prototype.scaleToView = function(x) {
+  return x * this.scale;
+}
+
+Viewport.prototype.scaleToWorld = function(x) {
+  return x / this.scale;
+}
 
   // Load more notes after window has been resized enough
 Viewport.prototype.addNewNotes = function() {

@@ -32,7 +32,8 @@ Note.prototype.updateCSS = function() {
     "position" : "absolute",
     "top" : graph.vp.toLocalY(this.y) + "px",
     "left" : graph.vp.toLocalX(this.x) + "px",
-    "width" : this.width+"px"
+    "width" : graph.vp.scaleToView(this.width) + "px",
+    "height" : graph.vp.scaleToView(this.height) + "px"
   });
 
   // Color change
@@ -251,8 +252,8 @@ Note.prototype.redraw = function() {
     "position" : "absolute",
     "top" : graph.vp.toLocalY(this.y) + "px",
     "left" : graph.vp.toLocalX(this.x) + "px",
-    "width" : this.width+"px",
-    "height" : this.height+"px"
+    "width" : graph.vp.scaleToView(this.width) + "px",
+    "height" : graph.vp.scaleToView(this.height) + "px"
   });
 
   // Behaviour
@@ -266,13 +267,13 @@ Note.prototype.redraw = function() {
     handles:  'se', // defines the resize handle location i.e. south east corner
     // Update note size after resizing.
     stop: function(event, ui){
-      thisnote.width = ui.size.width;
-      thisnote.height = ui.size.height;
+      thisnote.width = graph.vp.scaleToWorld(ui.size.width);
+      thisnote.height = graph.vp.scaleToWorld(ui.size.height);
       graph.sync.setNoteSize(thisnote.id, thisnote.width, thisnote.height);
     },
     resize: function(event, ui){
-      thisnote.width = ui.size.width;
-      thisnote.height = ui.size.height;
+      thisnote.width = graph.vp.scaleToWorld(ui.size.width);
+      thisnote.height = graph.vp.scaleToWorld(ui.size.height);
       // let's update the related edges:
       var l = thisnote.edgesTo.length;
       for(var i=0;i<l;i++){
