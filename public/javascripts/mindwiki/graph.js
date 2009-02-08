@@ -424,7 +424,7 @@ function Graph() {
       graph.vp.setView(0, 0);
     } else {
       $(zoomScrollbar).show();
-      graph.ch.setPriorityText("<h3>Warning: currently this feature might damage to your graph.</>", 100);
+      graph.ch.setPriorityText("<h3>Warning: currently this feature might damage your graph.</>", 100);
       $(".mindwiki_viewport").css({"overflow": "hidden"});
       $("#vport").scrollTo({left:0, top:0},100,{axis:"xy"}); // 100 is the scroll time
       
