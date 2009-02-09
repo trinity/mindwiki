@@ -162,9 +162,45 @@ function Graph() {
     e.stopPropagation();
   });
 
+
+  /* "Navigator" */
+  this.viewAdd = function(x, y) {
+    graph.vp.setViewFastMove(graph.vp.viewLeft() + x, graph.vp.viewTop() + y);
+    graph.vp.updateURL();
+  };
   
+  this.navigatorDiv = document.createElement("div");
+  this.navigatorLeft = document.createElement("div");
+  this.navigatorRight = document.createElement("div");
+  this.navigatorUp = document.createElement("div");
+  this.navigatorDown = document.createElement("div");
+
+  $(this.navigatorDiv).addClass("navigator");
+
+  $(this.navigatorLeft).addClass("navigatorLeft");
+  $(this.navigatorLeft).click(function (e) { graph.viewAdd(-150, 0); e.stopPropagation(); });
+  /* TODO: find better way of doing this. Some selector perhaps? */
+  $(this.navigatorLeft).dblclick(function (e) { e.stopPropagation(); });
+  $(this.navigatorDiv).append(this.navigatorLeft);
+
+  $(this.navigatorRight).addClass("navigatorRight");
+  $(this.navigatorRight).click(function (e) { graph.viewAdd(150, 0); e.stopPropagation(); });
+  $(this.navigatorRight).dblclick(function (e) { e.stopPropagation(); });
+  $(this.navigatorDiv).append(this.navigatorRight);
+
+  $(this.navigatorUp).addClass("navigatorUp");
+  $(this.navigatorUp).click(function (e) { graph.viewAdd(0, -150); e.stopPropagation(); });
+  $(this.navigatorUp).dblclick(function (e) { e.stopPropagation(); });
+  $(this.navigatorDiv).append(this.navigatorUp);
+
+  $(this.navigatorDown).addClass("navigatorDown");
+  $(this.navigatorDown).click(function (e) { graph.viewAdd(0, 150); e.stopPropagation(); });
+  $(this.navigatorDown).dblclick(function (e) { e.stopPropagation(); });
+  $(this.navigatorDiv).append(this.navigatorDown);
   
-  // Initialize controls 
+  $("#mindwiki_world").append(this.navigatorDiv);
+
+ // Initialize controls 
   this.buttonsDiv = document.createElement("div");
   this.edgeButtonsDiv = document.createElement("div");
   

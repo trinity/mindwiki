@@ -91,6 +91,55 @@
   height: 14px;
 }
 
+.navigator {
+  position: fixed;
+  right: 100px;
+  bottom: 80px;
+  z-index: 99999999;
+  /*width: 84px;
+  height: 84px;*/
+}
+
+.navigatorLeft {
+	background-image: url("/images/left_btn.png");
+	background-repeat: no-repeat;
+	width: 28px;
+	height: 28px;
+	position: absolute;
+	top: 28px;
+	left: 0px;
+}
+
+.navigatorRight {
+	background-image: url("/images/right_btn.png");
+	background-repeat: no-repeat;
+	width: 28px;
+	height: 28px;
+	position: relative;
+	top: 28px;
+	left: 56px;
+}
+
+.navigatorUp {
+	background-image: url("/images/up_btn.png");
+	background-repeat: no-repeat;
+	width: 28px;
+	height: 28px;
+	position: absolute;
+	top: 0px;
+	left: 28px;
+}
+
+.navigatorDown {
+	background-image: url("/images/down_btn.png");
+	background-repeat: no-repeat;
+	width: 28px;
+	height: 28px;
+	position: absolute;
+	top: 56px;
+	left: 28px;
+}
+
 #rc-container
 {
 }
