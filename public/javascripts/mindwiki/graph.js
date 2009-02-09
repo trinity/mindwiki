@@ -77,9 +77,8 @@ function Graph() {
     tmp.redraw();
     tmp.center(); // Center on create regardless of user preferences
     // Let's select the new note right away, too.
-    tmp.selected = true;
     graph.notes.push(tmp);
-    this.selectedNote = tmp;
+    tmp.select();
     tmp.update();
   });
 		
@@ -499,10 +498,7 @@ Graph.prototype.loading = function(isLoading){
 }
 
 Graph.prototype.attachControls = function(thisnote){
-
   $(this.buttonsDiv).show(graph.controlsAfterDrag ? "fast" : "");
-  
-  this.selectedNote = thisnote;
   this.dragControls(thisnote);
 }
 
