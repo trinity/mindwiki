@@ -40,6 +40,69 @@ Note.prototype.updateCSS = function() {
   $(this.articleDiv).css({"backgroundColor": this.color});
 }
 
+// SELECTION.
+// Multiselection is not implemented, yet!
+Note.prototype.select = function() {
+ var thisnote = this;
+
+ if (this.selected == true)
+   return;
+ 
+ this.selected = true;
+ 
+ $(this.div)
+ .resizable(
+  {
+    minWidth: 120,
+    minHeight: 80,
+    maxWidth: 800,
+    maxHeight: 800,
+    handles:  'se', // defines the resize handle location i.e. south east corner
+    // Update note size after resizing.
+    stop: function(event, ui){
+      thisnote.width = graph.vp.scaleToWorld(ui.size.width);
+      thisnote.height = graph.vp.scaleToWorld(ui.size.height);
+      graph.sync.setNoteSize(thisnote.id, thisnote.width, thisnote.height);
+    },
+    resize: function(event, ui){
+      thisnote.width = graph.vp.scaleToWorld(ui.size.width);
+      thisnote.height = graph.vp.scaleToWorld(ui.size.height);
+      // let's update the related edges:
+      var l = thisnote.edgesTo.length;
+      for(var i=0;i<l;i++){
+        thisnote.edgesTo[i].redraw();
+      }
+      l = thisnote.edgesFrom.length;
+      for(var i=0;i<l;i++){
+        thisnote.edgesFrom[i].redraw();
+      }
+      graph.dragControls(thisnote);
+    }
+  });
+
+  if (graph.selectedNote != null)
+    graph.selectedNote.deselect();
+  graph.selectedNote = this;
+
+  $(this.div).addClass("noteSelected");
+  graph.attachControls(this);
+ 
+  graph.runningZ++;
+  $(this.div).css({"zIndex":graph.runningZ}); // Bring selected to front. This is a temporary solution.
+}
+
+Note.prototype.deselect = function() {
+  if (this.selected == false)
+    return;
+    
+  this.selected = false;
+  /* "disable" does not hide handle. */
+  $(this.div).resizable("destroy");
+
+  $(this.div).removeClass("noteSelected");
+  /* graph.detachControls(thisnote); */
+}
+
 // Update the note on the screen to reflect the note object.
 Note.prototype.update = function() {
   // Maybe split into smaller functions?
@@ -47,28 +110,7 @@ Note.prototype.update = function() {
   // -color changes
   // -selection changes ... ?
   
-  // SELECTION.
-  // Multiselection is not implemented, yet!
-  if(this.selected){
-    // last note exists and isn't this one -> deselect it
-    if(graph.selectedNote != null && graph.selectedNote != this){
-      graph.selectedNote.selected = false;
-      graph.selectedNote.update();
-    }
-
-    graph.selectedNote = this;
-
-    this.updateCSS();
-    $(this.div).addClass("noteSelected");
-    graph.attachControls(this);
-    
-    graph.runningZ++;
-    $(this.div).css({"zIndex":graph.runningZ}); // Bring selected to front. This is a temporary solution.
-
-  } else {
-    $(this.div).removeClass("noteSelected");
-    /* graph.detachControls(thisnote); */
-  }
+  this.updateCSS();
 
   // Content rendering after edit
   if(this.articleDiv != null) 
@@ -258,43 +300,15 @@ Note.prototype.redraw = function() {
 
   // Behaviour
   $(this.div)
-  .resizable(
-  {
-    minWidth: 120,
-    minHeight: 80,
-    maxWidth: 800,
-    maxHeight: 800,
-    handles:  'se', // defines the resize handle location i.e. south east corner
-    // Update note size after resizing.
-    stop: function(event, ui){
-      thisnote.width = graph.vp.scaleToWorld(ui.size.width);
-      thisnote.height = graph.vp.scaleToWorld(ui.size.height);
-      graph.sync.setNoteSize(thisnote.id, thisnote.width, thisnote.height);
-    },
-    resize: function(event, ui){
-      thisnote.width = graph.vp.scaleToWorld(ui.size.width);
-      thisnote.height = graph.vp.scaleToWorld(ui.size.height);
-      // let's update the related edges:
-      var l = thisnote.edgesTo.length;
-      for(var i=0;i<l;i++){
-        thisnote.edgesTo[i].redraw();
-      }
-      l = thisnote.edgesFrom.length;
-      for(var i=0;i<l;i++){
-        thisnote.edgesFrom[i].redraw();
-      }
-      graph.dragControls(thisnote);
-    }
-  })
   .draggable(
   {
     zIndex: 10000, // Enough? Maybe not always.
     containment: "parent",
-    // Update note position after dragging.
     start: function(event, ui){
       if (graph.controlsAfterDrag == true)
         graph.detachControls(thisnote);
     },
+    // Update note position after dragging.
     stop: function(event, ui){
       thisnote.x = graph.vp.toWorldX(ui.position.left);
       thisnote.y = graph.vp.toWorldY(ui.position.top);
@@ -385,8 +399,7 @@ Note.prototype.redraw = function() {
       // Normal note selection (not in the edge creation mode)
       else {
         graph.unselectEdge();
-        thisnote.selected = true;
-        thisnote.update();
+	thisnote.select();
       }
     }
   });

@@ -122,8 +122,9 @@ function Graph() {
     // if clicked empty space, note is unselected.
     if (thisgraph.selectedNote != null)
     {
-      thisgraph.selectedNote.selected = false;
-      thisgraph.selectedNote.update();
+      thisgraph.selectedNote.deselect();
+      /* detachControls should be called in deselect but that seems little wasteful since
+         in most cases we would be selecting another note. */
       thisgraph.detachControls(thisgraph.selectedNote);
       if (!thisgraph.selectedNote.enabled) 
       {
