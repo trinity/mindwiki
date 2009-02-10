@@ -3,7 +3,7 @@
 # Javascript-files required by the MindWiki application (not all of the site, just the application)
 ActionView::Helpers::AssetTagHelper.register_javascript_expansion :mindwiki_graph => [
  "jquery-1.2.6.min", "jquery.livequery", "jquery.url", "ui/ui.core", "ui/ui.draggable", "ui/ui.selectable", "ui/ui.resizable", "ui/ui.slider", "ui/ui.dialog", "raphael", "colorpicker",
- "markitup/jquery.markitup", "markitup/sets/textile/set", "jquery.scrollTo", "mindwiki/misc", "mindwiki/context_help", "mindwiki/sync", "mindwiki/note", 
+ "markitup/jquery.markitup", "markitup/sets/textile/set", "jquery.scrollTo", "jquery.jeditable", "mindwiki/misc", "mindwiki/context_help", "mindwiki/sync", "mindwiki/note", 
  "mindwiki/edge", "mindwiki/graph", "mindwiki/viewport", "mindwiki/config"]
 
 ActionView::Helpers::AssetTagHelper.register_javascript_expansion :graph_color_picker => ["jquery-1.2.6.min", "colorpicker", "graph_color_init"]
