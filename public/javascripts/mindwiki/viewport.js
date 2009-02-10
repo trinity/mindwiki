@@ -10,6 +10,7 @@
 function Viewport() {
     this.x1 = this.y1 = 0;
     this.scale = 1;
+    this.canvasBoundry = 400; /* Same as reloadDistance really. */
 }
 
 Viewport.prototype.worldLeft = function() {
@@ -45,7 +46,8 @@ Viewport.prototype.setViewFastMove = function(left, top) {
   }
   
   /* Need to "reposition" canvas. */
-  if (left + this.viewW > this.canvasX2 || top + this.viewH > this.canvasY2) {
+  //if (left + this.viewW > this.canvasX2 || top + this.viewH > this.canvasY2) {
+  if (xMove > this.canvasBoundry * 2 || yMove > this.canvasBoundry * 2) {
     this.setView(left, top);
     return;
   }
@@ -67,15 +69,16 @@ Viewport.prototype.setView = function(left, top) {
   this.x1 = left;
   this.y1 = top;
   
-  this.canvasX1 = left - 200; /* 200 for the scrollable area */
-  this.canvasY1 = top - 200;
-  this.canvasX2 = left + this.viewW + 200;
-  this.canvasY2 = top + this.viewH + 200;
+  this.canvasX1 = left - this.canvasBoundry;
+  this.canvasY1 = top - this.canvasBoundry;
+  this.canvasX2 = left + this.viewW + this.canvasBoundry;
+  this.canvasY2 = top + this.viewH + this.canvasBoundry;
+  
+  this.expandWorld(this.canvasX1, this.canvasY1, this.canvasX2, this.canvasY2);
   
   /* And scroll our canvas. */
   this.setViewFastMove(left, top);
   
-  this.addNewNotes();
   this.graph.UpdateAllNotesCSS();
   if (this.graph.selectedNote != null)
     this.graph.dragControls(graph.selectedNote);
@@ -132,7 +135,7 @@ Viewport.prototype.canvasTop = function() {
 }
 
 Viewport.prototype.toLocalX = function(x) {
-  var mid = this.canvasLeft() + (this.viewW + 400)/2; /* 400 for 2x scrollable area */
+  var mid = this.canvasLeft() + this.viewW / 2 + this.canvasBoundry;
   if (this.graph.newViewport == true)
     //return x - this.canvasLeft();
     return Math.floor((x - mid) * this.scale + mid) - this.canvasLeft();
@@ -142,7 +145,7 @@ Viewport.prototype.toLocalX = function(x) {
 }
 
 Viewport.prototype.toLocalY = function(y) {
-  var mid = this.canvasTop() + (this.viewH + 400)/2;
+  var mid = this.canvasTop() + this.viewH / 2 + this.canvasBoundry;
   if (this.graph.newViewport == true)
     //return y - this.canvasTop();
     return Math.floor((y - mid) * this.scale + mid) - this.canvasTop();
@@ -151,7 +154,7 @@ Viewport.prototype.toLocalY = function(y) {
 }
 
 Viewport.prototype.toWorldX = function(x) {
-  var mid = (this.viewW + 400)/2;
+  var mid = this.viewW / 2 + this.canvasBoundry;
   if (this.graph.newViewport == true)
     return Math.floor((x - mid) / this.scale + mid) + this.canvasLeft();
     //return this.canvasLeft() + x;
@@ -160,7 +163,7 @@ Viewport.prototype.toWorldX = function(x) {
 }
 
 Viewport.prototype.toWorldY = function(y) {
-  var mid = (this.viewH + 400)/2;
+  var mid = this.viewH / 2 + this.canvasBoundry;
   if (this.graph.newViewport == true)
     return Math.floor((y - mid) / this.scale + mid) + this.canvasTop();
     //return this.canvasTop() + y;
@@ -169,17 +172,85 @@ Viewport.prototype.toWorldY = function(y) {
 }
 
 Viewport.prototype.setScale = function(scale) {
-  this.scale = scale;
-  this.graph.ch.setPriorityText("Scale " + scale, 20);
+  /* 1.0 zoomed in.
+     0.0 entire graph is shown(if it is centered). */
+
+  var x = this.viewW * scale + (graph.extents.max.x - graph.extents.min.x) * (1 - scale);
+  var y = this.viewH * scale + (graph.extents.max.y - graph.extents.min.y) * (1 - scale);
+  var xScale = this.viewW / x;
+  var yScale = this.viewH / y;
+  
+  /* Take minimum. */
+  this.scale = xScale < yScale ? xScale : yScale;
+  /* Graph extents could be smaller than view thus causing zooming in. Perhaps not
+     something worth allowing. */
+  if (this.scale > 1.0)
+    this.scale = 1.0;
+  
+  /* No very sure about this... */
+  this.expandWorld(this.scaleToWorld(this.toLocalX(this.minX)),
+                   this.scaleToWorld(this.toLocalY(this.minY)),
+		   this.scaleToWorld(this.toLocalX(this.maxX)),
+		   this.scaleToWorld(this.toLocalY(this.maxY)));
+  //this.graph.ch.setPriorityText("Scale " + scale, 20);
+  /*this.graph.ch.setPriorityText("World minX" + this.minX + " maxX " + this.maxX +
+                                " minY " + this.minY + " maxY " + this.maxY, 200);*/
   this.setView(this.x1, this.y1);
 }
 
 Viewport.prototype.scaleToView = function(x) {
-  return x * this.scale;
+  return Math.floor(x * this.scale);
 }
 
 Viewport.prototype.scaleToWorld = function(x) {
-  return x / this.scale;
+  return Math.floor(x / this.scale);
+}
+
+Viewport.prototype.expandWorld = function(minX, minY, maxX, maxY) {
+  /* Fetch new slices. */
+  if (minX < this.minX) {
+    this.graph.sync.getViewportNotes(minX, this.minY/**/, this.minX - minX, this.maxY - this.minY/**/);
+    this.minX = minX;
+  }
+
+  if (minY < this.minY) {
+    this.graph.sync.getViewportNotes(this.minX/**/, minY, this.maxX - this.minX/**/, this.minY - minY);
+    this.minY = minY;
+  }
+
+  if (maxX > this.maxX) {
+    this.graph.sync.getViewportNotes(this.maxX, this.minY/**/, maxX - this.minX, this.maxY - this.minY/**/);
+    this.maxX = maxX;
+  }
+
+  if (maxY > this.maxY) {
+    this.graph.sync.getViewportNotes(this.minX/**/, this.maxY, this.maxX - this.minX/**/, maxY - this.maxY);
+    this.maxY = maxY;
+  }
+}
+
+Viewport.prototype.worldLeft = function() {
+  return this.minX;
+}
+
+Viewport.prototype.worldTop = function() {
+  return this.minY;
+}
+
+Viewport.prototype.worldRight = function() {
+  return this.maxX;
+}
+
+Viewport.prototype.worldBottom = function() {
+  return this.maxY;
+}
+
+Viewport.prototype.worldWidth = function() {
+  return this.maxX - this.minX;
+}
+
+Viewport.prototype.worldHeight = function() {
+  return this.maxY - this.minY;
 }
 
   // Load more notes after window has been resized enough
@@ -197,7 +268,7 @@ Viewport.prototype.addNewNotes = function() {
   if(vpX>this.graph.vpLastUpdatedX+rd || vpX<this.graph.vpLastUpdatedX-rd ||
      vpY>this.graph.vpLastUpdatedY+rd || vpY<this.graph.vpLastUpdatedY-rd)
   {
-    this.graph.sync.getViewportNotes();
+    this.graph.sync.getViewportNotesOld();
     this.graph.vpLastUpdatedX = vpX;
     this.graph.vpLastUpdatedY = vpY;
   }

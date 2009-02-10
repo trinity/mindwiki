@@ -53,11 +53,18 @@ Note.prototype.select = function() {
  $(this.div)
  .resizable(
   {
+    /* TODO: these need to adapt if/when zooming is allowed. */
     minWidth: 120,
     minHeight: 80,
-    maxWidth: 800,
-    maxHeight: 800,
+    maxWidth: graph.vp.canvasBoundry,
+    maxHeight: graph.vp.canvasBoundry,
     handles:  'se', // defines the resize handle location i.e. south east corner
+    start: function(event, ui){
+      /* Ensure canvas is large enough so note can leave visible viewport.
+       * This seems to cause problems with ff3. Call setView after drag ends instead. */
+      /*if (graph.newViewport == true)
+        graph.vp.setView(graph.vp.x1, graph.vp.y1);*/
+    },
     // Update note size after resizing.
     stop: function(event, ui){
       thisnote.width = graph.vp.scaleToWorld(ui.size.width);
@@ -305,6 +312,11 @@ Note.prototype.redraw = function() {
     zIndex: 10000, // Enough? Maybe not always.
     containment: "parent",
     start: function(event, ui){
+      /* Ensure canvas is large enough so note can leave visible viewport.
+       * This seems to cause problems with ff3. Call setView after drag ends instead. */
+      /*if (graph.newViewport == true)
+        graph.vp.setView(graph.vp.x1, graph.vp.y1);*/
+      
       if (graph.controlsAfterDrag == true)
         graph.detachControls(thisnote);
     },

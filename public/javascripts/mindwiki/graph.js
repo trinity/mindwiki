@@ -104,6 +104,10 @@ function Graph() {
   });
   
   $("#mindwiki_world").mouseup(function (event) {
+    /* "Workaround". */
+    if (graph.newViewport == true)
+        graph.vp.setView(graph.vp.viewLeft(), graph.vp.viewTop());
+
     $("#mindwiki_world").css({"cursor": "default"});
     graph.downX = -1;
     graph.vp.updateURL();
@@ -165,7 +169,8 @@ function Graph() {
 
   /* "Navigator" */
   this.viewAdd = function(x, y) {
-    graph.vp.setViewFastMove(graph.vp.viewLeft() + x, graph.vp.viewTop() + y);
+    graph.vp.setView(graph.vp.viewLeft() + x, graph.vp.viewTop() + y);
+    /*graph.vp.setViewFastMove(graph.vp.viewLeft() + x, graph.vp.viewTop() + y);*/
     graph.vp.updateURL();
   };
   
@@ -302,6 +307,8 @@ function Graph() {
   this.vp.graph = this;
   this.vp.x1 = this.vp.y1 = 0;
   this.vp.x2 = this.vp.y2 = 9999;
+  this.vp.minX = this.maxX = this.extents.mid.x;
+  this.vp.minY = this.maxY = this.extents.mid.y;
   this.vp.windowW = $("#vport").width();
   this.vp.windowH = $("#vport").height();
   this.vp.scrollableY = this.vp.y2-this.vp.y1-this.vp.windowH;
@@ -443,7 +450,7 @@ function Graph() {
   
     this.vp.setView(this.vp.x1, this.vp.y1);
   } else {
-    this.sync.getViewportNotes(); // viewport scroll action goes right away atm
+    this.sync.getViewportNotesOld(); // viewport scroll action goes right away atm
   }
   this.reloadDistance = 100;
   this.config = new Config();
@@ -476,6 +483,7 @@ function Graph() {
   this.config.newOption("checkbox", "controlsAfterDrag", function(value) { graph.controlsAfterDrag = value; });
 
   this.config.newOption("button", "Hide", function() { $(graph.config.div).hide("slow"); });
+  //this.config.newOption("button", "setView", function() { graph.vp.setView(graph.vp.x1, graph.vp.y1); });
 
   $("#vport").append(this.config.getHandle());
 } // end constructor

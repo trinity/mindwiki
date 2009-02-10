@@ -72,7 +72,7 @@ Edge.prototype.update = function(){
   // Hmm.
   if (this.startNote == null || this.endNote == null)
   {
-    alert("Trying to draw an edge (id:"+this.id+"), which has a null note!");
+    graph.ch.setPriorityText("Trying to draw an edge (id:"+this.id+"), which has a null note!", 1);
     return;
   }
 

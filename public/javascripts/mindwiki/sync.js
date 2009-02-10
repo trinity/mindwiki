@@ -334,17 +334,23 @@ Sync.prototype.createNote = function(note){
         that have changed since the last update.
  ****************************************************************************/
 
-Sync.prototype.getViewportNotes = function(){
+Sync.prototype.getViewportNotesOld = function(){
+  var thisgraph = this.graph;
+  this.getViewportNotes(thisgraph.vp.worldLeft(), thisgraph.vp.worldTop(),
+                        thisgraph.vp.worldWidth(), thisgraph.vp.worldHeight());
+}
+
+Sync.prototype.getViewportNotes = function(x, y, w, h){
   var thissync = this;
   var thisgraph = this.graph;
   $.ajax({
     url: "/graphs/get_notes_in_vport/" + thisgraph.id,
     dataType: "xml",
     data: {
-      "vport_x": thisgraph.vp.viewLeft(),
-      "vport_y": thisgraph.vp.viewTop(), 
-      "vport_width": $("#vport").width(), 
-      "vport_height": $("#vport").height()
+      "vport_x": x,
+      "vport_y": y,
+      "vport_width": w,
+      "vport_height": h
     },
     success: function(data){
       thissync.updateTimestamp(data);
