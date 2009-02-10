@@ -1,7 +1,6 @@
 function Config() {
   this.options = [];
   this.div = document.createElement("div");
-  $(this.div).addClass("config");
 }
 
 Config.prototype.getHandle = function() {
@@ -28,7 +27,7 @@ Config.prototype.newOption = function(type, text, onChange) {
 function ConfigText(text, onChange) {
   this.div = document.createElement("input");
   this.div.type = "text";
-  //this.div.value = text;
+  this.div.value = text;
 
   $(this.div).append(/*"value",*/ text);
   $(this.div).change(function(){ onChange($(this).val()); });

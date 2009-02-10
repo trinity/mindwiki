@@ -454,6 +454,7 @@ function Graph() {
   }
   this.reloadDistance = 100;
   this.config = new Config();
+  $(this.config.getHandle()).addClass("config");
   //this.config.newOption("text", "example", function(value) { alert("text is " + value); });
   this.config.newOption("checkbox", "scrollToSelected", function(value) { graph.scrollToSelected = value; });
 

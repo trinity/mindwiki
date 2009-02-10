@@ -185,6 +185,15 @@
 	margin: 0px;
 }
 
+.noteTitleEdit
+{
+	position: absolute;
+	left: 0px;
+	/*right: 0px;*/
+	width: 100%;
+	top: 0px;
+}
+
 .ui-resizable-se
 {
 	bottom: 0px;

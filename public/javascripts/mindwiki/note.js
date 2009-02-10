@@ -108,6 +108,21 @@ Note.prototype.deselect = function() {
 
   $(this.div).removeClass("noteSelected");
   /* graph.detachControls(thisnote); */
+
+  /* Remove title editing text box if visible. */
+  if (this.titleEdit != null) {
+    this.titleTD.removeChild(this.titleEdit.div);
+    delete this.titleEdit;
+    this.titleEdit = null; /* Hmm...?*/
+  }
+}
+
+Note.prototype.setName = function(name) {
+  if (this.name == name)
+    return;
+    
+  graph.sync.setNoteName(this, name);
+  //thisnote.update(); do we need?
 }
 
 // Update the note on the screen to reflect the note object.
@@ -433,6 +448,17 @@ Note.prototype.redraw = function() {
 	
   // titleTD
   $(titleTD).addClass("noteTitle").css({"backgroundColor": lightenColor(this.color)}).append(this.name);
+  $(titleTD).dblclick( function(event) {
+    thisnote.titleEdit = new ConfigText(thisnote.name, function(value) { 
+      thisnote.setName(value);
+      thisnote.titleTD.removeChild(thisnote.titleEdit.div);
+      delete thisnote.titleEdit;
+      thisnote.titleEdit = null; /* Hmm...?*/
+    });
+    var div = thisnote.titleEdit.div;
+    $(div).addClass("noteTitleEdit");
+    $(thisnote.titleTD).append(div);
+  });
   thisnote.titleTD = titleTD;
 
   // article (div)
@@ -466,10 +492,7 @@ Note.prototype.redraw = function() {
         "Save": function(){
 
           // Updating the title
-          var newTitle = $("#titleInputField").val();
-          if(thisnote.name != newTitle){
-            graph.sync.setNoteName(thisnote, newTitle);
-          }
+	  thisnote.setName($("#titleInputField").val());
 
           // Updating the content
           var boxContents = $("#editableContentBox").val();
