@@ -108,21 +108,6 @@ Note.prototype.deselect = function() {
 
   $(this.div).removeClass("noteSelected");
   /* graph.detachControls(thisnote); */
-
-  /* Remove title editing text box if visible. */
-  if (this.titleEdit != null) {
-    this.titleTD.removeChild(this.titleEdit.div);
-    delete this.titleEdit;
-    this.titleEdit = null; /* Hmm...?*/
-  }
-}
-
-Note.prototype.setName = function(name) {
-  if (this.name == name)
-    return;
-    
-  graph.sync.setNoteName(this, name);
-  //thisnote.update(); do we need?
 }
 
 // Update the note on the screen to reflect the note object.
@@ -448,18 +433,17 @@ Note.prototype.redraw = function() {
 	
   // titleTD
   $(titleTD).addClass("noteTitle").css({"backgroundColor": lightenColor(this.color)}).append(this.name);
-  $(titleTD).dblclick( function(event) {
-    thisnote.titleEdit = new ConfigText(thisnote.name, function(value) { 
-      thisnote.setName(value);
-      thisnote.titleTD.removeChild(thisnote.titleEdit.div);
-      delete thisnote.titleEdit;
-      thisnote.titleEdit = null; /* Hmm...?*/
-    });
-    var div = thisnote.titleEdit.div;
-    $(div).addClass("noteTitleEdit");
-    $(thisnote.titleTD).append(div);
-  });
   thisnote.titleTD = titleTD;
+
+  // Editing the title. 
+  $(titleTD).editable(function(value, settings) { 
+     graph.sync.setNoteName(thisnote, value);  
+     return(value);
+  }, { 
+     type: "text",
+     event: "dblclick",
+
+  });
 
   // article (div)
   $(article).addClass("noteArticle").css({"backgroundColor": this.color}).append(this.content);
@@ -492,7 +476,10 @@ Note.prototype.redraw = function() {
         "Save": function(){
 
           // Updating the title
-	  thisnote.setName($("#titleInputField").val());
+          var newTitle = $("#titleInputField").val();
+          if(thisnote.name != newTitle){
+            graph.sync.setNoteName(thisnote, newTitle);
+          }
 
           // Updating the content
           var boxContents = $("#editableContentBox").val();
@@ -515,4 +502,5 @@ Note.prototype.redraw = function() {
 
   $("#mindwiki_world").append(this.div);
 }
+
 
