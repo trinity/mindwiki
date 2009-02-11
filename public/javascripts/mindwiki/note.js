@@ -442,7 +442,7 @@ Note.prototype.redraw = function() {
   }, { 
      type: "text",
      event: "dblclick",
-
+     cssclass : "noteTitleEdit"
   });
 
   // article (div)
