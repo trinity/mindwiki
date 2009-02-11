@@ -219,7 +219,7 @@ Viewport.prototype.expandWorld = function(minX, minY, maxX, maxY) {
   }
 
   if (maxX > this.maxX) {
-    this.graph.sync.getViewportNotes(this.maxX, this.minY/**/, maxX - this.minX, this.maxY - this.minY/**/);
+    this.graph.sync.getViewportNotes(this.maxX, this.minY/**/, maxX - this.maxX, this.maxY - this.minY/**/);
     this.maxX = maxX;
   }
 
