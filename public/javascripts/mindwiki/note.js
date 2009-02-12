@@ -9,6 +9,7 @@ function Note() {
   this.width = 300;
   this.height = 200;
   this.color = "#dddddd";
+  this.zorder = 10;
   this.origColor = "#dddddd";
   this.content = ""; // <p> -tag bumps the layout ~10px down. What?-o
   this.editableContent = ""; // RedCloth-syntax. What the user edits.
@@ -94,8 +95,11 @@ Note.prototype.select = function() {
   $(this.div).addClass("noteSelected");
   graph.attachControls(this);
  
+  // Bring selected to front. This is a temporary solution.
   graph.runningZ++;
-  $(this.div).css({"zIndex":graph.runningZ}); // Bring selected to front. This is a temporary solution.
+  this.zorder = graph.runningZ;
+  $(this.div).css({"zIndex":thisnote.zorder});
+  graph.sync.setNoteZorder(this.id, this.zorder); // inform the server
 }
 
 Note.prototype.deselect = function() {
@@ -123,7 +127,6 @@ Note.prototype.update = function() {
   if(this.articleDiv != null) 
     $(this.articleDiv).html(this.content);
 
-  // Title change DOES NOT WORK! When did this break? :D
   $(this.titleTD).html(this.name);
 }
 
@@ -302,14 +305,15 @@ Note.prototype.redraw = function() {
     "top" : graph.vp.toLocalY(this.y) + "px",
     "left" : graph.vp.toLocalX(this.x) + "px",
     "width" : graph.vp.scaleToView(this.width) + "px",
-    "height" : graph.vp.scaleToView(this.height) + "px"
+    "height" : graph.vp.scaleToView(this.height) + "px",
+    "zIndex" : thisnote.zorder
   });
 
   // Behaviour
   $(this.div)
   .draggable(
   {
-    zIndex: 10000, // Enough? Maybe not always.
+    zIndex: 2100000000, // Enough? Maybe not always.
     containment: "parent",
     start: function(event, ui){
       /* Ensure canvas is large enough so note can leave visible viewport.
@@ -463,7 +467,7 @@ Note.prototype.redraw = function() {
     $("#mindwiki_world").append('<div id="editWindow" class="flora"></div>');
     $("#editWindow").append('<p>Title<br /><input type="text" size="30" id="titleInputField" value="'+thisnote.name+'"/></p><p>Content<br /><textarea rows="15" cols="75" id="editableContentBox">'+thisnote.editableContent+'</textarea></p>');
     $("#editableContentBox").markItUp(mySettings);
-    $("#editWindow").css({"zIndex": "9999999", "overflow": "auto"}); // isn't there a 'top' option? :)
+    $("#editWindow").css({"zIndex": "2100000001", "overflow": "auto"}); // isn't there a 'top' option? :)
     $("#editWindow").dialog({
       width: 750,
       height: 550,

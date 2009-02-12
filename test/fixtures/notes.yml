@@ -10,6 +10,7 @@ ruby_note:
   color: '#abba10'
   article_id: 1
   graph_id: 1
+  zorder: 10
 
 oo_note:
   id: 2
@@ -21,6 +22,7 @@ oo_note:
   color: gray #normal css color definitions
   article_id: 2
   graph_id: 1
+  zorder: 11
 
 matsumoto_note:
   id: 3
@@ -32,6 +34,7 @@ matsumoto_note:
   color: '#bababa'
   article_id: 3
   graph_id: 1
+  zorder: 12
 
 redcloth_example_note:
   id: 4
@@ -43,6 +46,7 @@ redcloth_example_note:
   color: gray
   graph_id: 3
   article_id: 4
+  zorder: 13
 
 matsumoto_yt_note:
   id: 5
@@ -54,3 +58,4 @@ matsumoto_yt_note:
   color: '#ffccaa'
   graph_id: 1
   article_id: 5
+  zorder: 14

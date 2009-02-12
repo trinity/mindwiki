@@ -35,21 +35,16 @@ function Sync() {
     });
   });
 
-
- /****************************************************************************
-   Automatic refreshing launcher
-  ****************************************************************************/
-
-  setTimeout(checkServerForUpdates, this.refreshTime, this);
-
 } // end constructor
 
 
 /****************************************************************************
   Automatic refreshing method
 
-// To have checkServerForUpdates within Sync needs different workarounds for different browsers, 
-// because setTimeout changes scope. Therefore global.
+  Initial call of this function is at the end of the graph constructor.
+
+  To have checkServerForUpdates within Sync needs different workarounds for different browsers, 
+  because setTimeout changes scope. Therefore global.
 
  ****************************************************************************/
 
@@ -72,6 +67,7 @@ function checkServerForUpdates(syncObject){
           tmp.width = parseInt($(this).find("width:first").text());  
           tmp.height = parseInt($(this).find("height:first").text());
           tmp.color = $(this).find("color:first").text();
+          tmp.zorder = parseInt($(this).find("zorder:first").text());
 
           $("article",this).each(function(j){ // There's really only one :)
             tmp.content = $(this).find("content_rendered:first").text();
@@ -85,6 +81,7 @@ function checkServerForUpdates(syncObject){
           if(!thisgraph.getNoteById(tmp.id)){
             thisgraph.notes.push(tmp);
             tmp.redraw();
+            thisgraph.runningZ = thisgraph.runningZ < tmp.zorder ? tmp.zorder : thisgraph.runningZ;
           }
 
           // Escapes the edges-to array first, then loops edges-to -fields inside
@@ -216,6 +213,19 @@ Sync.prototype.setNoteColor = function(noteId, newColor){
 
 
 /****************************************************************************
+  Inform the server about a NOTE Z-ORDER change.
+ ****************************************************************************/
+
+Sync.prototype.setNoteZorder = function(noteId, newZ){
+  $.ajax({
+    url: "/notes/update/"+noteId,
+    data: { "note[zorder]" : newZ },
+    dataType: "html"
+  });
+}
+
+
+/****************************************************************************
   Inform the server about a NOTE POSITION change.
  ****************************************************************************/
 
@@ -310,6 +320,7 @@ Sync.prototype.createNote = function(note){
       "note[y]" : n.y,
       "note[width]" : n.width,
       "note[height]" : n.height,
+      "note[zorder]" : n.zorder,
       "article_content" : n.content
     },
     dataType: "xml",
@@ -363,6 +374,7 @@ Sync.prototype.getViewportNotes = function(x, y, w, h){
           tmp.width = parseInt($(this).find("width:first").text());  
           tmp.height = parseInt($(this).find("height:first").text());
           tmp.color = $(this).find("color:first").text();
+          tmp.zorder = parseInt($(this).find("zorder:first").text());
 
           $("article",this).each(function(j){ // There's really only one :)
             tmp.content = $(this).find("content_rendered:first").text();
@@ -376,6 +388,7 @@ Sync.prototype.getViewportNotes = function(x, y, w, h){
           if(!thisgraph.getNoteById(tmp.id)){
             thisgraph.notes.push(tmp);
             tmp.redraw();
+            thisgraph.runningZ = thisgraph.runningZ < tmp.zorder ? tmp.zorder : thisgraph.runningZ;
           }
 
           // Escapes the edges-to array first, then loops edges-to -fields inside

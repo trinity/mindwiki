@@ -16,6 +16,9 @@ class Note < ActiveRecord::Base
   validates_numericality_of :width, :greater_than_or_equal_to => 20, :less_than => 9999, :only_integer => true
   validates_numericality_of :height, :greater_than_or_equal_to => 20, :less_than => 9999, :only_integer => true
 
+  # Z-order is used for HTML-layering via CSS
+  validates_numericality_of :zorder, :only_integer => true
+
   def validate
     validate_color('color')
     validate_text('name')

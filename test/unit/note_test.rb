@@ -12,7 +12,8 @@ class NoteTest < ActiveSupport::TestCase
         :y => 10,
         :width => 300,
         :height => 200,
-        :color => "#abba10"
+        :color => "#abba10",
+        :zorder => 100
       })
 
       # Blank name shouldn't be allowed

@@ -47,7 +47,7 @@ function Graph() {
   this.color = "#dddddd";
 
   this.globalStartNote = null; // Used when creating new edges
-  this.runningZ = 10; // Used for z-index = "top". Will be replaced with specific z-order handling soon.
+  this.runningZ = 10; // Used for z-index = "top" within the context of notes
 
   // Maybe more sophisticated containers?!
   this.notes = [];
@@ -487,6 +487,11 @@ function Graph() {
   //this.config.newOption("button", "setView", function() { graph.vp.setView(graph.vp.x1, graph.vp.y1); });
 
   $("#vport").append(this.config.getHandle());
+
+
+  // Initialize the server updating timer
+  checkServerForUpdates(this.sync);
+
 } // end constructor
 
 
