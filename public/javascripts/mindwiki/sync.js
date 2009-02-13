@@ -109,7 +109,7 @@ function checkServerForUpdates(syncObject){
     }
   });
 
-  setTimeout(checkServerForUpdates, sync.refreshTime, sync); // reference to global :(
+  setTimeout(function(){checkServerForUpdates(sync);}, sync.refreshTime, sync); // reference to global :(
 }
 
 
