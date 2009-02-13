@@ -35,7 +35,30 @@ Viewport.prototype.updateURL = function() {
   window.location.href = "#left=" + this.x1 + "&top=" + this.y1;
 }
 
+
+Viewport.prototype.clipViewToUniverse = function(pos) {
+  var newPos = pos;
+  
+  if (pos.x < graph.extents.min.x - this.viewW)
+    newPos.x = graph.extents.min.x - this.viewW;
+
+  if (pos.x > graph.extents.max.x)
+    newPos.x = graph.extents.max.x;
+
+  if (pos.y < graph.extents.min.y - this.viewH)
+    newPos.y = graph.extents.min.y - this.viewH;
+
+  if (pos.y > graph.extents.max.y)
+    newPos.y = graph.extents.max.y;
+  
+  return newPos;
+}
+
 Viewport.prototype.setViewFastMove = function(left, top) {
+  var newPos = this.clipViewToUniverse({x:left, y:top});
+  left = newPos.x;
+  top = newPos.y;
+
   var xMove = left - this.canvasX1;
   var yMove = top - this.canvasY1;
   
@@ -66,6 +89,10 @@ Viewport.prototype.setViewSize = function(w, h) {
 }
 
 Viewport.prototype.setView = function(left, top) {
+  var newPos = this.clipViewToUniverse({x:left, y:top});
+  left = newPos.x;
+  top = newPos.y;
+
   this.x1 = left;
   this.y1 = top;
   
