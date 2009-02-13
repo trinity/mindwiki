@@ -84,15 +84,19 @@ function Graph() {
 		
   this.downX = -1; /* Set to -1 when no drag is in progress. */
   $("#mindwiki_world").mousedown(function (event) {
-    $("#mindwiki_world").css({"cursor": "move"});
     graph.downX = event.pageX;
     graph.downY = event.pageY;
+    graph.cursorChanged = false;
   });
   
   $("#mindwiki_world").mousemove(function (event) {
     if (graph.downX == -1)
       return;
       
+    if (graph.cursorChanged == false) {
+      $("#mindwiki_world").css({"cursor": "move"});
+      graph.cursorChanged = true;
+    }
     var x = -(event.pageX - graph.downX);
     var y = -(event.pageY - graph.downY);
 
