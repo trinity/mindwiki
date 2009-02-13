@@ -57,7 +57,7 @@ function Graph() {
   this.scrollToSelected = true;
 
   // Use new viewport?
-  this.newViewport = false;
+  this.newViewport = true;
 
   var thisgraph = this; // To be used in submethods
 
@@ -83,6 +83,7 @@ function Graph() {
   });
 		
   this.downX = -1; /* Set to -1 when no drag is in progress. */
+  this.cursorChanged = false;
   $("#mindwiki_world").mousedown(function (event) {
     graph.downX = event.pageX;
     graph.downY = event.pageY;
@@ -410,9 +411,11 @@ function Graph() {
   
   /* HIDE since they do not really work right... */
   if (this.newViewport == false) {
+    $(zoomScrollbar).hide();
+  } else {
+    /* Currently not in use. */
     $(vScrollbar).hide();
     $(hScrollbar).hide();
-    $(zoomScrollbar).hide();
   }
 
   // Load notes after scrolled

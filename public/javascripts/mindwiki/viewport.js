@@ -39,17 +39,17 @@ Viewport.prototype.updateURL = function() {
 Viewport.prototype.clipViewToUniverse = function(pos) {
   var newPos = pos;
   
-  if (pos.x < graph.extents.min.x - this.viewW)
-    newPos.x = graph.extents.min.x - this.viewW;
+  if (pos.x < this.graph.extents.min.x - this.viewW)
+    newPos.x = this.graph.extents.min.x - this.viewW;
 
-  if (pos.x > graph.extents.max.x)
-    newPos.x = graph.extents.max.x;
+  if (pos.x > this.graph.extents.max.x)
+    newPos.x = this.graph.extents.max.x;
 
-  if (pos.y < graph.extents.min.y - this.viewH)
-    newPos.y = graph.extents.min.y - this.viewH;
+  if (pos.y < this.graph.extents.min.y - this.viewH)
+    newPos.y = this.graph.extents.min.y - this.viewH;
 
-  if (pos.y > graph.extents.max.y)
-    newPos.y = graph.extents.max.y;
+  if (pos.y > this.graph.extents.max.y)
+    newPos.y = this.graph.extents.max.y;
   
   return newPos;
 }
@@ -203,8 +203,8 @@ Viewport.prototype.setScale = function(scale) {
   /* 1.0 zoomed in.
      0.0 entire graph is shown(if it is centered). */
 
-  var x = this.viewW * scale + (graph.extents.max.x - graph.extents.min.x) * (1 - scale);
-  var y = this.viewH * scale + (graph.extents.max.y - graph.extents.min.y) * (1 - scale);
+  var x = this.viewW * scale + (this.graph.extents.max.x - graph.extents.min.x) * (1 - scale);
+  var y = this.viewH * scale + (this.graph.extents.max.y - graph.extents.min.y) * (1 - scale);
   var xScale = this.viewW / x;
   var yScale = this.viewH / y;
   

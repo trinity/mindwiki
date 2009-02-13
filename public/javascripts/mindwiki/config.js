@@ -7,6 +7,8 @@ Config.prototype.getHandle = function() {
   return this.div;
 }
 
+/* TODO: write code to read/write initial values from/to db. */
+
 Config.prototype.newOption = function(type, text, onChange) {
   if (type == "text")
     this.options.push(new ConfigText(text, onChange));
