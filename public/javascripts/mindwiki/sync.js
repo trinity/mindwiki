@@ -57,8 +57,11 @@ function checkServerForUpdates(syncObject){
     data: { "timestamp" : sync.timestamp },
     dataType: "xml",
     success: function(data){
+      var update = false;
       sync.updateTimestamp(data);
       $("note",data).each(function(i){
+          update = true;
+	  
           var tmp = new Note();
           tmp.id = parseInt($(this).find("id:first").text());
           tmp.name = $(this).find("name:first").text();
@@ -105,7 +108,13 @@ function checkServerForUpdates(syncObject){
             );
           }); 
       });
-
+      
+      /* TODO: need to decide how we keep client and server in sync.
+       * Do we want server to inform us, calculate it ourselves, or call server whenever in doubt? 
+       * Also need to update when notes are deleted.
+       */
+      //if (update == true) alert("it is true"); // update is never set to true for some reason.
+        sync.updateExtents();
     }
   });
 
@@ -158,21 +167,12 @@ Sync.prototype.updateTimestampIfBigger = function(s){
 
 
 /****************************************************************************
-  Get graph information (color & extents) from the server. 
+  Update extents from the server. 
  ****************************************************************************/
 
-Sync.prototype.initGraph = function(){
-  // TODO: Have just one ajax-call to handle all graph initialization
+Sync.prototype.updateExtents = function(){
   var thissync = this;
   var thisgraph = this.graph;
-  $.ajax({
-    url: "/graphs/get_color/" + thissync.graph.id,
-    success: function(data){ 
-      thissync.graph.color = data;
-      $("#mindwiki_world").css({"backgroundColor" : data});
-    }
-  });
-
   // Gets extents of the graph and calculates the middle point, also.
   $.ajax({
     url: "/graphs/get_extents/" + thissync.graph.id,
@@ -189,8 +189,28 @@ Sync.prototype.initGraph = function(){
       });
       thisgraph.extents.mid.x = Math.round((thisgraph.extents.min.x+thisgraph.extents.max.x)/2);
       thisgraph.extents.mid.y = Math.round((thisgraph.extents.min.y+thisgraph.extents.max.y)/2);
+      /*thisgraph.ch.setPriorityText("Extents " + thisgraph.extents.min.x + " " + thisgraph.extents.min.y +
+      " " + thisgraph.extents.max.x + " " + thisgraph.extents.max.y, 100);*/
     }
   });
+}
+
+/****************************************************************************
+  Get graph information (color & extents) from the server. 
+ ****************************************************************************/
+
+Sync.prototype.initGraph = function(){
+  // TODO: Have just one ajax-call to handle all graph initialization
+  var thissync = this;
+  var thisgraph = this.graph;
+  $.ajax({
+    url: "/graphs/get_color/" + thissync.graph.id,
+    success: function(data){ 
+      thissync.graph.color = data;
+      $("#mindwiki_world").css({"backgroundColor" : data});
+    }
+  });
+  this.updateExtents();
 
   // TEMPORARY for performance testing:
   // How long does it take for an empty ajax request to come back from the server?
