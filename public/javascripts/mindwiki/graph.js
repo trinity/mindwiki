@@ -313,11 +313,17 @@ function Graph() {
   this.vp.x2 = this.vp.y2 = 9999;
   this.vp.minX = this.maxX = this.extents.mid.x;
   this.vp.minY = this.maxY = this.extents.mid.y;
-  this.vp.windowW = $("#vport").width();
-  this.vp.windowH = $("#vport").height();
-  this.vp.scrollableY = this.vp.y2-this.vp.y1-this.vp.windowH;
-  this.vp.scrollableX = this.vp.x2-this.vp.x1-this.vp.windowW;
   
+  /* Initialization is not complete enough to call setViewSize. */
+  this.vp.viewW = $("#vport").width();
+  this.vp.viewH = $("#vport").height();
+  //this.vp.setViewSize($("#vport").width(), $("#vport").height());
+  this.vp.scrollableY = this.vp.y2-this.vp.y1-this.vp.viewH;
+  this.vp.scrollableX = this.vp.x2-this.vp.x1-this.vp.viewW;
+  
+  $(window).resize(function() {
+    graph.vp.setViewSize($("#vport").width(), $("#vport").height());
+  });
   vScrollbar = document.createElement("div");
   $(vScrollbar).addClass("vScrollbar");
 
@@ -325,7 +331,7 @@ function Graph() {
   $(vScrollbarIndicator).addClass("vScrollbarIndicator");
   $(vScrollbar).append(vScrollbarIndicator);
   
-  $(vScrollbarIndicator).css("height", this.vp.windowH / this.vp.scrollableY *640 /*scrollbarSize.y*/);
+  $(vScrollbarIndicator).css("height", this.vp.viewH / this.vp.scrollableY *640 /*scrollbarSize.y*/);
   $(vScrollbar).slider({
     //accept: ".vScrollbarIndicator",
     handle: ".vScrollbarIndicator",
@@ -354,7 +360,7 @@ function Graph() {
   $(hScrollbarIndicator).addClass("hScrollbarIndicator");
   $(hScrollbar).append(hScrollbarIndicator);
   
-  $(hScrollbarIndicator).css("width", this.vp.windowW / this.vp.scrollableX *640 /*scrollbarSize.x*/);
+  $(hScrollbarIndicator).css("width", this.vp.viewW / this.vp.scrollableX *640 /*scrollbarSize.x*/);
   $(hScrollbar).slider({
     //accept: ".vScrollbarIndicator",
     handle: ".hScrollbarIndicator",
@@ -385,7 +391,7 @@ function Graph() {
   $(zoomScrollbarIndicator).addClass("zoomScrollbarIndicator");
   $(zoomScrollbar).append(zoomScrollbarIndicator);
   
-  $(zoomScrollbarIndicator).css("height", this.vp.windowH / this.vp.scrollableY *480 /*scrollbarSize.x*/);
+  $(zoomScrollbarIndicator).css("height", this.vp.viewH / this.vp.scrollableY *480 /*scrollbarSize.x*/);
   $(zoomScrollbar).slider({
     //accept: ".vScrollbarIndicator",
     handle: ".zoomScrollbarIndicator",

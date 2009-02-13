@@ -86,6 +86,7 @@ Viewport.prototype.setViewFastMove = function(left, top) {
 Viewport.prototype.setViewSize = function(w, h) {
   this.viewW = w;
   this.viewH = h;
+  this.setScale(this.callerScale); /* Calls setView as well. */
 }
 
 Viewport.prototype.setView = function(left, top) {
@@ -207,13 +208,15 @@ Viewport.prototype.setScale = function(scale) {
   var xScale = this.viewW / x;
   var yScale = this.viewH / y;
   
+  this.callerScale = scale;
+  
   /* Take minimum. */
   this.scale = xScale < yScale ? xScale : yScale;
   /* Graph extents could be smaller than view thus causing zooming in. Perhaps not
      something worth allowing. */
   if (this.scale > 1.0)
     this.scale = 1.0;
-  
+
   /* No very sure about this... */
   this.expandWorld(this.scaleToWorld(this.toLocalX(this.minX)),
                    this.scaleToWorld(this.toLocalY(this.minY)),
