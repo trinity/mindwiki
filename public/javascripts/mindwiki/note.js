@@ -384,18 +384,11 @@ Note.prototype.redraw = function() {
     if (ev.detail == 1 || ev.detail == null) { // null makes things work in IE
     	/* End edge creation mode if user clicks on same note. */
       if (graph.globalStartNote == thisnote) {
-        /* Restore color. */
-        thisnote.enable();
-        thisnote.enableTargetNotes();
-        graph.globalStartNote = null; // ready for a new edge to be created
-        graph.ch.resetPriority(0);
-        graph.ch.set("");
+	graph.endEdgeCreation();
         return;
       }
       // Are we in the edge creation mode?
       if (graph.globalStartNote != null) {
-        graph.globalStartNote.enable();
-        graph.globalStartNote.enableTargetNotes();
         // Create edge. No selection.
         var tmpEdge = new Edge();
         tmpEdge.rCanvas = graph.rc;
@@ -404,13 +397,11 @@ Note.prototype.redraw = function() {
         tmpEdge.newID(); // notifies server
         //add the edge to notes for updating
         graph.globalStartNote.edgesFrom.push(tmpEdge);
+        graph.addEdge(tmpEdge);
         thisnote.edgesTo.push(tmpEdge);
         tmpEdge.update();
         tmpEdge.draw(); // draws clientside
-        graph.globalStartNote = null; // ready for a new edge to be created
-        graph.addEdge(tmpEdge);
-        graph.ch.resetPriority(0);
-        graph.ch.set("");
+	graph.endEdgeCreation();
       }
       // Normal note selection (not in the edge creation mode)
       else {

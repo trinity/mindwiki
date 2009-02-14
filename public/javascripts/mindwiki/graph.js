@@ -134,18 +134,9 @@ function Graph() {
       /* detachControls should be called in deselect but that seems little wasteful since
          in most cases we would be selecting another note. */
       thisgraph.detachControls(thisgraph.selectedNote);
-      if (!thisgraph.selectedNote.enabled) 
-      {
-        thisgraph.selectedNote.enable();
-        thisgraph.selectedNote.enableTargetNotes();
-      }
       thisgraph.selectedNote = null;
     }
-    
-    if (thisgraph.globalStartNote != null)
-    {
-      thisgraph.globalStartNote = null;
-    }
+    thisgraph.endEdgeCreation();
   });
 
   $(".note").livequery("click", function(event){
@@ -215,35 +206,37 @@ function Graph() {
   this.edgeButtonsDiv = document.createElement("div");
   
   // Buttons
-  this.deleteButton = document.createElement("div");
-  this.colorButton = document.createElement("div");
-  this.arrowButton = document.createElement("div");
-  this.deleteEdgeButton = document.createElement("div");
-
-  $(this.buttonsDiv).addClass("noteButton").hide();
-  $(this.edgeButtonsDiv).addClass("noteButton").hide();
 
   // arrow button
-  $(this.arrowButton).addClass("noteArrowButton");
-  $(this.buttonsDiv).append(this.arrowButton);
-	
+  this.arrowButton = new ToggleButton("noteArrowButton", function(value) {
+    if (value == true)
+	thisgraph.beginEdgeCreation();
+    else
+	thisgraph.endEdgeCreation();
+  });
+  $(this.buttonsDiv).append(this.arrowButton.div);
+
   // color button
-  $(this.colorButton).addClass("noteColorButton");
-  $(this.buttonsDiv).append(this.colorButton);
+  this.colorButton = new ToggleButton("noteColorButton", function(value) {
+    if (value == true)
+      $(thisgraph.colorButton.div).ColorPicker("show");
+    else
+      $(thisgraph.colorButton.div).ColorPicker("hide");
+  });
+  $(this.buttonsDiv).append(this.colorButton.div);
 
   // delete button
+  this.deleteButton = document.createElement("div");
   $(this.deleteButton).addClass("noteDeleteButton");
   $(this.buttonsDiv).append(this.deleteButton);
-
+  
+  // delete edge button
+  this.deleteEdgeButton = document.createElement("div");
   $(this.deleteEdgeButton).addClass("noteDeleteButton");
   $(this.edgeButtonsDiv).append(this.deleteEdgeButton);
 
-  $(this.arrowButton).mousedown(function () {
-    $(graph.arrowButton).removeClass().addClass("noteArrowButtonPressed");
-  });
-  $(this.arrowButton).mouseout(function () {
-    $(graph.arrowButton).removeClass().addClass("noteArrowButton");
-  });
+  $(this.buttonsDiv).addClass("noteButton").hide();
+  $(this.edgeButtonsDiv).addClass("noteButton").hide();
 
   $(this.deleteButton).mousedown(function () {
     $(graph.deleteButton).removeClass().addClass("noteDeleteButtonPressed");
@@ -252,22 +245,8 @@ function Graph() {
     $(graph.deleteButton).removeClass().addClass("noteDeleteButton");
   });
 
-  $(this.colorButton).mousedown(function () {
-    $(graph.colorButton).removeClass().addClass("noteColorButtonPressed");
-  });
-  $(this.colorButton).mouseout(function () {
-    $(graph.colorButton).removeClass().addClass("noteColorButton");
-  });
-
   /* Controls */
-  $(this.arrowButton).click(function (event) {
-    graph.globalStartNote = graph.selectedNote;
-    graph.ch.setPriorityText("<b>Select target note</b> or click on active note to cancel.", 1);
-    graph.selectedNote.disable();
-    graph.selectedNote.disableTargetNotes();
-    event.stopPropagation();
-  });
-  $(this.colorButton).ColorPicker({
+  $(this.colorButton.div).ColorPicker({
     onBeforeShow: function () {
       /* Need to fetch it. */
       $(this).ColorPickerSetColor(graph.selectedNote.color);
@@ -277,6 +256,8 @@ function Graph() {
       return false;
     },
     onHide: function(picker){
+      /* Reset button state. */
+      graph.colorButton.setState(false); 
       $(picker).fadeOut(100);
       return false;
     },
@@ -286,6 +267,7 @@ function Graph() {
       thisgraph.sync.setNoteColor(thisgraph.selectedNote.id, "#"+hex);
     }
   });
+  
   $(".colorpicker").css({"zIndex": 9999999});
   
   $(this.deleteButton).click(function () {
@@ -416,6 +398,7 @@ function Graph() {
     /* Currently not in use. */
     $(vScrollbar).hide();
     $(hScrollbar).hide();
+    $(".mindwiki_viewport").css({"overflow": "hidden"});
   }
 
   // Load notes after scrolled
@@ -513,6 +496,27 @@ function Graph() {
 Graph.prototype.viewportChanged = function()
 {
 
+}
+
+Graph.prototype.beginEdgeCreation = function()
+{
+  this.globalStartNote = this.selectedNote;
+  this.ch.setPriorityText("<b>Select target note</b> or click on active note to cancel.", 1);
+  this.selectedNote.disable();
+  this.selectedNote.disableTargetNotes();
+}
+
+Graph.prototype.endEdgeCreation = function()
+{
+  this.arrowButton.setState(false);
+  if (this.globalStartNote == null)
+    return;
+  /* Restore color. */
+  this.globalStartNote.enable();
+  this.globalStartNote.enableTargetNotes();
+  this.globalStartNote = null; // ready for a new edge to be created
+  this.ch.resetPriority(0);
+  this.ch.set("");
 }
 
 // Show the user that we are loading...
@@ -708,3 +712,49 @@ Graph.prototype.UpdateAllNotesCSS = function() {
   }
 }
 
+function ToggleButton(name, onChange) {
+  this.div = document.createElement("div");
+  this.state = false;
+  this.onChange = onChange;
+  this.name = name;
+  
+  var thisbutton = this;
+  
+  /* Use name as class and name + "Pressed" as pressed class. */
+  $(this.div).addClass(name);
+  
+  /*
+  // OS provided buttons perform the action when mouse button is released on top of button.
+  // Getting it all work fine is slightly complicated so use click instead for now.
+  $(this.div).mousedown(function (e) {
+    //$(thisbutton.div).removeClass().addClass(name + "Pressed");
+    //e.stopPropagation();
+  });
+  
+  $(this.div).mouseup(function (e) {
+    //thisbutton.setState(!thisbutton.pressed);
+    //e.stopPropagation();
+  });
+  $(this.div).mouseout(function (e) {
+    //thisbutton.setState(thisbutton.pressed);
+    //e.stopPropagation();
+  });
+  */
+  $(this.div).click(function (e) {
+    thisbutton.setState(!thisbutton.state);
+    e.stopPropagation();
+  });
+}
+
+ToggleButton.prototype.setState = function(state) {
+  if (state == this.state)
+    return;
+  
+  this.state = state;
+  this.onChange(this.state);
+
+  if (this.state == true)
+    $(this.div).removeClass().addClass(this.name + "Pressed");
+  else
+    $(this.div).removeClass().addClass(this.name);
+}
