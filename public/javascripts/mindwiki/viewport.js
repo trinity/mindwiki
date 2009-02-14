@@ -80,7 +80,7 @@ Viewport.prototype.setViewFastMove = function(left, top) {
   
   $("#mindwiki_world").css('left', -xMove + "px");
   $("#mindwiki_world").css('top', -yMove + "px");
-  this.graph.ch.setPriorityText("Canvas move " + xMove + " " + yMove, 10);
+  /*this.graph.ch.setPriorityText("Canvas move " + xMove + " " + yMove, 10);*/
 }
 
 Viewport.prototype.setViewSize = function(w, h) {

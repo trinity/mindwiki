@@ -420,22 +420,25 @@ function Graph() {
     e.stopPropagation();
   });
 
-  $(this.arrowButton).mouseover(function()
+  $(this.arrowButton.div).mouseover(function(e)
   {
     graph.ch.set("<b>Create a connection</b> by clicking the arrow button of the first note, and then clicking the second note.");
-  }, function() {}
+    e.stopPropagation();
+  }
   );
 
-  $(this.colorButton).mouseover(function()
+  $(this.colorButton.div).mouseover(function(e)
   {
     graph.ch.set("<b>Change color.</b>");
-  }, function() {}
+    e.stopPropagation();
+  }
   );
   
-  $(this.deleteButton).mouseover(function()
+  $(this.deleteButton).mouseover(function(e)
   {
     graph.ch.set("<b>Delete note.</b>");
-  }, function() {}
+    e.stopPropagation();
+  }
   );
 
   /*
