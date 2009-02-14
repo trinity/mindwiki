@@ -71,15 +71,6 @@
 .colorpicker input {
 	background-color: transparent;
 	border: 1px solid transparent;
-	position: absolute;
-	font-size: 10px;
-	font-family: Arial, Helvetica, sans-serif;
-	color: #898989;
-	top: 4px;
-	right: 11px;
-	text-align: right;
-	margin: 0;
-	padding: 0;
 	height: 11px;
 }
 .colorpicker_hex {
@@ -92,6 +83,16 @@
 }
 .colorpicker_hex input {
 	right: 6px;
+	position: absolute;
+	font-size: 10px;
+	font-family: Arial, Helvetica, sans-serif;
+	color: #898989;
+	top: 4px;
+	right: 11px;
+	text-align: right;
+	margin: 0;
+	padding: 0;
+
 }
 .colorpicker_field {
 	height: 22px;
@@ -108,41 +109,12 @@
 	right: 0;
 	cursor: n-resize;
 }
-.colorpicker_rgb_r {
-	background-image: url(../images/colorpicker/colorpicker_rgb_r.png);
-	top: 52px;
-	left: 212px;
-}
-.colorpicker_rgb_g {
-	background-image: url(../images/colorpicker/colorpicker_rgb_g.png);
-	top: 82px;
-	left: 212px;
-}
-.colorpicker_rgb_b {
-	background-image: url(../images/colorpicker/colorpicker_rgb_b.png);
-	top: 112px;
-	left: 212px;
-}
-.colorpicker_hsb_h {
-	background-image: url(../images/colorpicker/colorpicker_hsb_h.png);
-	top: 52px;
-	left: 282px;
-}
-.colorpicker_hsb_s {
-	background-image: url(../images/colorpicker/colorpicker_hsb_s.png);
-	top: 82px;
-	left: 282px;
-}
-.colorpicker_hsb_b {
-	background-image: url(../images/colorpicker/colorpicker_hsb_b.png);
-	top: 112px;
-	left: 282px;
-}
+
 .colorpicker_submit {
 	position: absolute;
 	width: 22px;
 	height: 22px;
-	background: url(../images/colorpicker/colorpicker_submit.png) top;
+	background: url(../images/colorpicker/colorpicker_ok.png) top;
 	left: 322px;
 	top: 142px;
 	overflow: hidden;
