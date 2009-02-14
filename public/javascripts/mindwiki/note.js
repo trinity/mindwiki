@@ -150,6 +150,11 @@ Note.prototype.getEdgeFromById = function(id){
 
 Note.prototype.enable = function() 
 {
+  if (this.enabled)
+  {
+    // already enabled
+    return;
+  }
   $(this.div).removeClass("noteDisabled");
   this.color = this.origColor;
   this.updateCSS();
@@ -384,7 +389,7 @@ Note.prototype.redraw = function() {
     if (ev.detail == 1 || ev.detail == null) { // null makes things work in IE
     	/* End edge creation mode if user clicks on same note. */
       if (graph.globalStartNote == thisnote) {
-	graph.endEdgeCreation();
+        graph.endEdgeCreation();
         return;
       }
       // Are we in the edge creation mode?
@@ -401,12 +406,12 @@ Note.prototype.redraw = function() {
         thisnote.edgesTo.push(tmpEdge);
         tmpEdge.update();
         tmpEdge.draw(); // draws clientside
-	graph.endEdgeCreation();
+        graph.endEdgeCreation();
       }
       // Normal note selection (not in the edge creation mode)
       else {
         graph.unselectEdge();
-	thisnote.select();
+        thisnote.select();
       }
     }
   });

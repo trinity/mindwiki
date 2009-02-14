@@ -15,6 +15,9 @@ function Edge ()
   this.xRight = 0;
   this.yRight = 0;
   this.angle = 0; // direction from startnote to endnote in radians.
+  this.textX = 0;
+  this.textY = 0;
+  this.textAngle = 0;
   this.color = "#000000";
   this.title = "";
   this.directed = true;
@@ -22,18 +25,20 @@ function Edge ()
   this.rCanvas = graph.rc;  // Raphael canvas
   this.canvasPath = null; // Raphael canvas.path
   this.canvasPath2 = null;
+  this.text = null;  // Raphael text object
   this.canvasPathSelected = null; // draw this when selected
   this.circle = null;
   this.arrowSize = 10;
   this.strokeWidth = 3;
 }
 
-Edge.prototype.remove = function() {
-
+Edge.prototype.remove = function() 
+{
   this.erase();
   
   // Make sure controls are not visible on this one
-  if (this.selected) {
+  if (this.selected) 
+  {
     graph.detachControlsFromEdge(this);
   }
   
@@ -56,7 +61,8 @@ Edge.prototype.setStartNote = function (note)
 
 Edge.prototype.setEndNote = function (note) 
 {
-  if (note == this.startNote) {
+  if (note == this.startNote) 
+  {
     alert("Internal error 126623");
     // Does not exist: graph.globalEndNote = null;
     this.startNote = null;
@@ -65,11 +71,20 @@ Edge.prototype.setEndNote = function (note)
     this.endNote = note;
 }
 
+Edge.prototype.setTitle = function (txt) 
+{
+  this.title = txt;
+}
+
+Edge.prototype.setColor = function (col) 
+{
+  this.color = col;
+}
+
 // This updates edge position and angle based on values of the notes.
 // Used before updating or drawing the edge with Raphael.
-Edge.prototype.update = function(){
-
-  // Hmm.
+Edge.prototype.update = function()
+{
   if (this.startNote == null || this.endNote == null)
   {
     graph.ch.setPriorityText("Trying to draw an edge (id:"+this.id+"), which has a null note!", 1);
@@ -118,6 +133,19 @@ Edge.prototype.update = function(){
   this.yLeft = -(negy2 + this.arrowSize * Math.sin(aLeft));
   this.xRight = this.x2 + this.arrowSize * Math.cos(aRight);
   this.yRight = -(negy2 + this.arrowSize * Math.sin(aRight));
+
+  // calculate text position
+  this.textAngle = -this.angle;
+  var txtDx = (this.strokeWidth + 10) * Math.cos(Math.PI / 2 - this.textAngle);
+  var txtDy = -(this.strokeWidth + 2) * Math.sin(Math.PI / 2 - this.textAngle);
+  if (this.textAngle < -0.5 * Math.PI && this.textAngle > -1.5 * Math.PI)
+  {
+    this.textAngle -= Math.PI;
+    txtDx = -txtDx;
+    txtDy = -txtDy;
+  }
+  this.textX = txtDx + (this.x1 + this.x2) / 2;
+  this.textY = txtDy + (this.y1 + this.y2) / 2;
 }
 
 Edge.prototype.redraw = function()
@@ -141,6 +169,17 @@ Edge.prototype.redraw = function()
   this.canvasPath2.redraw();
   
   this.circle.attr({cx: this.x1, cy: this.y1});
+  
+  if (this.title.length > 0)
+  {
+    if (this.text != null)
+    {
+      this.text.remove();
+    }
+    this.text = this.rCanvas.text(this.textX, this.textY, this.title).attr({"font": '10px "Arial"'})
+    .attr("fill", this.color).rotate(radToDeg(this.textAngle));
+  }
+  
 }
 
 // "Undraws" the edge.
@@ -157,6 +196,11 @@ Edge.prototype.erase = function()
   this.canvasPath.remove();
   this.canvasPath2.remove();
   this.circle.remove();
+  
+  if (this.text != null)
+  {
+    this.text.remove();
+  }
 }
 
 Edge.prototype.draw = function () 
@@ -170,6 +214,12 @@ Edge.prototype.draw = function ()
   this.canvasPath2 = this.rCanvas.path({stroke: this.color, fill: this.color}).absolutely().moveTo(this.x2,this.y2).lineTo(this.xLeft,this.yLeft).lineTo(this.xRight,this.yRight).andClose();
   this.circle = this.rCanvas.circle(this.x1, this.y1, this.arrowSize / 2);
   this.circle.attr({stroke: this.color, fill: this.color});
+
+  if (this.title.length > 0)
+  {
+    this.text = this.rCanvas.text(this.textX, this.textY, this.title).attr({"font": '10px "Arial"'})
+    .attr("fill", this.color).rotate(radToDeg(this.textAngle));
+  }
 }
 
 Edge.prototype.select = function (x,y) 
@@ -261,7 +311,8 @@ Edge.prototype.isHit = function (x,y,margin)
 }
 
 // Sends a newly created edge to server, and gets a database id in return.
-Edge.prototype.newID = function() {
+Edge.prototype.newID = function() 
+{
   graph.sync.createEdge(this);
 }
 

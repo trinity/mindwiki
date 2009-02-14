@@ -133,3 +133,8 @@ function lightenColor (color) {
   	color = "0" + color;
   return "#" + color;
 }
+
+// converts radians to degrees
+function radToDeg(rad) {
+  return (rad / Math.PI) * 180.0;
+}

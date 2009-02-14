@@ -203,16 +203,15 @@ function Graph() {
 
  // Initialize controls 
   this.buttonsDiv = document.createElement("div");
-  this.edgeButtonsDiv = document.createElement("div");
   
   // Buttons
 
   // arrow button
   this.arrowButton = new ToggleButton("noteArrowButton", function(value) {
     if (value == true)
-	thisgraph.beginEdgeCreation();
+      thisgraph.beginEdgeCreation();
     else
-	thisgraph.endEdgeCreation();
+      thisgraph.endEdgeCreation();
   });
   $(this.buttonsDiv).append(this.arrowButton.div);
 
@@ -230,13 +229,7 @@ function Graph() {
   $(this.deleteButton).addClass("noteDeleteButton");
   $(this.buttonsDiv).append(this.deleteButton);
   
-  // delete edge button
-  this.deleteEdgeButton = document.createElement("div");
-  $(this.deleteEdgeButton).addClass("noteDeleteButton");
-  $(this.edgeButtonsDiv).append(this.deleteEdgeButton);
-
   $(this.buttonsDiv).addClass("noteButton").hide();
-  $(this.edgeButtonsDiv).addClass("noteButton").hide();
 
   $(this.deleteButton).mousedown(function () {
     $(graph.deleteButton).removeClass().addClass("noteDeleteButtonPressed");
@@ -283,7 +276,91 @@ function Graph() {
     }
   });
 
-  $(this.deleteEdgeButton).click(function () {
+  //$("#vport").append(this.buttonsDiv);
+  $("#mindwiki_world").append(this.buttonsDiv);
+  
+  
+  /////////////////////////////////////////////
+  // EDGE BUTTONS & CONTROLS
+
+  this.edgeButtonsDiv = document.createElement("div");
+
+  this.edgeTextButton = document.createElement("div");
+  $(this.edgeTextButton).addClass("edgeTextButton");
+  $(this.edgeButtonsDiv).append(this.edgeTextButton);
+
+  this.edgeColorButton = document.createElement("div");
+  $(this.edgeColorButton).addClass("edgeColorButton");
+  $(this.edgeButtonsDiv).append(this.edgeColorButton);
+
+  this.edgeDeleteButton = document.createElement("div");
+  $(this.edgeDeleteButton).addClass("edgeDeleteButton");
+  $(this.edgeButtonsDiv).append(this.edgeDeleteButton);
+
+  $(this.edgeButtonsDiv).addClass("noteButton").hide();
+
+  $(this.edgeTextButton).click(function () {
+    if (graph.selectedEdge != null)
+    {
+      var currentEdge = graph.selectedEdge;
+      $("#mindwiki_world").append('<div id="editEdgeWindow" class="flora"></div>');
+      $("#editEdgeWindow").append('<p>Title<br /><input type="text" size="30" id="titleInputField" value="'+currentEdge.title+'"/></p>');
+      $("#editEdgeWindow").css({"zIndex": "2100000001", "overflow": "auto"}); // isn't there a 'top' option? :)
+      $("#editEdgeWindow").dialog(
+      {
+        width: 240,
+        height: 140,
+        modal: true,
+        title: "Edge (Editing)",
+        buttons: 
+        {
+          "Cancel": function()
+          {
+            $(this).dialog("destroy").remove();
+          },
+          "Save": function()
+          {
+            // Updating the title
+            var newTitle = $("#titleInputField").val();
+            if (currentEdge.title != newTitle)
+            {
+              currentEdge.setTitle(newTitle);
+              graph.sync.setEdgeName(currentEdge, newTitle);
+            }
+            $(this).dialog("destroy").remove();
+          }
+        }
+      });
+      currentEdge.unselect();
+      graph.selectedEdge = null;
+    }
+  });
+
+  $(this.edgeColorButton).ColorPicker(
+  {
+    onBeforeShow: function () {
+      /* Need to fetch it. */
+      $(this).ColorPickerSetColor(graph.selectedEdge.color);
+    },
+    onShow: function(picker){
+      $(picker).fadeIn(100);
+      return false;
+    },
+    onHide: function(picker){
+      /* Reset button state. */
+      $(picker).fadeOut(100);
+      return false;
+    },
+    onSubmit: function(hsb, hex, rgb){
+      graph.selectedEdge.setColor("#"+hex);
+      graph.selectedEdge.redraw();
+      thisgraph.sync.setEdgeColor(graph.selectedEdge.id, "#"+hex);
+      graph.selectedEdge.unselect();
+      graph.selectedEdge = null;
+    }
+  });
+
+  $(this.edgeDeleteButton).click(function () {
     if (graph.selectedEdge != null)
     {
       graph.selectedEdge.remove();
@@ -291,10 +368,12 @@ function Graph() {
     }
   });
   
-  //$("#vport").append(this.buttonsDiv);
-  $("#mindwiki_world").append(this.buttonsDiv);
   $("#mindwiki_world").append(this.edgeButtonsDiv);
-  
+
+  // EDGE BUTTONS & CONTROLS
+  /////////////////////////////////////////////
+
+
   this.vp = new Viewport();
   this.vp.graph = this;
   this.vp.x1 = this.vp.y1 = 0;
@@ -560,7 +639,7 @@ Graph.prototype.attachControlsToEdge = function(thisedge,x,y){
   $(this.edgeButtonsDiv).show();
   $(this.edgeButtonsDiv).css({
     "top" : y-26 +"px",
-    "left" : x-15 +"px",
+    "left" : x-40 +"px",
     "width" : 32+"px"
   });
 }

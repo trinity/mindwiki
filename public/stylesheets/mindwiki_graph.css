@@ -311,6 +311,40 @@
 	right: -4px;
 }
 
+/* edge buttons */
+.edgeTextButton
+{
+	background-image: url("/images/text_btn.png");
+	background-repeat: no-repeat;
+	width: 28px;
+	height: 28px;
+	position: absolute;
+	top: 0;
+	left: 0px;
+}
+
+.edgeColorButton
+{
+	background-image: url("/images/color_btn.png");
+	background-repeat: no-repeat;
+	width: 28px;
+	height: 28px;
+	position: absolute;
+	top: 0;
+	left: 28px;
+}
+
+.edgeDeleteButton
+{
+	background-image: url("/images/delete_btn.png");
+	background-repeat: no-repeat;
+	width: 28px;
+	height: 28px;
+	position: absolute;
+	top: 0;
+	left: 56px;
+}
+
 
 /* TD style */
 .noteButton

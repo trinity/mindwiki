@@ -479,3 +479,33 @@ Sync.prototype.deleteEdge = function(edgeId){
 }
 
 
+/****************************************************************************
+  Inform the server about a EDGE NAME change.
+ ****************************************************************************/
+
+Sync.prototype.setEdgeName = function(edge, newName){
+  var e = edge;
+  $.ajax({
+    url: "/edges/update/"+e.id,
+    dataType: "html",
+    data: { "edge[name]" : newName },
+    success: function(data){
+      e.name=newName;
+      e.redraw();
+    }
+  });
+}
+
+/****************************************************************************
+  Inform the server about a EDGE COLOR change.
+ ****************************************************************************/
+
+Sync.prototype.setEdgeColor = function(edgeId, newColor){
+  $.ajax({
+    url: "/edges/update/"+edgeId,
+    data: { "edge[color]" : newColor },
+    dataType: "html"
+  });
+}
+
+
