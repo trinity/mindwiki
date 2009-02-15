@@ -266,8 +266,6 @@ function Graph() {
     }
   });
   
-  $(".colorpicker").css({"zIndex": 9999999});
-  
   $(this.deleteButton).click(function () {
     if (graph.selectedNote != null)
     {
