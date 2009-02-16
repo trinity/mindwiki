@@ -180,7 +180,7 @@
 
 .noteTargeted
 {
-	border: 3px solid yellow;
+	border: 3px groove yellow;
 	/* Workaround to avoid content shifting when changing border to 3px. */	
 	margin: 0px;
 }
