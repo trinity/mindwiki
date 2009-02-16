@@ -99,7 +99,7 @@ Note.prototype.select = function() {
   graph.runningZ++;
   this.zorder = graph.runningZ;
   $(this.div).css({"zIndex":thisnote.zorder});
-  graph.sync.setNoteZorder(this.id, this.zorder); // inform the server
+  if(this.id >= 0) graph.sync.setNoteZorder(this.id, this.zorder); // inform the server
 }
 
 Note.prototype.deselect = function() {
