@@ -49,13 +49,15 @@
   bottom: 50px;
   left: 20px;
   width: 16px;
-  background-color: green;
-  z-index: 99999999; /*top?*/
+  background-color: rgba(128,128,128,0.54);
+  z-index: 99999999;
+	border-style: outset;
+	border-color: rgba(255,255,255,0.46);
 }
 
 .zoomScrollbarIndicator {
   position: absolute;
-  background-color: yellow;
+  background-color: rgba(174,209,255,0.72);
   width: 14px;
 }
 
@@ -180,9 +182,10 @@
 
 .noteTargeted
 {
-	border: 3px groove yellow;
 	/* Workaround to avoid content shifting when changing border to 3px. */	
 	margin: 0px;
+	border-width: 3px;
+	border-color: #e7a700;
 }
 
 .noteTitleEdit
