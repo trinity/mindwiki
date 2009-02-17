@@ -10,6 +10,11 @@ class Graph < ActiveRecord::Base
     validate_color('color')
   end
 
+  #after_create { |obj| SyncLog.graph_create(obj) }
+  after_update { |obj| SyncLog.graph_update(obj) }
+  after_destroy { |obj| SyncLog.graph_destroy(obj.id, obj.user) }
+
+
   # Returns notes within a certain viewport. Viewport is a rectangular area, through which the
   # whole big graph can be looked at.
   #
@@ -101,5 +106,14 @@ class Graph < ActiveRecord::Base
       end
     end
   end
+
+  # Generating objects for synchronization log
+  private
+    def sync_log_save
+      a = 1
+    end
+
+#    def sync_log_destroy
+#    end
   
 end

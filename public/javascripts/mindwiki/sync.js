@@ -108,17 +108,23 @@ function checkServerForUpdates(syncObject){
             );
           }); 
       });
-      
-      /* TODO: need to decide how we keep client and server in sync.
-       * Do we want server to inform us, calculate it ourselves, or call server whenever in doubt? 
-       * Also need to update when notes are deleted.
-       */
       //if (update == true) alert("it is true"); // update is never set to true for some reason.
         sync.updateExtents();
     }
   });
 
-  setTimeout(function(){checkServerForUpdates(sync);}, sync.refreshTime, sync); // reference to global :(
+/* // Please do not delete: This will eventually replace the ajax call above.
+  $.ajax({
+    url: "/check_for_updates/" + sync.graph.id,
+    data: { "timestamp" : sync.timestamp },
+    dataType: "json",
+    success: function(data){
+      if(data.time) sync.timestamp = data.time;
+    }
+  });
+*/      
+
+  setTimeout(function(){checkServerForUpdates(sync);}, sync.refreshTime, sync);
 }
 
 

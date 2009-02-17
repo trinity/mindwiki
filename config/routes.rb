@@ -51,4 +51,6 @@ ActionController::Routing::Routes.draw do |map|
   # consider removing the them or commenting them out if you're using named routes and resources.
   map.connect ':controller/:action/:id'
   map.connect ':controller/:action/:id.:format'
+  
+  map.connect 'check_for_updates/:id', :controller => 'sync_logs', :action => 'check_for_updates'
 end

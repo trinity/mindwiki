@@ -5,7 +5,7 @@ CREATE TABLE `articles` (
   `updated_at` datetime default NULL,
   `content_type` int(11) default '1',
   PRIMARY KEY  (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=189 DEFAULT CHARSET=utf8;
 
 CREATE TABLE `edges` (
   `id` int(11) NOT NULL auto_increment,
@@ -17,7 +17,7 @@ CREATE TABLE `edges` (
   `created_at` datetime default NULL,
   `updated_at` datetime default NULL,
   PRIMARY KEY  (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=754664364 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=754664432 DEFAULT CHARSET=utf8;
 
 CREATE TABLE `graphs` (
   `id` int(11) NOT NULL auto_increment,
@@ -27,7 +27,7 @@ CREATE TABLE `graphs` (
   `updated_at` datetime default NULL,
   `color` varchar(255) default NULL,
   PRIMARY KEY  (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=utf8;
 
 CREATE TABLE `notes` (
   `id` int(11) NOT NULL auto_increment,
@@ -41,12 +41,22 @@ CREATE TABLE `notes` (
   `graph_id` int(11) default NULL,
   `created_at` datetime default NULL,
   `updated_at` datetime default NULL,
+  `zorder` int(11) default '10',
   PRIMARY KEY  (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=188 DEFAULT CHARSET=utf8;
 
 CREATE TABLE `schema_migrations` (
   `version` varchar(255) NOT NULL,
   UNIQUE KEY `unique_schema_migrations` (`version`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE `sync_logs` (
+  `id` int(11) NOT NULL auto_increment,
+  `created_at` datetime default NULL,
+  `graph_id` int(11) default NULL,
+  `params` text,
+  PRIMARY KEY  (`id`),
+  KEY `time_graph_index` (`created_at`,`graph_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `users` (
@@ -77,3 +87,7 @@ INSERT INTO schema_migrations (version) VALUES ('20081205064406');
 INSERT INTO schema_migrations (version) VALUES ('20081230071729');
 
 INSERT INTO schema_migrations (version) VALUES ('20081230073039');
+
+INSERT INTO schema_migrations (version) VALUES ('20090212063839');
+
+INSERT INTO schema_migrations (version) VALUES ('20090217094332');
