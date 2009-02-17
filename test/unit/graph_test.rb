@@ -30,8 +30,10 @@ class GraphTest < ActiveSupport::TestCase
       assert_difference "Note.count", -4 do
         assert_difference "Article.count", -4 do
           assert_difference "Edge.count", -3 do
-            graph = Graph.find(graphs(:ruby_graph).id)
-            assert graph.destroy
+            assert_difference "SyncLog.count", 5 do # :dependent => :delete_all does not call destroy-methods (no edges)
+              graph = Graph.find(graphs(:ruby_graph).id)
+              assert graph.destroy
+            end
           end
         end
       end

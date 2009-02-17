@@ -22,6 +22,15 @@ class EdgeTest < ActiveSupport::TestCase
     end
   end
   
+  test "Deletion" do
+    assert_difference "Edge.count", -1 do
+      assert_difference "SyncLog.count", 1 do
+        e = Edge.find(edges(:ruby_oo_edge).id)
+        assert e.destroy
+      end
+    end
+  end
+  
   test "Name change test" do
     e = Edge.find(edges(:ruby_oo_edge).id)
     

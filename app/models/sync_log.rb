@@ -28,9 +28,18 @@ class SyncLog < ActiveRecord::Base
     
     
     # NOTE
-    
+    def note_destroy(graph_id, note_id)
+      params = { :act => "n_d" }
+      @l = SyncLog.new({:graph_id => graph_id, :params => params.to_json})
+      @l.save
+    end    
     
     # EDGE
+    def edge_destroy(graph_id, edge_id)
+      params = { :act => "e_d" }
+      @l = SyncLog.new({:graph_id => graph_id, :params => params.to_json})
+      @l.save
+    end    
     
 
   end # End "class << self"

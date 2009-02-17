@@ -36,6 +36,7 @@ class Note < ActiveRecord::Base
         art.destroy
       end
     end
+    SyncLog.note_destroy(self.graph.id, self.id)
   end
                                                      
 end

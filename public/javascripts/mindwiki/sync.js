@@ -113,16 +113,23 @@ function checkServerForUpdates(syncObject){
     }
   });
 
-/* // Please do not delete: This will eventually replace the ajax call above.
+/*
+  // Please do not delete: This will eventually replace the ajax call above.
   $.ajax({
+    global: false, // Disables the spinner and all other possible global functions
     url: "/check_for_updates/" + sync.graph.id,
     data: { "timestamp" : sync.timestamp },
     dataType: "json",
     success: function(data){
       if(data.time) sync.timestamp = data.time;
+      
+      var len = data.updates.length;
+      for(var i=0;i<len;i++) {
+        alert(data.updates[i].sync_log.params);
+      }
     }
   });
-*/      
+*/
 
   setTimeout(function(){checkServerForUpdates(sync);}, sync.refreshTime, sync);
 }
