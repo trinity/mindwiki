@@ -379,8 +379,8 @@ function Graph() {
   this.vp.graph = this;
   this.vp.x1 = this.vp.y1 = 0;
   this.vp.x2 = this.vp.y2 = 9999;
-  this.vp.minX = this.maxX = this.extents.mid.x;
-  this.vp.minY = this.maxY = this.extents.mid.y;
+  this.vp.minX = this.vp.maxX = this.extents.mid.x;
+  this.vp.minY = this.vp.maxY = this.extents.mid.y;
   
   /* Initialization is not complete enough to call setViewSize. */
   this.vp.viewW = $("#vport").width();
