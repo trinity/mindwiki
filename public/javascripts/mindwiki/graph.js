@@ -349,12 +349,15 @@ function Graph() {
       $(picker).fadeOut(100);
       return false;
     },
-    onSubmit: function(hsb, hex, rgb){
-      graph.selectedEdge.setColor("#"+hex);
+    onChange: function (hsb, hex, rgb) {
+    
+	  graph.selectedEdge.setColor("#"+hex);
       graph.selectedEdge.redraw();
       thisgraph.sync.setEdgeColor(graph.selectedEdge.id, "#"+hex);
-      graph.selectedEdge.unselect();
-      graph.selectedEdge = null;
+       
+	},
+    onSubmit: function(hsb, hex, rgb){
+     
     }
   });
 
