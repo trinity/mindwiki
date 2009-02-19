@@ -259,10 +259,8 @@ function Graph() {
       graph.selectedNote.update();
       thisgraph.sync.setNoteColor(thisgraph.selectedNote.id, "#"+hex);
 	},
-    onSubmit: function(hsb, hex, rgb){
-      graph.selectedNote.color = "#"+hex;
-      graph.selectedNote.update();
-      thisgraph.sync.setNoteColor(thisgraph.selectedNote.id, "#"+hex);
+    onSubmit: function(){
+      $(".colorpicker").css('display', 'none'); 
     }
   });
   
@@ -352,12 +350,11 @@ function Graph() {
     onChange: function (hsb, hex, rgb) {
     
 	  graph.selectedEdge.setColor("#"+hex);
-      graph.selectedEdge.redraw();
       thisgraph.sync.setEdgeColor(graph.selectedEdge.id, "#"+hex);
        
 	},
-    onSubmit: function(hsb, hex, rgb){
-     
+    onSubmit: function(){
+      $(".colorpicker").css('display', 'none');  
     }
   });
 
