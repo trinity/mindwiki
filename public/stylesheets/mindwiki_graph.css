@@ -188,7 +188,7 @@
 	top: 0px;
     overflow : hidden;
 }
-
+/*
 .ui-resizable-se
 {
 	bottom: 0px;
@@ -198,7 +198,7 @@
 	background-image: url("/images/resize.png");
 	z-index: 100000;
 }
-
+*/
 .context_help *:hover
 {
 	background-color: #ccc;
