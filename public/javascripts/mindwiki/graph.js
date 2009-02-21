@@ -255,10 +255,10 @@ function Graph() {
       return false;
     },
     onChange: function (hsb, hex, rgb) {
-	  graph.selectedNote.color = "#"+hex;
+      graph.selectedNote.color = "#"+hex;
       graph.selectedNote.update();
       thisgraph.sync.setNoteColor(thisgraph.selectedNote.id, "#"+hex);
-	},
+    },
     onSubmit: function(){
       /* Reset button state. */
       graph.colorButton.setState(false); 
@@ -297,7 +297,7 @@ function Graph() {
 
   $(this.edgeButtonsDiv).addClass("noteButton").hide();
 
-  $(this.edgeTextButton).click(function () {
+  $(this.edgeTextButton).click(function (event) {
     if (graph.selectedEdge != null)
     {
       var currentEdge = graph.selectedEdge;
@@ -329,10 +329,10 @@ function Graph() {
           }
         }
       });
-      currentEdge.unselect();
-      graph.selectedEdge = null;
+      graph.unselectEdge();
     }
   });
+
 
   $(this.edgeColorButton).ColorPicker(
   {
@@ -345,18 +345,22 @@ function Graph() {
       return false;
     },
     onHide: function(picker){
-      /* Reset button state. */
+      /* Color changes automatically, but if the user didn't click close we still need
+         to save the color to the database. */
+      if (graph.selectedEdge != null)
+      {
+        graph.sync.setEdgeColor(graph.selectedEdge);
+      }
       $(picker).fadeOut(100);
       return false;
     },
     onChange: function (hsb, hex, rgb) {
-    
-	  graph.selectedEdge.setColor("#"+hex);
-      thisgraph.sync.setEdgeColor(graph.selectedEdge.id, "#"+hex);
-       
-	},
+      graph.selectedEdge.setColor("#"+hex);
+    },
     onSubmit: function(){
       $(".colorpicker").css('display', 'none');  
+      graph.sync.setEdgeColor(graph.selectedEdge);
+      graph.unselectEdge();
     }
   });
 
@@ -625,8 +629,7 @@ Graph.prototype.detachControls = function(thisnote){
 }
 
 
-Graph.prototype.attachControlsToEdge = function(thisedge,x,y){
-
+Graph.prototype.attachControlsToEdge = function(x,y){
   $(this.edgeButtonsDiv).show();
   $(this.edgeButtonsDiv).css({
     "top" : y-26 +"px",
@@ -635,7 +638,7 @@ Graph.prototype.attachControlsToEdge = function(thisedge,x,y){
   });
 }
 
-Graph.prototype.detachControlsFromEdge = function(thisedge){
+Graph.prototype.detachControlsFromEdge = function(){
   $(this.edgeButtonsDiv).hide();
 }
 
@@ -747,29 +750,25 @@ Graph.prototype.edgeClick = function(x,y,margin)
     {
       if (this.edges[i].isHit(x,y,margin))
       {
-        if (this.selectedEdge == null)
-        {
-          this.selectedEdge = this.edges[i];
-          this.selectedEdge.select(x,y);
-          return true;
-        }
-        
-        if (this.selectedEdge != this.edges[i])
-        {
-          this.selectedEdge.unselect();
-          this.selectedEdge = this.edges[i];
-          this.selectedEdge.select(x,y);
-          return true;
-        }
+        this.selectEdge(this.edges[i],x,y);
+        return;
       }
     }
     // if we missed all edges, then unselect possible selected edge.
-    if (this.selectedEdge != null)
-    {
-      this.selectedEdge.unselect();
-      this.selectedEdge = null;
-    }
-    return false;
+    this.unselectEdge();
+}    
+
+Graph.prototype.selectEdge = function(edge,x,y)
+{
+  if (this.selectedEdge != null && this.selectedEdge != edge)
+  {
+    this.selectedEdge.unselect();
+  }
+  
+  this.selectedEdge = edge;
+  this.selectedEdge.select();
+  
+  this.attachControlsToEdge(x,y);
 }    
 
 Graph.prototype.unselectEdge = function()
@@ -778,7 +777,15 @@ Graph.prototype.unselectEdge = function()
   {
     this.selectedEdge.unselect();
     this.selectedEdge = null;
+    this.detachControlsFromEdge();
   }
+}
+
+// converts (x,y) to local coordinates
+Graph.prototype.localCoordinates = function(x,y,result)
+{
+  result[0] = x - $("#mindwiki_world").offset().left;
+  result[1] = y - $("#mindwiki_world").offset().top;
 }
 
 Graph.prototype.UpdateAllNotesCSS = function() {
@@ -836,3 +843,4 @@ ToggleButton.prototype.setState = function(state) {
   else
     $(this.div).removeClass().addClass(this.name);
 }
+

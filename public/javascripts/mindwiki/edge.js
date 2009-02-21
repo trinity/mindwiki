@@ -79,6 +79,23 @@ Edge.prototype.setTitle = function (txt)
 Edge.prototype.setColor = function (col) 
 {
   this.color = col;
+
+  if (this.canvasPath != null)
+  {
+    this.canvasPath.attr({stroke: this.color});
+  }
+  if (this.canvasPath2 != null)
+  {
+    this.canvasPath2.attr({stroke: this.color, fill: this.color});
+  }
+  if (this.circle != null)
+  {
+    this.circle.attr({stroke: this.color, fill: this.color});
+  }
+  if (this.text != null)
+  {
+    this.text.attr("fill", this.color);
+  }
 }
 
 // This updates edge position and angle based on values of the notes.
@@ -152,16 +169,16 @@ Edge.prototype.redraw = function()
 {
   this.update();
 
-  if (this.selected)
+  var p1 = "M " + this.x1 + " " + this.y1 + "L " + this.x2 + " " + this.y2;
+
+  if (this.canvasPathSelected != null)
   {
-    this.canvasPath.attr("path", "M" + [this.x1, this.y1] + "L" + [this.x2, this.y2]);
+    this.canvasPathSelected.attr("path", p1);
   }
   
-  this.canvasPath.attr("path", "M" + [this.x1, this.y1] + "L" + [this.x2, this.y2]);
-
-  this.canvasPath2.attr("path", "M" + [this.x2, this.y2] +
-                        "L" + [this.xLeft,this.yLeft] +
-                        "L" + [this.xRight,this.yRight]);
+  this.canvasPath.attr("path", p1);
+  var p2 = "M " + this.x2 + " " + this.y2 + "L " + this.xLeft + " " + this.yLeft + "L " + this.xRight + " " + this.yRight;
+  this.canvasPath2.attr("path", p2);
   
   this.circle.attr({cx: this.x1, cy: this.y1});
   
@@ -169,10 +186,8 @@ Edge.prototype.redraw = function()
   {
     if (this.text != null)
     {
-      this.text.remove();
+      this.text.attr("x", this.textX).attr("y", this.textY).rotate(radToDeg(this.textAngle), true);
     }
-    this.text = this.rCanvas.text(this.textX, this.textY, this.title).attr({"font": '10px "Arial"'})
-    .attr("fill", this.color).rotate(radToDeg(this.textAngle));
   }
   
 }
@@ -198,6 +213,7 @@ Edge.prototype.erase = function()
   }
 }
 
+// Creates the drawing objects and displays them.
 Edge.prototype.draw = function () 
 {
   if (this.selected) 
@@ -212,19 +228,25 @@ Edge.prototype.draw = function ()
 
   if (this.title.length > 0)
   {
-    this.text = this.rCanvas.text(this.textX, this.textY, this.title).attr({"font": '10px "Arial"'})
-    .attr("fill", this.color).rotate(radToDeg(this.textAngle));
+    var thisEdge = this;
+    this.text = this.rCanvas.text(this.textX, this.textY, this.title).attr({"font": '14px "Arial"'})
+    .attr({"font-weight": "bold"}).attr("fill", this.color).rotate(radToDeg(this.textAngle));
+    this.text.node.onclick = function(event) {
+      var result = new Array();
+      graph.localCoordinates(event.pageX,event.pageY,result);
+      graph.selectEdge(thisEdge,result[0],result[1]);
+      event.stopPropagation();
+    };
   }
 }
 
-Edge.prototype.select = function (x,y) 
+Edge.prototype.select = function () 
 {
   if (!this.selected)
   {
     this.erase();
     this.selected = true;
     this.draw();
-    graph.attachControlsToEdge(this,x,y);
   }
 }
 
@@ -235,7 +257,6 @@ Edge.prototype.unselect = function ()
     this.erase();
     this.selected = false;
     this.draw();
-    graph.detachControlsFromEdge(this);
   }
 }
 

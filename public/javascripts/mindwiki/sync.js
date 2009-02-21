@@ -513,10 +513,10 @@ Sync.prototype.setEdgeName = function(edge, newName){
   Inform the server about a EDGE COLOR change.
  ****************************************************************************/
 
-Sync.prototype.setEdgeColor = function(edgeId, newColor){
+Sync.prototype.setEdgeColor = function(edge){
   $.ajax({
-    url: "/edges/update/"+edgeId,
-    data: { "edge[color]" : newColor },
+    url: "/edges/update/"+edge.id,
+    data: { "edge[color]" : edge.color },
     dataType: "html"
   });
 }
