@@ -154,19 +154,14 @@ Edge.prototype.redraw = function()
 
   if (this.selected)
   {
-    this.canvasPathSelected.path[0].arg = [this.x1,this.y1];
-    this.canvasPathSelected.path[1].arg = [this.x2,this.y2];
-    this.canvasPathSelected.redraw();
+    this.canvasPath.attr("path", "M" + [this.x1, this.y1] + "L" + [this.x2, this.y2]);
   }
   
-  this.canvasPath.path[0].arg = [this.x1,this.y1];
-  this.canvasPath.path[1].arg = [this.x2,this.y2];
-  this.canvasPath.redraw();
+  this.canvasPath.attr("path", "M" + [this.x1, this.y1] + "L" + [this.x2, this.y2]);
 
-  this.canvasPath2.path[0].arg = [this.x2,this.y2];
-  this.canvasPath2.path[1].arg = [this.xLeft,this.yLeft];
-  this.canvasPath2.path[2].arg = [this.xRight,this.yRight];
-  this.canvasPath2.redraw();
+  this.canvasPath2.attr("path", "M" + [this.x2, this.y2] +
+                        "L" + [this.xLeft,this.yLeft] +
+                        "L" + [this.xRight,this.yRight]);
   
   this.circle.attr({cx: this.x1, cy: this.y1});
   
