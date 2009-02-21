@@ -260,6 +260,8 @@ function Graph() {
       thisgraph.sync.setNoteColor(thisgraph.selectedNote.id, "#"+hex);
 	},
     onSubmit: function(){
+      /* Reset button state. */
+      graph.colorButton.setState(false); 
       $(".colorpicker").css('display', 'none'); 
     }
   });
