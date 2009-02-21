@@ -454,22 +454,13 @@ function Graph() {
   zoomScrollbar = document.createElement("div");
   $(zoomScrollbar).addClass("zoomScrollbar");
 
-  zoomScrollbarIndicator = document.createElement("div");
-  $(zoomScrollbarIndicator).addClass("zoomScrollbarIndicator");
-  $(zoomScrollbar).append(zoomScrollbarIndicator);
-  
-  $(zoomScrollbarIndicator).css("height", this.vp.viewH / this.vp.scrollableY *480 /*scrollbarSize.x*/);
   $(zoomScrollbar).slider({
-    //accept: ".vScrollbarIndicator",
-    handle: ".zoomScrollbarIndicator",
-    /*min: 0,
-    max: 1,*/
+    min: 0,
     max: 20,
-    steps: 10,
-    axis: "vertical",
+    value: 20,
     slide: function(ev, ui) {
       if (graph.newViewport == true)
-        graph.vp.setScale(1 - (ui.value/20.0));
+        graph.vp.setScale(ui.value/20.0);
     }
   });
   
