@@ -102,8 +102,8 @@ function Graph() {
     var y = -(event.pageY - graph.downY);
 
     if (graph.newViewport == true)
-      graph.vp.setViewFastMove(graph.vp.viewLeft() + x, graph.vp.viewTop() + y);
-      
+      graph.vp.addViewFastMove(graph.vp.scaleToWorld(x), graph.vp.scaleToWorld(y));
+    
     graph.downX = event.pageX;
     graph.downY = event.pageY;
   });
@@ -111,7 +111,7 @@ function Graph() {
   $("#mindwiki_world").mouseup(function (event) {
     /* "Workaround". */
     if (graph.newViewport == true)
-        graph.vp.setView(graph.vp.viewLeft(), graph.vp.viewTop());
+        graph.vp.setView(graph.vp.viewX(), graph.vp.viewY());
 
     $("#mindwiki_world").css({"cursor": "default"});
     graph.downX = -1;
@@ -138,7 +138,29 @@ function Graph() {
     }
     thisgraph.endEdgeCreation();
   });
+  $("div").mousewheel( function(event, delta) {
+    event.stopPropagation();
+  });
+  
+  $("#mindwiki_world").mousewheel( function(event, delta) {
+    var x = event.pageX - $(this).offset().left;
+    var y = event.pageY - $(this).offset().top;
+    var newVal = $(graph.zoomScrollbar).slider('option', 'value') + delta;
+    
+    if (newVal < $(graph.zoomScrollbar).slider('option', 'min'))
+      newVal = $(graph.zoomScrollbar).slider('option', 'min');
 
+    if (newVal > $(graph.zoomScrollbar).slider('option', 'max'))
+      newVal = $(graph.zoomScrollbar).slider('option', 'max');
+
+    $(graph.zoomScrollbar).slider('option', 'value', newVal);
+
+    /* jQuery does not call slider callback. */
+    graph.vp.scaleByOrigin(x, y, newVal/20.0);
+    
+    event.stopPropagation();
+  });
+  
   $(".note").livequery("click", function(event){
     // note's click event is handled in the note class, but this is
     // needed here to prevent click event to bubble to background.
@@ -165,8 +187,10 @@ function Graph() {
 
   /* "Navigator" */
   this.viewAdd = function(x, y) {
-    graph.vp.setView(graph.vp.viewLeft() + x, graph.vp.viewTop() + y);
-    /*graph.vp.setViewFastMove(graph.vp.viewLeft() + x, graph.vp.viewTop() + y);*/
+   /* Always move by same amount regardless of zoom level, hence the scaleToWorld. */
+    graph.vp.setView(graph.vp.viewX() + graph.vp.scaleToWorld(x),
+                     graph.vp.viewY() + graph.vp.scaleToWorld(y));
+    /*graph.vp.setViewFastMove(graph.vp.viewX() + x, graph.vp.viewY() + y);*/
     graph.vp.updateURL();
   };
   
@@ -455,10 +479,10 @@ function Graph() {
 
 
   /* Zoom scrollbar */
-  zoomScrollbar = document.createElement("div");
-  $(zoomScrollbar).addClass("zoomScrollbar");
+  this.zoomScrollbar = document.createElement("div");
+  $(this.zoomScrollbar).addClass("zoomScrollbar");
 
-  $(zoomScrollbar).slider({
+  $(this.zoomScrollbar).slider({
     min: 0,
     max: 20,
     value: 20,
@@ -468,7 +492,7 @@ function Graph() {
     }
   });
   
-  $("#vport").append(zoomScrollbar);
+  $("#vport").append(this.zoomScrollbar);
   
   /* HIDE since they do not really work right... */
   if (this.newViewport == false) {
@@ -526,7 +550,7 @@ function Graph() {
   if (this.newViewport == true) {
     this.vp.initFromURL();
   
-    this.vp.setView(this.vp.x1, this.vp.y1);
+    this.vp.setView(this.vp.x, this.vp.y);
   } else {
     this.sync.getViewportNotesOld(); // viewport scroll action goes right away atm
   }
@@ -562,7 +586,7 @@ function Graph() {
   this.config.newOption("checkbox", "controlsAfterDrag", function(value) { graph.controlsAfterDrag = value; });
 
   this.config.newOption("button", "Hide", function() { $(graph.config.div).hide("slow"); });
-  //this.config.newOption("button", "setView", function() { graph.vp.setView(graph.vp.x1, graph.vp.y1); });
+  //this.config.newOption("button", "setView", function() { graph.vp.setView(graph.vp.x, graph.vp.y); });
 
   $("#vport").append(this.config.getHandle());
 

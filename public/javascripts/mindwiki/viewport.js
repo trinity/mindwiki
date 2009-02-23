@@ -8,8 +8,9 @@
   Universe and world use same coordinate system.
 */
 function Viewport() {
-    this.x1 = this.y1 = 0;
+    this.x = this.y = 0;
     this.scale = 1;
+    this.callerScale = 1.0;
     this.canvasBoundry = 400; /* Same as reloadDistance really. */
 }
 
@@ -27,60 +28,65 @@ Viewport.prototype.initFromURL = function() {
   /* Use url plugin to parse it. Cheap I know..*/
   anchor = "?" + anchor;
 
-  this.x1 = parseInt(jQuery.url.setUrl(anchor).param("left"), 10);
-  this.y1 = parseInt(jQuery.url.setUrl(anchor).param("top"), 10);
+  this.x = parseInt(jQuery.url.setUrl(anchor).param("x"), 10);
+  this.y = parseInt(jQuery.url.setUrl(anchor).param("y"), 10);
+  //this.scale = parseInt(jQuery.url.setUrl(anchor).param("scale"), 10);
+  //this.setScale(this.scale);
 }
 
 Viewport.prototype.updateURL = function() {
-  window.location.href = "#left=" + this.x1 + "&top=" + this.y1;
+  window.location.href = "#x=" + this.x + "&y=" + this.y; //+ "&scale=" + this.callerScale;
 }
 
 
 Viewport.prototype.clipViewToUniverse = function(pos) {
   var newPos = pos;
   
-  if (pos.x < this.graph.extents.min.x - this.viewW)
-    newPos.x = this.graph.extents.min.x - this.viewW;
+  if (pos.x < this.graph.extents.min.x - this.scaleToWorld(this.viewW / 2))
+    newPos.x = Math.floor(this.graph.extents.min.x - this.scaleToWorld(this.viewW / 2));
 
-  if (pos.x > this.graph.extents.max.x)
-    newPos.x = this.graph.extents.max.x;
+  if (pos.x > this.graph.extents.max.x + this.scaleToWorld(this.viewW / 2))
+    newPos.x = Math.floor(this.graph.extents.max.x + this.scaleToWorld(this.viewW / 2));
 
-  if (pos.y < this.graph.extents.min.y - this.viewH)
-    newPos.y = this.graph.extents.min.y - this.viewH;
+  if (pos.y < this.graph.extents.min.y - this.scaleToWorld(this.viewH / 2))
+    newPos.y = Math.floor(this.graph.extents.min.y - this.scaleToWorld(this.viewH / 2));
 
-  if (pos.y > this.graph.extents.max.y)
-    newPos.y = this.graph.extents.max.y;
+  if (pos.y > this.graph.extents.max.y + this.scaleToWorld(this.viewH / 2))
+    newPos.y = Math.floor(this.graph.extents.max.y + this.scaleToWorld(this.viewH / 2));
   
   return newPos;
 }
 
-Viewport.prototype.setViewFastMove = function(left, top) {
-  var newPos = this.clipViewToUniverse({x:left, y:top});
-  left = newPos.x;
-  top = newPos.y;
+Viewport.prototype.addViewFastMove = function(x, y) {
+  var newPos = this.clipViewToUniverse({x:x, y:y});
+  x = newPos.x;
+  y = newPos.y;
 
-  var xMove = left - this.canvasX1;
-  var yMove = top - this.canvasY1;
+  /* Same as scaleToView but with floating point precision.*/
+  this.canvasMoveX += x * this.scale;
+  this.canvasMoveY += y * this.scale;
   
   /* Need to "reposition" canvas. */
-  if (xMove < 0 || yMove < 0) {
-    this.setView(left, top);
+  if (this.canvasMoveX < 0 || this.canvasMoveY < 0) {
+    this.setView(x + this.x, y + this.y);
     return;
   }
   
   /* Need to "reposition" canvas. */
-  //if (left + this.viewW > this.canvasX2 || top + this.viewH > this.canvasY2) {
-  if (xMove > this.canvasBoundry * 2 || yMove > this.canvasBoundry * 2) {
-    this.setView(left, top);
+  if (this.canvasMoveX > this.canvasBoundry * 2 || this.canvasMoveY > this.canvasBoundry * 2) {
+    this.setView(x + this.x, y + this.y);
     return;
   }
   
-  this.x1 = left;
-  this.y1 = top;
-  
-  $("#mindwiki_world").css('left', -xMove + "px");
-  $("#mindwiki_world").css('top', -yMove + "px");
-  /*this.graph.ch.setPriorityText("Canvas move " + xMove + " " + yMove, 10);*/
+  this.x = this.x + x;
+  this.y = this.y + y;
+
+  $("#mindwiki_world").css('left', -this.canvasMoveX + "px");
+  $("#mindwiki_world").css('top', -this.canvasMoveY + "px");
+  //this.graph.ch.setPriorityText("Canvas move " + this.canvasMoveX + " " + this.canvasMoveY, 10);
+}
+
+Viewport.prototype.setViewFastMove = function(x, y) {
 }
 
 Viewport.prototype.setViewSize = function(w, h) {
@@ -89,23 +95,25 @@ Viewport.prototype.setViewSize = function(w, h) {
   this.setScale(this.callerScale); /* Calls setView as well. */
 }
 
-Viewport.prototype.setView = function(left, top) {
-  var newPos = this.clipViewToUniverse({x:left, y:top});
-  left = newPos.x;
-  top = newPos.y;
+Viewport.prototype.setView = function(x, y) {
+  var newPos = this.clipViewToUniverse({x:x, y:y});
+  x = newPos.x;
+  y = newPos.y;
 
-  this.x1 = left;
-  this.y1 = top;
+  this.x = x;
+  this.y = y;
   
-  this.canvasX1 = left - this.canvasBoundry;
-  this.canvasY1 = top - this.canvasBoundry;
-  this.canvasX2 = left + this.viewW + this.canvasBoundry;
-  this.canvasY2 = top + this.viewH + this.canvasBoundry;
-  
+  this.canvasX1 = x - this.viewW / 2 - this.canvasBoundry;
+  this.canvasY1 = y - this.viewH / 2 - this.canvasBoundry;
+  this.canvasX2 = x + this.viewW / 2 + this.canvasBoundry;
+  this.canvasY2 = y + this.viewH / 2 + this.canvasBoundry;
+  this.canvasMoveX = this.canvasBoundry;
+  this.canvasMoveY = this.canvasBoundry;
+
   this.expandWorld(this.canvasX1, this.canvasY1, this.canvasX2, this.canvasY2);
   
   /* And scroll our canvas. */
-  this.setViewFastMove(left, top);
+  this.addViewFastMove(0, 0);
   
   this.graph.UpdateAllNotesCSS();
   if (this.graph.selectedNote != null)
@@ -113,34 +121,34 @@ Viewport.prototype.setView = function(left, top) {
   //this.updateURL();
 }
 
-Viewport.prototype.setViewXScrolled = function(left) {
-  setViewFastMove(left, this.y1);
+Viewport.prototype.setViewXScrolled = function(x) {
+  setViewFastMove(x, this.y);
 }
 
-Viewport.prototype.setViewYScrolled = function(top) {
-  setViewFastMove(this.x1, top);
+Viewport.prototype.setViewYScrolled = function(y) {
+  setViewFastMove(this.x, y);
 }
 
-Viewport.prototype.setViewX = function(left) {
-  setView(left, this.y1);
+Viewport.prototype.setViewX = function(x) {
+  setView(x, this.y);
 }
 
-Viewport.prototype.setViewY = function(top) {
-  setView(this.x1, top);
+Viewport.prototype.setViewY = function(y) {
+  setView(this.x, y);
 }
 
 
-Viewport.prototype.viewLeft = function() {
+Viewport.prototype.viewX = function() {
   if (this.graph.newViewport == true) {
-    return this.x1;
+    return this.x;
   } else {
     return $("#vport").scrollLeft();
   }
 }
 
-Viewport.prototype.viewTop = function() {
+Viewport.prototype.viewY = function() {
   if (this.graph.newViewport == true) {
-    return this.y1;
+    return this.y;
   } else {
     return $("#vport").scrollTop();
   }
@@ -163,43 +171,47 @@ Viewport.prototype.canvasTop = function() {
 }
 
 Viewport.prototype.toLocalX = function(x) {
-  var mid = this.canvasLeft() + this.viewW / 2 + this.canvasBoundry;
+  var worldMid = (this.canvasX1 + this.canvasX2) / 2;
+  var viewMid = (this.canvasX2 - this.canvasX1) / 2;
+
   if (this.graph.newViewport == true)
-    //return x - this.canvasLeft();
-    return Math.floor((x - mid) * this.scale + mid) - this.canvasLeft();
+    return Math.floor((x - worldMid) * this.scale + viewMid);
   else
     return x;
-    
+  
 }
 
 Viewport.prototype.toLocalY = function(y) {
-  var mid = this.canvasTop() + this.viewH / 2 + this.canvasBoundry;
+  var worldMid = (this.canvasY1 + this.canvasY2) / 2;
+  var viewMid = (this.canvasY2 - this.canvasY1) / 2;
+
   if (this.graph.newViewport == true)
-    //return y - this.canvasTop();
-    return Math.floor((y - mid) * this.scale + mid) - this.canvasTop();
+    return Math.floor((y - worldMid) * this.scale + viewMid);
   else
     return y;
 }
 
 Viewport.prototype.toWorldX = function(x) {
-  var mid = this.viewW / 2 + this.canvasBoundry;
+  var viewMid = (this.canvasX2 - this.canvasX1) / 2;
+  var worldMid = (this.canvasX1 + this.canvasX2) / 2;
+  
   if (this.graph.newViewport == true)
-    return Math.floor((x - mid) / this.scale + mid) + this.canvasLeft();
-    //return this.canvasLeft() + x;
+    return Math.floor((x - viewMid) / this.scale + worldMid);
   else
     return x;
 }
 
 Viewport.prototype.toWorldY = function(y) {
-  var mid = this.viewH / 2 + this.canvasBoundry;
+  var viewMid = (this.canvasY2 - this.canvasY1) / 2;
+  var worldMid = (this.canvasY1 + this.canvasY2) / 2;
+
   if (this.graph.newViewport == true)
-    return Math.floor((y - mid) / this.scale + mid) + this.canvasTop();
-    //return this.canvasTop() + y;
+    return Math.floor((y - viewMid) / this.scale + worldMid);
   else
     return y;
 }
 
-Viewport.prototype.setScale = function(scale) {
+Viewport.prototype.setScaleInt = function(scale) {
   /* 1.0 zoomed in.
      0.0 entire graph is shown(if it is centered). */
 
@@ -213,19 +225,14 @@ Viewport.prototype.setScale = function(scale) {
   /* Take minimum. */
   this.scale = xScale < yScale ? xScale : yScale;
   /* Graph extents could be smaller than view thus causing zooming in. Perhaps not
-     something worth allowing. */
-  if (this.scale > 1.0)
-    this.scale = 1.0;
+     something worth allowing. Limited by caller. */
+ /* if (this.scale > 1.0)
+    this.scale = 1.0;*/
+}
 
-  /* No very sure about this... */
-  this.expandWorld(this.scaleToWorld(this.toLocalX(this.minX)),
-                   this.scaleToWorld(this.toLocalY(this.minY)),
-		   this.scaleToWorld(this.toLocalX(this.maxX)),
-		   this.scaleToWorld(this.toLocalY(this.maxY)));
-  //this.graph.ch.setPriorityText("Scale " + scale, 20);
-  /*this.graph.ch.setPriorityText("World minX" + this.minX + " maxX " + this.maxX +
-                                " minY " + this.minY + " maxY " + this.maxY, 200);*/
-  this.setView(this.x1, this.y1);
+Viewport.prototype.setScale = function(scale) {
+  this.setScaleInt(scale);
+  this.setView(this.x, this.y);
 }
 
 Viewport.prototype.scaleToView = function(x) {
@@ -234,6 +241,22 @@ Viewport.prototype.scaleToView = function(x) {
 
 Viewport.prototype.scaleToWorld = function(x) {
   return Math.floor(x / this.scale);
+}
+
+Viewport.prototype.scaleByOrigin = function(x, y, scale) {
+  /* Quick and dirty. */
+  var xMove = this.toWorldX(x) - this.x;
+  var yMove = this.toWorldY(y) - this.y;
+
+  this.setScaleInt(scale);
+
+  var xMoveN = this.toWorldX(x) - this.x;
+  var yMoveN = this.toWorldY(y) - this.y;
+
+  var xOffset = xMove - xMoveN;
+  var yOffset = yMove - yMoveN;
+  
+  this.setView(this.x + xOffset, this.y + yOffset);
 }
 
 Viewport.prototype.expandWorld = function(minX, minY, maxX, maxY) {
