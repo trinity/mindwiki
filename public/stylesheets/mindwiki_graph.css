@@ -368,6 +368,12 @@
    overflow : hidden;
 }
 
+.noteTitleMaxed
+{
+	height: 100%;
+	text-align: center;
+}
+
 /* DIV style */
 /*
 .noteArticle

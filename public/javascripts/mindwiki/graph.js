@@ -610,11 +610,18 @@ Graph.prototype.scaleChanged = function() {
   if (graph.selectedNote != null)
     graph.selectedNote.scaleChanged();
   
-  $(".noteTitle").css({"font-size": s + "%"});
   if (s < 60)
     $(".noteArticle").hide();
   else
     $(".noteArticle").show();
+
+  if (s < 50){
+    $(".noteTitle").css({"font-size": "100%"});
+    $(".noteTitle").addClass("noteTitleMaxed");
+  } else {
+    $(".noteTitle").css({"font-size": s + "%"});
+    $(".noteTitle").removeClass("noteTitleMaxed");
+  }
 }
 
 
