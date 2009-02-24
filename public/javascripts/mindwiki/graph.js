@@ -605,8 +605,12 @@ Graph.prototype.viewportChanged = function()
 }
 
 Graph.prototype.scaleChanged = function() {
+  var s = Math.floor(graph.vp.scaleToView(100));
+  
   if (graph.selectedNote != null)
     graph.selectedNote.scaleChanged();
+  
+  $(".noteTitle").css({"font-size": s + "%"});
 }
 
 
