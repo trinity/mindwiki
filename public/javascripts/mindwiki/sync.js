@@ -190,15 +190,34 @@ Sync.prototype.updateExtents = function(){
   $.ajax({
     url: "/graphs/get_extents/" + thissync.graph.id,
     success: function(data){
+      var changed = false;
+      var val;
+    
       $("extents",data).each(function(i){
           $("min_point",this).each(function(j){
-            thisgraph.extents.min.x = parseInt($(this).find("x:first").text());
-            thisgraph.extents.min.y = parseInt($(this).find("y:first").text());
+	    if ((val = parseInt($(this).find("x:first").text())) != thisgraph.extents.min.x) {
+              thisgraph.extents.min.x = val;
+	      changed = true;
+	    }
+	    if ((val = parseInt($(this).find("y:first").text())) != thisgraph.extents.min.y) {
+              thisgraph.extents.min.y = val;
+	      changed = true;
+	    }
           });
           $("max_point",this).each(function(j){
-            thisgraph.extents.max.x = parseInt($(this).find("x:first").text());
-            thisgraph.extents.max.y = parseInt($(this).find("y:first").text());
+	    if ((val = parseInt($(this).find("x:first").text())) != thisgraph.extents.max.x) {
+              thisgraph.extents.max.x = val;
+	      changed = true;
+	    }
+	    if ((val = parseInt($(this).find("y:first").text())) != thisgraph.extents.max.y) {
+              thisgraph.extents.max.y = val;
+	      changed = true;
+	    }
           });
+
+          /* See checkServerForUpdates. This didn't work there so might not work here either. */
+	  if (changed == true)
+	    thisgraph.vp.setScale(thisgraph.vp.callerScale);
       });
       thisgraph.extents.mid.x = Math.round((thisgraph.extents.min.x+thisgraph.extents.max.x)/2);
       thisgraph.extents.mid.y = Math.round((thisgraph.extents.min.y+thisgraph.extents.max.y)/2);

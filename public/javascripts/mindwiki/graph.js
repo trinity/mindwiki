@@ -138,25 +138,28 @@ function Graph() {
     }
     thisgraph.endEdgeCreation();
   });
-  $("div").mousewheel( function(event, delta) {
-    event.stopPropagation();
-  });
+  
+  /* Updated slider position returning new value it was clipped to. */
+  this.setZoomSlider = function(newVal) {
+    if (newVal < $(this.zoomScrollbar).slider('option', 'min'))
+      newVal = $(this.zoomScrollbar).slider('option', 'min');
+
+    if (newVal > $(this.zoomScrollbar).slider('option', 'max'))
+      newVal = $(this.zoomScrollbar).slider('option', 'max');
+
+    $(this.zoomScrollbar).slider('option', 'value', newVal);
+    
+    return newVal;
+  }
   
   $("#mindwiki_world").mousewheel( function(event, delta) {
     var x = event.pageX - $(this).offset().left;
     var y = event.pageY - $(this).offset().top;
-    var newVal = $(graph.zoomScrollbar).slider('option', 'value') + delta;
-    
-    if (newVal < $(graph.zoomScrollbar).slider('option', 'min'))
-      newVal = $(graph.zoomScrollbar).slider('option', 'min');
-
-    if (newVal > $(graph.zoomScrollbar).slider('option', 'max'))
-      newVal = $(graph.zoomScrollbar).slider('option', 'max');
-
-    $(graph.zoomScrollbar).slider('option', 'value', newVal);
+    var newVal = graph.setZoomSlider($(graph.zoomScrollbar).slider('option', 'value') + delta);
 
     /* jQuery does not call slider callback. */
     graph.vp.scaleByOrigin(x, y, newVal/20.0);
+    graph.vp.updateURL();
     
     event.stopPropagation();
   });
@@ -404,8 +407,6 @@ function Graph() {
 
   this.vp = new Viewport();
   this.vp.graph = this;
-  this.vp.x1 = this.vp.y1 = 0;
-  this.vp.x2 = this.vp.y2 = 9999;
   this.vp.minX = this.vp.maxX = this.extents.mid.x;
   this.vp.minY = this.vp.maxY = this.extents.mid.y;
   
@@ -489,6 +490,7 @@ function Graph() {
     slide: function(ev, ui) {
       if (graph.newViewport == true)
         graph.vp.setScale(ui.value/20.0);
+      graph.vp.updateURL();
     }
   });
   
@@ -549,8 +551,11 @@ function Graph() {
    */
   if (this.newViewport == true) {
     this.vp.initFromURL();
-  
-    this.vp.setView(this.vp.x, this.vp.y);
+    /* Set zoom clipping it if necessary. */
+    this.vp.callerScale = this.setZoomSlider(this.vp.callerScale * 20) / 20;
+
+    /* setScale will be called by updateExtents(called by initGraph) when the ajax call completes.
+       FIXME: it is currently possible that it finishes before viewport init is completed. */
   } else {
     this.sync.getViewportNotesOld(); // viewport scroll action goes right away atm
   }
@@ -578,7 +583,7 @@ function Graph() {
       /*$(vScrollbar).show();
       $(hScrollbar).show();*/
       graph.vp.initFromURL();
-      graph.vp.setView(graph.vp.x1, graph.vp.y1);
+      graph.vp.setView(graph.vp.x, graph.vp.y);
     }
    });
    
@@ -605,9 +610,9 @@ Graph.prototype.viewportChanged = function()
 }
 
 Graph.prototype.scaleChanged = function() {
-  var s = Math.floor(graph.vp.scaleToView(100));
+  var s = Math.floor(this.vp.scaleToView(100));
   
-  if (graph.selectedNote != null)
+  if (this.selectedNote != null)
     graph.selectedNote.scaleChanged();
   
   if (s < 60)

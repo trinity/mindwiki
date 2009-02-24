@@ -30,12 +30,21 @@ Viewport.prototype.initFromURL = function() {
 
   this.x = parseInt(jQuery.url.setUrl(anchor).param("x"), 10);
   this.y = parseInt(jQuery.url.setUrl(anchor).param("y"), 10);
-  //this.scale = parseInt(jQuery.url.setUrl(anchor).param("scale"), 10);
-  //this.setScale(this.scale);
+  this.callerScale = parseFloat(jQuery.url.setUrl(anchor).param("zoom"));
+  
+  /* These are not sane defaults but getting access to this.extents.mid. is not currently very easy. */
+  if (isNaN(this.x) == true)
+    this.x = 0;
+
+  if (isNaN(this.y) == true)
+    this.y = 0;
+
+  if (isNaN(this.callerScale) == true)
+    this.callerScale = 1.0;
 }
 
 Viewport.prototype.updateURL = function() {
-  window.location.href = "#x=" + this.x + "&y=" + this.y; //+ "&scale=" + this.callerScale;
+  window.location.href = "#x=" + this.x + "&y=" + this.y + "&zoom=" + this.callerScale;
 }
 
 
@@ -215,8 +224,8 @@ Viewport.prototype.setScaleInt = function(scale) {
   /* 1.0 zoomed in.
      0.0 entire graph is shown(if it is centered). */
 
-  var x = this.viewW * scale + (this.graph.extents.max.x - graph.extents.min.x) * (1 - scale);
-  var y = this.viewH * scale + (this.graph.extents.max.y - graph.extents.min.y) * (1 - scale);
+  var x = this.viewW * scale + (this.graph.extents.max.x - this.graph.extents.min.x) * (1 - scale);
+  var y = this.viewH * scale + (this.graph.extents.max.y - this.graph.extents.min.y) * (1 - scale);
   var xScale = this.viewW / x;
   var yScale = this.viewH / y;
   
@@ -224,6 +233,7 @@ Viewport.prototype.setScaleInt = function(scale) {
   
   /* Take minimum. */
   this.scale = xScale < yScale ? xScale : yScale;
+  
   /* Graph extents could be smaller than view thus causing zooming in. Perhaps not
      something worth allowing. Limited by caller. */
  /* if (this.scale > 1.0)
