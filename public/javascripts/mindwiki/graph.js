@@ -611,6 +611,10 @@ Graph.prototype.scaleChanged = function() {
     graph.selectedNote.scaleChanged();
   
   $(".noteTitle").css({"font-size": s + "%"});
+  if (s < 60)
+    $(".noteArticle").hide();
+  else
+    $(".noteArticle").show();
 }
 
 
