@@ -228,6 +228,8 @@ Viewport.prototype.setScaleInt = function(scale) {
      something worth allowing. Limited by caller. */
  /* if (this.scale > 1.0)
     this.scale = 1.0;*/
+  if (this.graph.scaleChanged != null)
+    this.graph.scaleChanged();
 }
 
 Viewport.prototype.setScale = function(scale) {

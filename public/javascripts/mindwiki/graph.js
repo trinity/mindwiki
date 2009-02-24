@@ -604,6 +604,12 @@ Graph.prototype.viewportChanged = function()
 
 }
 
+Graph.prototype.scaleChanged = function() {
+  if (graph.selectedNote != null)
+    graph.selectedNote.scaleChanged();
+}
+
+
 Graph.prototype.beginEdgeCreation = function()
 {
   this.globalStartNote = this.selectedNote;

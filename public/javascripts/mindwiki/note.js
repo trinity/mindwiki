@@ -41,6 +41,13 @@ Note.prototype.updateCSS = function() {
   $(this.articleDiv).css({"backgroundColor": this.color});
 }
 
+Note.prototype.scaleChanged = function() {
+  $(this.div).resizable('option', 'minWidth', graph.vp.scaleToView(120));
+  $(this.div).resizable('option', 'minHeight', graph.vp.scaleToView(80));
+  $(this.div).resizable('option', 'maxWidth', graph.vp.scaleToView(graph.vp.canvasBoundry));
+  $(this.div).resizable('option', 'maxHeight', graph.vp.scaleToView(graph.vp.canvasBoundry));
+}
+
 // SELECTION.
 // Multiselection is not implemented, yet!
 Note.prototype.select = function() {
@@ -54,11 +61,10 @@ Note.prototype.select = function() {
  $(this.div)
  .resizable(
   {
-    /* TODO: these need to adapt if/when zooming is allowed. */
-    minWidth: 120,
-    minHeight: 80,
-    maxWidth: graph.vp.canvasBoundry,
-    maxHeight: graph.vp.canvasBoundry,
+    minWidth: graph.vp.scaleToView(120),
+    minHeight: graph.vp.scaleToView(80),
+    maxWidth: graph.vp.scaleToView(graph.vp.canvasBoundry),
+    maxHeight: graph.vp.scaleToView(graph.vp.canvasBoundry),
     handles:  'se', // defines the resize handle location i.e. south east corner
     start: function(event, ui){
       /* Ensure canvas is large enough so note can leave visible viewport.
