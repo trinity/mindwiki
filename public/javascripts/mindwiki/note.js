@@ -92,7 +92,7 @@ Note.prototype.select = function() {
       }
       graph.dragControls(thisnote);
     }
-  });
+  }).find('.ui-resizable-se').addClass('ui-icon-grip-diagonal-se'); // Default is too small.
 
   if (graph.selectedNote != null)
     graph.selectedNote.deselect();
