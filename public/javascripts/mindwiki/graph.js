@@ -278,18 +278,19 @@ function Graph() {
     onHide: function(picker){
       /* Reset button state. */
       graph.colorButton.setState(false); 
+      thisgraph.sync.setNoteColor(thisgraph.selectedNote.id, graph.selectedNote.color);
       $(picker).fadeOut(100);
       return false;
     },
     onChange: function (hsb, hex, rgb) {
       graph.selectedNote.color = "#"+hex;
       graph.selectedNote.update();
-      thisgraph.sync.setNoteColor(thisgraph.selectedNote.id, "#"+hex);
     },
     onSubmit: function(){
       /* Reset button state. */
       graph.colorButton.setState(false); 
       $(".colorpicker").css('display', 'none'); 
+      thisgraph.sync.setNoteColor(thisgraph.selectedNote.id, graph.selectedNote.color);
     }
   });
   
