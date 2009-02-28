@@ -448,7 +448,8 @@ Note.prototype.redraw = function() {
   }, { 
      type: "text",
      event: "dblclick",
-     cssclass : "noteEdit"
+     cssclass : "noteEdit",
+     placeholder: '',
   });
 
   // article (div)
@@ -463,7 +464,7 @@ Note.prototype.redraw = function() {
      type: "text",
      event: "dblclick",
      cssclass : "noteEdit",
-   
+     placeholder: '',
   });
 
   // articleTD
