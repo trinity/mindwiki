@@ -272,6 +272,19 @@
 	right: -4px;
 }
 
+.noteTextButton
+{
+	background-image: url("/images/text_btn.png");
+	background-repeat: no-repeat;
+	width: 28px;
+	height: 28px;
+	position: absolute;
+	top: 0;
+	left: 56px;
+}
+
+
+
 /* Pressed buttons ought to share some of this. */
 .noteArrowButtonPressed
 {
