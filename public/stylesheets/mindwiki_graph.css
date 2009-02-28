@@ -179,7 +179,7 @@
 	border-color: #e7a700;
 }
 
-.noteTitleEdit
+.noteEdit
 {
 	position: absolute;
 	left: 0px;
@@ -188,6 +188,7 @@
 	top: 0px;
     overflow : hidden;
 }
+
 /*
 .ui-resizable-se
 {
