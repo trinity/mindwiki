@@ -130,8 +130,10 @@ Note.prototype.update = function() {
   this.updateCSS();
 
   // Content rendering after edit
-  if(this.articleDiv != null) 
-    $(this.articleDiv).html(this.content);
+  if(this.articleDiv != null) {
+    $(this.articleContainer).html(this.content);
+    this.updateScrollbars();
+  }
 
   $(this.titleTD).html(this.name);
 }
@@ -452,12 +454,16 @@ Note.prototype.redraw = function() {
      placeholder: '',
   });
 
+  /* Used to get width and height of content. */
+  this.articleContainer = document.createElement("div");
+  $(this.articleContainer).html(this.content);
+  
   // article (div)
-  $(article).addClass("noteArticle").css({"backgroundColor": this.color}).append(this.content);
+  $(article).addClass("noteArticle").css({"backgroundColor": this.color}).append(this.articleContainer);
   thisnote.articleDiv = article; // for easier updating :)
 
    // Editing note content. 
-  $(article).editable(function(value, settings) { 
+  $(this.articleContainer).editable(function(value, settings) { 
      graph.sync.setNoteContent(thisnote, value);  
      return(value);
   }, { 
@@ -470,12 +476,64 @@ Note.prototype.redraw = function() {
   // articleTD
   //$(articleTD).addClass("noteArticleTD").css({"backgroundColor": this.color}).attr("colspan",3).append(article);
   // article row
+  
+  this.vScrollbar = document.createElement("div");
+  $(this.vScrollbar).addClass("vScrollbarr");
+  $(this.vScrollbar).slider({
+    min: 0,
+    max: 20,
+    value: 20,
+    slide: function(ev, ui) {
+      /* Invert direction. */
+      var move = $(thisnote.vScrollbar).slider('option', 'max') - ui.value;
+      $(thisnote.articleContainer).css({"margin-top": -move});
+      //$(thisnote.articleDiv).css({"top": -move}); // side-effects
+    }
+  });
+  this.hScrollbar = document.createElement("div");
+  $(this.hScrollbar).addClass("hScrollbarr");
+  $(this.hScrollbar).slider({
+    min: 0,
+    max: 20,
+    value: 0,
+    orientation: 'horizontal',
+    slide: function(ev, ui) {
+      $(thisnote.articleContainer).css({"margin-left": -ui.value});
+    }
+  });
+
+  this.updateScrollbars = function() {
+    var vScrollable = $(thisnote.articleContainer).innerHeight() - $(thisnote.articleDiv).innerHeight();
+    var hScrollable = $(thisnote.articleContainer).innerWidth() - $(thisnote.articleDiv).innerWidth();
+    
+    if (vScrollable > 0)
+      $(thisnote.vScrollbar).show();
+    else
+      $(thisnote.vScrollbar).hide();
+
+    if (hScrollable > 0)
+      $(thisnote.hScrollbar).show();
+    else
+      $(thisnote.hScrollbar).hide();
+
+    $(thisnote.vScrollbar).slider('option', 'max', vScrollable);
+    $(thisnote.hScrollbar).slider('option', 'max', hScrollable);
+    /* FIXME: indexes should also be updated accordingly. */
+  };
+  
+  $(this.div).resize(this.updateScrollbars);
+  //$(this.articleContainer).change(change); // Does not get called when content changes
+  
+  $(article).append(this.vScrollbar);
+  $(article).append(this.hScrollbar);
+  
   $(this.div).append(article);
 
   // table
   $(this.div).append(titleTD);
 
   $("#mindwiki_world").append(this.div);
+  this.updateScrollbars();
 }
 
 

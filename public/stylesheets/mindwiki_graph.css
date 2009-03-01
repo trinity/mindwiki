@@ -43,6 +43,24 @@
   opacity: 0.5;
 }
 
+.vScrollbarr {
+  position: absolute;
+  top: 0px;
+  height: 100%;
+  right: 10px;
+  background-color: rgba(128,128,128,0.54);
+  z-index: 99999999;
+}
+
+.hScrollbarr {
+  position: absolute;
+  left: 0px;
+  width: 100%;
+  bottom: 10px;
+  background-color: rgba(128,128,128,0.54);
+  z-index: 99999999;
+}
+
 .zoomScrollbar {
   position: absolute;
   height: 200px;
@@ -404,20 +422,26 @@
 	padding: 2px;
 	overflow: auto;
 }*/
+.articleContainer
+{
+	position: absolute;
+	overflow: hidden;
+}
+
 .noteArticle
 {
-	top: 40px;
+	top: 20px;
 	left: 0px;
 	right: 0px;
-	bottom: 20px;
+	bottom: 0px;
 	background-color: white;
 	color: black;
-  margin-top: -15px;
+  /*margin-top: -15px;
   margin-left: 0px;
-  margin-bottom: -1px;
+  margin-bottom: -1px;*/
 	position: absolute;
 	padding: 2px;
-	overflow: auto;
+	overflow: hidden;
 }
 
 
