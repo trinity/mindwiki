@@ -540,4 +540,16 @@ Sync.prototype.setEdgeColor = function(edge){
   });
 }
 
+/****************************************************************************
+  Inform the server about a EDGE DIRECTION change.
+ ****************************************************************************/
+
+Sync.prototype.setEdgeDirection = function(edge){
+  $.ajax({
+    url: "/edges/update/"+edge.id,
+    data: { "edge[directed]" : edge.directed },
+    dataType: "html"
+  });
+}
+
 

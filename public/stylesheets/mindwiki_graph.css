@@ -361,6 +361,17 @@
 	left: 28px;
 }
 
+.edgeDirectionButton
+{
+	background-image: url("/images/arrow_btn.png");
+	background-repeat: no-repeat;
+	width: 28px;
+	height: 28px;
+	position: absolute;
+	top: 0;
+	left: 56px;
+}
+
 .edgeDeleteButton
 {
 	background-image: url("/images/delete_btn.png");
@@ -369,7 +380,7 @@
 	height: 28px;
 	position: absolute;
 	top: 0;
-	left: 56px;
+	left: 84px;
 }
 
 
@@ -405,6 +416,19 @@
 	height: 100%;
 	text-align: center;
 }
+
+.edgeTitle
+{
+	border: black solid thin;
+	position: absolute;
+	height: 20px;
+	width: 120px;
+	background-color: #ffffff; 
+	color: black;
+	padding: 0px;
+  overflow : hidden;
+}
+
 
 /* DIV style */
 /*

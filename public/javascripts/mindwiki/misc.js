@@ -63,11 +63,11 @@ function rectangleIntersection(cx,cy,width,height,ang,result)
   {
     // note: sin(a) > 0. no need to check division by zero.
     result[0] = cx + (Math.cos(ang) / Math.sin(ang)) * height / 2
-    result[1] = cy + height / 2 + padding;
+    result[1] = cy + height / 2;
   }
   else if (ang >= Math.PI - aLimit && ang <= Math.PI + aLimit)
   {
-    result[0] = cx - width/2 - padding;
+    result[0] = cx - width/2;
     result[1] = cy - Math.tan(ang) * width / 2;
   }
   else if (ang > Math.PI + aLimit && ang < 2 * Math.PI - aLimit)

@@ -28,6 +28,7 @@ function Edge ()
   this.text = null;  // Raphael text object
   this.canvasPathSelected = null; // draw this when selected
   this.circle = null;
+  this.circle2 = null;
   this.arrowSize = 10;
   this.strokeWidth = 3;
 }
@@ -97,6 +98,12 @@ Edge.prototype.setColor = function (col)
     this.text.attr("fill", this.color);
   }
 }
+
+Edge.prototype.changeDirection = function () 
+{
+  this.directed = !this.directed;
+}
+
 
 // This updates edge position and angle based on values of the notes.
 // Used before updating or drawing the edge with Raphael.
@@ -170,16 +177,24 @@ Edge.prototype.redraw = function()
   this.update();
 
   var p1 = "M " + this.x1 + " " + this.y1 + "L " + this.x2 + " " + this.y2;
-
   if (this.canvasPathSelected != null)
   {
     this.canvasPathSelected.attr("path", p1);
   }
-  
   this.canvasPath.attr("path", p1);
-  var p2 = "M " + this.x2 + " " + this.y2 + "L " + this.xLeft + " " + this.yLeft + "L " + this.xRight + " " + this.yRight;
-  this.canvasPath2.attr("path", p2);
-  
+
+  if (!this.directed)
+  {
+    this.circle2.attr({cx: this.x2, cy: this.y2}).show();
+    this.canvasPath2.hide();
+  }
+  else
+  {
+    this.circle2.hide();
+    var p2 = "M " + this.x2 + " " + this.y2 + "L " + this.xLeft + " " + this.yLeft + "L " + this.xRight + " " + this.yRight;
+    this.canvasPath2.attr("path", p2).show();
+  }
+
   this.circle.attr({cx: this.x1, cy: this.y1});
   
   if (this.title.length > 0)
@@ -189,7 +204,6 @@ Edge.prototype.redraw = function()
       this.text.attr("x", this.textX).attr("y", this.textY).rotate(radToDeg(this.textAngle), true);
     }
   }
-  
 }
 
 // "Undraws" the edge.
@@ -199,13 +213,16 @@ Edge.prototype.erase = function()
   {
     alert("null canvas!");
   }
+  
   if (this.selected)
   {
     this.canvasPathSelected.remove();
   }
+  
   this.canvasPath.remove();
   this.canvasPath2.remove();
   this.circle.remove();
+  this.circle2.remove();
   
   if (this.text != null)
   {
@@ -225,6 +242,18 @@ Edge.prototype.draw = function ()
   this.canvasPath2 = this.rCanvas.path({stroke: this.color, fill: this.color}).absolutely().moveTo(this.x2,this.y2).lineTo(this.xLeft,this.yLeft).lineTo(this.xRight,this.yRight).andClose();
   this.circle = this.rCanvas.circle(this.x1, this.y1, this.arrowSize / 2);
   this.circle.attr({stroke: this.color, fill: this.color});
+
+  this.circle2 = this.rCanvas.circle(this.x2, this.y2, this.arrowSize / 2);
+  this.circle2.attr({stroke: this.color, fill: this.color});
+
+  if (this.directed)
+  {
+    this.circle2.hide();
+  }
+  else
+  {
+    this.canvasPath2.hide();
+  }
 
   if (this.title.length > 0)
   {
