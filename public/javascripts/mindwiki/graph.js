@@ -391,9 +391,10 @@ function Graph() {
   $(this.edgeColorButton).addClass("edgeColorButton");
   $(this.edgeButtonsDiv).append(this.edgeColorButton);
 
-  this.edgeDirectionButton = document.createElement("div");
-  $(this.edgeDirectionButton).addClass("edgeDirectionButton");
-  $(this.edgeButtonsDiv).append(this.edgeDirectionButton);
+  this.edgeDirectionButton = new ToggleButton("edgeDirectionButton", function(value) {
+    graph.setEdgeDirected(value == false);
+  });
+  $(this.edgeButtonsDiv).append(this.edgeDirectionButton.div);
 
   this.edgeDeleteButton = document.createElement("div");
   $(this.edgeDeleteButton).addClass("edgeDeleteButton");
@@ -444,14 +445,6 @@ function Graph() {
       graph.sync.setEdgeColor(graph.selectedEdge);
       graph.unselectEdge();
     }
-  });
-
-  $(this.edgeDirectionButton).click(function (event) {
-    if (graph.selectedEdge != null)
-    {
-      graph.changeEdgeDirection();
-    }
-    event.stopPropagation();
   });
 
   $(this.edgeDeleteButton).click(function () {
@@ -743,6 +736,7 @@ Graph.prototype.detachControls = function(thisnote){
 
 
 Graph.prototype.attachControlsToEdge = function(x,y){
+  this.edgeDirectionButton.setState(this.selectedEdge.isDirected() == false);
   $(this.edgeButtonsDiv).show();
   $(this.edgeButtonsDiv).css({
     "top" : y-31 +"px",
@@ -893,11 +887,11 @@ Graph.prototype.unselectEdge = function()
   }
 }
 
-Graph.prototype.changeEdgeDirection = function()
+Graph.prototype.setEdgeDirected = function(value)
 {
   if (this.selectedEdge != null) 
   {
-    this.selectedEdge.changeDirection();
+    this.selectedEdge.setDirected(value);
     this.selectedEdge.redraw();
     this.sync.setEdgeDirection(graph.selectedEdge);
   }

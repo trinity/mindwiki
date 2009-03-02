@@ -363,7 +363,18 @@
 
 .edgeDirectionButton
 {
-	background-image: url("/images/arrow_btn.png");
+	background-image: url("/images/arrow_direction_btn.png");
+	background-repeat: no-repeat;
+	width: 28px;
+	height: 28px;
+	position: absolute;
+	top: 0;
+	left: 56px;
+}
+
+.edgeDirectionButtonPressed
+{
+	background-image: url("/images/arrow_direction_pressed_btn.png");
 	background-repeat: no-repeat;
 	width: 28px;
 	height: 28px;

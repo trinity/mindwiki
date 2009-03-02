@@ -99,11 +99,15 @@ Edge.prototype.setColor = function (col)
   }
 }
 
-Edge.prototype.changeDirection = function () 
+Edge.prototype.setDirected = function (value) 
 {
-  this.directed = !this.directed;
+  this.directed = value;
 }
 
+Edge.prototype.isDirected = function () 
+{
+  return this.directed;
+}
 
 // This updates edge position and angle based on values of the notes.
 // Used before updating or drawing the edge with Raphael.
