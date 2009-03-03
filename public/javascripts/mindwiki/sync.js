@@ -465,6 +465,9 @@ Sync.prototype.getViewportNotes = function(x, y, w, h){
           }); 
       });
 
+      /* Must process these as well. expandWorld calls this multiple times. */
+      if (thisgraph.scaleChanged != null)
+        thisgraph.scaleChanged();
     },
     error: function(a,b,c){
       //alert("Cannot load notes: "+a+" "+b+" "+c);
