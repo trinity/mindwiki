@@ -1,7 +1,8 @@
 // This file defines the MindWiki note objects
 
 // Note is the "class" for all notes.
-function Note() {
+function Note(graph) {
+  this.graph = graph;
   this.id = -1;
   this.name = "New note";
   this.x = 1;
@@ -27,14 +28,16 @@ function Note() {
 }
 
 Note.prototype.updateCSS = function() {
+  var thisgraph = this.graph;
+
   $(this.titleTD).css({"backgroundColor": lightenColor(this.color)});
   $(this.div).css({
     "backgroundColor" : this.color, // doesn't really show -> bars and content overwrite
     "position" : "absolute",
-    "top" : graph.vp.toLocalY(this.y) + "px",
-    "left" : graph.vp.toLocalX(this.x) + "px",
-    "width" : graph.vp.scaleToView(this.width) + "px",
-    "height" : graph.vp.scaleToView(this.height) + "px"
+    "top" : thisgraph.vp.toLocalY(this.y) + "px",
+    "left" : thisgraph.vp.toLocalX(this.x) + "px",
+    "width" : thisgraph.vp.scaleToView(this.width) + "px",
+    "height" : thisgraph.vp.scaleToView(this.height) + "px"
   });
 
   // Color change
@@ -42,15 +45,18 @@ Note.prototype.updateCSS = function() {
 }
 
 Note.prototype.scaleChanged = function() {
-  $(this.div).resizable('option', 'minWidth', graph.vp.scaleToView(120));
-  $(this.div).resizable('option', 'minHeight', graph.vp.scaleToView(80));
-  $(this.div).resizable('option', 'maxWidth', graph.vp.scaleToView(graph.vp.canvasBoundry));
-  $(this.div).resizable('option', 'maxHeight', graph.vp.scaleToView(graph.vp.canvasBoundry));
+  var thisgraph = this.graph;
+  
+  $(this.div).resizable('option', 'minWidth', thisgraph.vp.scaleToView(120));
+  $(this.div).resizable('option', 'minHeight', thisgraph.vp.scaleToView(80));
+  $(this.div).resizable('option', 'maxWidth', thisgraph.vp.scaleToView(graph.vp.canvasBoundry));
+  $(this.div).resizable('option', 'maxHeight', thisgraph.vp.scaleToView(graph.vp.canvasBoundry));
 }
 
 // SELECTION.
 // Multiselection is not implemented, yet!
 Note.prototype.select = function() {
+ var thisgraph = this.graph;
  var thisnote = this;
 
  if (this.selected == true)
@@ -61,10 +67,10 @@ Note.prototype.select = function() {
  $(this.div)
  .resizable(
   {
-    minWidth: graph.vp.scaleToView(120),
-    minHeight: graph.vp.scaleToView(80),
-    maxWidth: graph.vp.scaleToView(graph.vp.canvasBoundry),
-    maxHeight: graph.vp.scaleToView(graph.vp.canvasBoundry),
+    minWidth: thisgraph.vp.scaleToView(120),
+    minHeight: thisgraph.vp.scaleToView(80),
+    maxWidth: thisgraph.vp.scaleToView(graph.vp.canvasBoundry),
+    maxHeight: thisgraph.vp.scaleToView(graph.vp.canvasBoundry),
     handles:  'se', // defines the resize handle location i.e. south east corner
     start: function(event, ui){
       /* Ensure canvas is large enough so note can leave visible viewport.
@@ -74,13 +80,13 @@ Note.prototype.select = function() {
     },
     // Update note size after resizing.
     stop: function(event, ui){
-      thisnote.width = graph.vp.scaleToWorld(ui.size.width);
-      thisnote.height = graph.vp.scaleToWorld(ui.size.height);
+      thisnote.width = thisgraph.vp.scaleToWorld(ui.size.width);
+      thisnote.height = thisgraph.vp.scaleToWorld(ui.size.height);
       graph.sync.setNoteSize(thisnote.id, thisnote.width, thisnote.height);
     },
     resize: function(event, ui){
-      thisnote.width = graph.vp.scaleToWorld(ui.size.width);
-      thisnote.height = graph.vp.scaleToWorld(ui.size.height);
+      thisnote.width = thisgraph.vp.scaleToWorld(ui.size.width);
+      thisnote.height = thisgraph.vp.scaleToWorld(ui.size.height);
       // let's update the related edges:
       var l = thisnote.edgesTo.length;
       for(var i=0;i<l;i++){
@@ -94,18 +100,18 @@ Note.prototype.select = function() {
     }
   }).find('.ui-resizable-se').addClass('ui-icon-grip-diagonal-se'); // Default is too small.
 
-  if (graph.selectedNote != null)
-    graph.selectedNote.deselect();
-  graph.selectedNote = this;
+  if (thisgraph.selectedNote != null)
+    thisgraph.selectedNote.deselect();
+  thisgraph.selectedNote = this;
 
   $(this.div).addClass("noteSelected");
-  graph.attachControls(this);
+  thisgraph.attachControls(this);
  
   // Bring selected to front. This is a temporary solution.
   graph.runningZ++;
   this.zorder = graph.runningZ;
   $(this.div).css({"zIndex":thisnote.zorder});
-  if(this.id >= 0) graph.sync.setNoteZorder(this.id, this.zorder); // inform the server
+  if(this.id >= 0) thisgraph.sync.setNoteZorder(this.id, this.zorder); // inform the server
 }
 
 Note.prototype.deselect = function() {
@@ -131,7 +137,10 @@ Note.prototype.update = function() {
 
   // Content rendering after edit
   if(this.articleDiv != null) {
-    $(this.articleContainer).html(this.content);
+    if (this.name.search("http") == 0) {
+      $(this.articleContainer).html("<iframe src='" + this.name + "' width=100% height=600px> </iframe>");
+    } else
+      $(this.articleContainer).html(this.content);
     this.updateScrollbars();
   }
 
@@ -207,7 +216,7 @@ Note.prototype.remove = function() {
   var thisnote = this;
 
   // Make sure controls are not visible on this one
-  graph.detachControls(thisnote);
+  this.graph.detachControls(thisnote);
 
   // First hide/delete edges and the note from client viewing:
   if(this.edgesTo != null){
@@ -216,7 +225,7 @@ Note.prototype.remove = function() {
       this.edgesTo[i].startNote.disconnectEdgeFromById(this.edgesTo[i].id);
       // Erase the edge from the display
       this.edgesTo[i].erase();
-      graph.disconnectEdge(this.edgesTo[i].id);
+      this.graph.disconnectEdge(this.edgesTo[i].id);
     }
   }
   if(this.edgesFrom != null){
@@ -225,7 +234,7 @@ Note.prototype.remove = function() {
       this.edgesFrom[i].endNote.disconnectEdgeToById(this.edgesFrom[i].id);
       // Erase the edge from the display
       this.edgesFrom[i].erase();
-      graph.disconnectEdge(this.edgesFrom[i].id);
+      this.graph.disconnectEdge(this.edgesFrom[i].id);
 
     }
   }
@@ -233,9 +242,9 @@ Note.prototype.remove = function() {
 
   // TODO: Have graph object call the sync/delete also.
   // Notify the graph object
-  graph.disconnectNote(this.id);
+  this.graph.disconnectNote(this.id);
   // Notify the server
-  graph.sync.deleteNote(thisnote.id);
+  this.graph.sync.deleteNote(thisnote.id);
 
   // Delete the object
   delete this;
@@ -278,7 +287,7 @@ Note.prototype.center = function(){
   var moveToX = thisnote.x - xOffset;
   var moveToY = thisnote.y - yOffset;
   
-  if (graph.newViewport == true) /* Does not currently work perfectly. */
+  if (this.graph.newViewport == true) /* Does not currently work perfectly. */
     ;//graph.vp.setViewFastMove(moveToX, moveToY);
     //graph.vp.setView(moveToX, moveToY);
   else {
@@ -298,13 +307,14 @@ Note.prototype.deleteDivFromDom = function() {
 // Get new ID from DB.
 // Use after creating a new note.
 Note.prototype.newID = function() {
-  graph.sync.createNote(this);
-  graph.notes.push(this);
+  this.graph.sync.createNote(this);
+  this.graph.notes.push(this);
 }
 
 // This function (re)constructs the whole div!
 // Use after loading a Note with data.
 Note.prototype.redraw = function() {
+  var thisgraph = this.graph;
   var thisnote = this; // To be used in submethods, e.g. click-handlers.
 
   if(this.div != null){
@@ -315,10 +325,10 @@ Note.prototype.redraw = function() {
   $(this.div).addClass("note").css({
     "backgroundColor" : this.color, // doesn't really show -> bars and content overwrite
     "position" : "absolute",
-    "top" : graph.vp.toLocalY(this.y) + "px",
-    "left" : graph.vp.toLocalX(this.x) + "px",
-    "width" : graph.vp.scaleToView(this.width) + "px",
-    "height" : graph.vp.scaleToView(this.height) + "px",
+    "top" : thisgraph.vp.toLocalY(this.y) + "px",
+    "left" : thisgraph.vp.toLocalX(this.x) + "px",
+    "width" : thisgraph.vp.scaleToView(this.width) + "px",
+    "height" : thisgraph.vp.scaleToView(this.height) + "px",
     "zIndex" : thisnote.zorder
   });
 
@@ -334,20 +344,20 @@ Note.prototype.redraw = function() {
       /*if (graph.newViewport == true)
         graph.vp.setView(graph.vp.x1, graph.vp.y1);*/
       
-      if (graph.controlsAfterDrag == true)
-        graph.detachControls(thisnote);
+      if (thisgraph.controlsAfterDrag == true)
+        thisgraph.detachControls(thisnote);
     },
     // Update note position after dragging.
     stop: function(event, ui){
-      thisnote.x = graph.vp.toWorldX(ui.position.left);
-      thisnote.y = graph.vp.toWorldY(ui.position.top);
+      thisnote.x = thisgraph.vp.toWorldX(ui.position.left);
+      thisnote.y = thisgraph.vp.toWorldY(ui.position.top);
       graph.sync.setNotePosition(thisnote.id, thisnote.x, thisnote.y);
-      if (graph.controlsAfterDrag == true)
-        graph.attachControls(thisnote);
+      if (thisgraph.controlsAfterDrag == true)
+        thisgraph.attachControls(thisnote);
     },
     drag: function(event, ui){
-      thisnote.x = graph.vp.toWorldX(ui.position.left);
-      thisnote.y = graph.vp.toWorldY(ui.position.top);
+      thisnote.x = thisgraph.vp.toWorldX(ui.position.left);
+      thisnote.y = thisgraph.vp.toWorldY(ui.position.top);
       // let's update the related edges:
       var l = thisnote.edgesTo.length;
       for(var i=0;i<l;i++){
@@ -358,29 +368,29 @@ Note.prototype.redraw = function() {
         thisnote.edgesFrom[i].redraw();
       }
       if (graph.controlsAfterDrag == false)
-        graph.dragControls(thisnote);
+        thisgraph.dragControls(thisnote);
 
       // Safari 3.2 redraw workaround.
       if ($.browser.safari && $.browser.version <= 3)
-        graph.rc.circle(0, 0, 10).remove();
+        thisgraph.rc.circle(0, 0, 10).remove();
     }
     //cancel: ":input,.noteArticle" // Cannot drag from article content
   });
   $(this.div).mouseover( function()
   {
     /* Do not attempt to highlight note which we are creating edge from. */
-    if (graph.globalStartNote != null || graph.globalStartNote != thisnote) {
+    if (graph.globalStartNote != null || thisgraph.globalStartNote != thisnote) {
       /* Guessing adding context help here is not necessary. */
       $(thisnote.div).addClass("noteTargeted");
-      graph.lastTargetNote = thisnote;
+      thisgraph.lastTargetNote = thisnote;
     }
   });
   
   $(this.div).mouseout( function()
   {
-    if (graph.lastTargetNote != null) {
+    if (thisgraph.lastTargetNote != null) {
       $(thisnote.div).removeClass("noteTargeted");
-      graph.lastTargetNote = null;
+      thisgraph.lastTargetNote = null;
     }
   });
   
@@ -396,16 +406,16 @@ Note.prototype.redraw = function() {
     // Checks whether it is a single or dblclick. 
     if (ev.detail == 1 || ev.detail == null) { // null makes things work in IE
     	/* End edge creation mode if user clicks on same note. */
-      if (graph.globalStartNote == thisnote) {
-        graph.endEdgeCreation();
+      if (thisgraph.globalStartNote == thisnote) {
+        thisgraph.endEdgeCreation();
         return;
       }
       // Are we in the edge creation mode?
       if (graph.globalStartNote != null) {
         // Create edge. No selection.
-        var tmpEdge = new Edge();
-        tmpEdge.rCanvas = graph.rc;
-        tmpEdge.setStartNote(graph.globalStartNote);
+        var tmpEdge = new Edge(thisgraph);
+        tmpEdge.rCanvas = thisgraph.rc;
+        tmpEdge.setStartNote(thisgraph.globalStartNote);
         tmpEdge.setEndNote(thisnote);
         tmpEdge.newID(); // notifies server
         //add the edge to notes for updating
@@ -414,11 +424,11 @@ Note.prototype.redraw = function() {
         thisnote.edgesTo.push(tmpEdge);
         tmpEdge.update();
         tmpEdge.draw(); // draws clientside
-        graph.endEdgeCreation();
+        thisgraph.endEdgeCreation();
       }
       // Normal note selection (not in the edge creation mode)
       else {
-        graph.unselectEdge();
+        thisgraph.unselectEdge();
         thisnote.select();
       }
     }
@@ -427,7 +437,7 @@ Note.prototype.redraw = function() {
   // Center the selected note on the viewport, if the user prefers so.
   // FIXME: Clicking the content stops bubbling into this event.
   $(this.div).mouseup( function(e){
-    if(e.detail == 1 && graph.globalStartNote == null && graph.scrollToSelected)
+    if(e.detail == 1 && thisgraph.globalStartNote == null && thisgraph.scrollToSelected)
       thisnote.center();
   });
  
@@ -464,7 +474,7 @@ Note.prototype.redraw = function() {
 
    // Editing note content. 
   $(this.articleContainer).editable(function(value, settings) { 
-     graph.sync.setNoteContent(thisnote, value);  
+     thisgraph.sync.setNoteContent(thisnote, value);  
      return(value);
   }, { 
      type: "text",

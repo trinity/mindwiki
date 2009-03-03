@@ -1,8 +1,9 @@
 // This file contains the Edge "class"
 
 // Constructor
-function Edge ()
+function Edge (graph)
 {
+  this.graph = graph;
   this.id = -1;
   this.startNote = null;
   this.endNote = null;
@@ -22,7 +23,7 @@ function Edge ()
   this.title = "";
   this.directed = true;
   this.selected = false;
-  this.rCanvas = graph.rc;  // Raphael canvas
+  this.rCanvas = this.graph.rc;  // Raphael canvas
   this.canvasPath = null; // Raphael canvas.path
   this.canvasPath2 = null;
   this.text = null;  // Raphael text object
@@ -35,21 +36,22 @@ function Edge ()
 
 Edge.prototype.remove = function() 
 {
+  var thisgraph = this.graph;
   this.erase();
   
   // Make sure controls are not visible on this one
   if (this.selected) 
   {
-    graph.detachControlsFromEdge(this);
+    thisgraph.detachControlsFromEdge(this);
   }
   
   this.startNote.disconnectEdgeFromById(this.id);
   this.endNote.disconnectEdgeToById(this.id);
 
-  // Notify the graph object
-  graph.disconnectEdge(this.id);
+  // Notify the thisgraph object
+  thisgraph.disconnectEdge(this.id);
   // Notify the server
-  graph.sync.deleteEdge(this.id);
+  thisgraph.sync.deleteEdge(this.id);
 
   // Delete the object
   delete this;
@@ -65,7 +67,7 @@ Edge.prototype.setEndNote = function (note)
   if (note == this.startNote) 
   {
     alert("Internal error 126623");
-    // Does not exist: graph.globalEndNote = null;
+    // Does not exist: thisgraph.globalEndNote = null;
     this.startNote = null;
   }
   else 
@@ -113,17 +115,19 @@ Edge.prototype.isDirected = function ()
 // Used before updating or drawing the edge with Raphael.
 Edge.prototype.update = function()
 {
+  var thisgraph = this.graph;
+
   if (this.startNote == null || this.endNote == null)
   {
-    graph.ch.setPriorityText("Trying to draw an edge (id:"+this.id+"), which has a null note!", 1);
+    thisgraph.ch.setPriorityText("Trying to draw an edge (id:"+this.id+"), which has a null note!", 1);
     return;
   }
 
   // Less writing if we assume edges are in local coords all the way.
-  var sx = graph.vp.toLocalX(this.startNote.x) + graph.vp.scaleToView(this.startNote.width / 2);
-  var sy = graph.vp.toLocalY(this.startNote.y) + graph.vp.scaleToView(this.startNote.height / 2);
-  var ex = graph.vp.toLocalX(this.endNote.x) + graph.vp.scaleToView(this.endNote.width / 2);
-  var ey = graph.vp.toLocalY(this.endNote.y) + graph.vp.scaleToView(this.endNote.height / 2);
+  var sx = thisgraph.vp.toLocalX(this.startNote.x) + thisgraph.vp.scaleToView(this.startNote.width / 2);
+  var sy = thisgraph.vp.toLocalY(this.startNote.y) + thisgraph.vp.scaleToView(this.startNote.height / 2);
+  var ex = thisgraph.vp.toLocalX(this.endNote.x) + thisgraph.vp.scaleToView(this.endNote.width / 2);
+  var ey = thisgraph.vp.toLocalY(this.endNote.y) + thisgraph.vp.scaleToView(this.endNote.height / 2);
 
   // viewport doesn't have standard coordinate system. that's why we count each y-coordinate
   // as negative to use standard 2D algebra.
@@ -134,7 +138,7 @@ Edge.prototype.update = function()
   
   var result = new Array();
   
-  rectangleIntersection(sx, negsy, graph.vp.scaleToView(this.startNote.width), graph.vp.scaleToView(this.startNote.height), a, result);
+  rectangleIntersection(sx, negsy, thisgraph.vp.scaleToView(this.startNote.width), thisgraph.vp.scaleToView(this.startNote.height), a, result);
   this.x1 = result[0];
   this.y1 = -result[1];
 
@@ -145,7 +149,7 @@ Edge.prototype.update = function()
     a -= 2 * Math.PI;
   }
 
-  rectangleIntersection(ex, negey, graph.vp.scaleToView(this.endNote.width), graph.vp.scaleToView(this.endNote.height), a, result);
+  rectangleIntersection(ex, negey, thisgraph.vp.scaleToView(this.endNote.width), thisgraph.vp.scaleToView(this.endNote.height), a, result);
   this.x2 = result[0];
   this.y2 = -result[1];
 
@@ -237,6 +241,8 @@ Edge.prototype.erase = function()
 // Creates the drawing objects and displays them.
 Edge.prototype.draw = function () 
 {
+  var thisgraph = this.graph;
+
   if (this.selected) 
   {
     this.canvasPathSelected = this.rCanvas.path({stroke: "#ffff00", "stroke-width": this.strokeWidth+4}).absolutely().moveTo(this.x1,this.y1).lineTo(this.x2,this.y2);
@@ -266,8 +272,8 @@ Edge.prototype.draw = function ()
     .attr({"font-weight": "bold"}).attr("fill", this.color).rotate(radToDeg(this.textAngle));
     this.text.node.onclick = function(event) {
       var result = new Array();
-      graph.localCoordinates(event.pageX,event.pageY,result);
-      graph.selectEdge(thisEdge,result[0],result[1]);
+      thisgraph.localCoordinates(event.pageX,event.pageY,result);
+      thisgraph.selectEdge(thisEdge,result[0],result[1]);
       event.stopPropagation();
     };
   }
@@ -362,6 +368,8 @@ Edge.prototype.isHit = function (x,y,margin)
 // Sends a newly created edge to server, and gets a database id in return.
 Edge.prototype.newID = function() 
 {
-  graph.sync.createEdge(this);
+  var thisgraph = this.graph;
+
+  thisgraph.sync.createEdge(this);
 }
 

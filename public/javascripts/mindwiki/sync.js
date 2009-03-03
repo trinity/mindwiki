@@ -3,14 +3,14 @@
 // Get means getting information FROM the server.
 // Set means informing the server about a change in the client.
 
-function Sync() {
+function Sync(graph) {
 
  /****************************************************************************
    Default values
   ****************************************************************************/
 
   var thissync = this;     // For submethods
-  this.graph = null;       // Remember to set in graph
+  this.graph = graph;
   this.refreshTime = 4000; // How ofter do we poll the server for updates? (in milliseconds)
   this.timestamp = "";     // The latest timestamp from the server
 
@@ -34,6 +34,8 @@ function Sync() {
       thissync.graph.loading(false);
     });
   });
+  
+  jQuery.ajaxSetup({ async: thissync.graph.asyncAjax });
 
 } // end constructor
 
@@ -62,7 +64,7 @@ function checkServerForUpdates(syncObject){
       $("note",data).each(function(i){
           update = true;
 	  
-          var tmp = new Note();
+          var tmp = new Note(thisgraph);
           tmp.id = parseInt($(this).find("id:first").text());
           tmp.name = $(this).find("name:first").text();
           tmp.x = parseInt($(this).find("x:first").text());
@@ -418,7 +420,7 @@ Sync.prototype.getViewportNotes = function(x, y, w, h){
     success: function(data){
       thissync.updateTimestamp(data);
       $("note",data).each(function(i){
-          var tmp = new Note();
+          var tmp = new Note(thisgraph);
           tmp.id = parseInt($(this).find("id:first").text());
           tmp.name = $(this).find("name:first").text();
           tmp.x = parseInt($(this).find("x:first").text());

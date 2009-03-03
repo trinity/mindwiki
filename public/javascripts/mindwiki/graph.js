@@ -31,9 +31,25 @@ function Graph() {
   $(this.world).attr("id","mindwiki_world");
   $("#vport").append(this.world);
 
+  /* Init viewport. */
+  this.vp = new Viewport();
+  this.vp.graph = this;
+  this.vp.minX = this.vp.maxX = this.extents.mid.x;
+  this.vp.minY = this.vp.maxY = this.extents.mid.y;
+  
+  /* Initialization is not complete enough to call setViewSize. */
+  this.vp.viewW = $("#vport").width();
+  this.vp.viewH = $("#vport").height();
+  //this.vp.setViewSize($("#vport").width(), $("#vport").height());
+  this.vp.scrollableY = this.vp.y2-this.vp.y1-this.vp.viewH;
+  this.vp.scrollableX = this.vp.x2-this.vp.x1-this.vp.viewW;
+  
+  $(window).resize(function() {
+    graph.vp.setViewSize($("#vport").width(), $("#vport").height());
+  });
+
   // Creating and attaching the server-syncer
-  this.sync = new Sync();
-  this.sync.graph = this;
+  this.sync = new Sync(this);
 
   // To use in the scroll-event, so we are not loading stuff too aggressively
   this.vpLastUpdatedX = 0;
@@ -70,7 +86,7 @@ function Graph() {
 
   // NEW NOTE creation by double clicking in the viewport
   $("#mindwiki_world").dblclick( function(event){
-    var tmp = new Note();
+    var tmp = new Note(thisgraph);
     tmp.x = graph.vp.toWorldX(event.pageX - $(this).offset().left);
     tmp.y = graph.vp.toWorldY(event.pageY - $(this).offset().top);
     tmp.newID();
@@ -290,7 +306,7 @@ function Graph() {
     onHide: function(picker){
       /* Reset button state. */
       graph.colorButton.setState(false); 
-      thisgraph.sync.setNoteColor(thisgraph.selectedNote.id, graph.selectedNote.color);
+      thisgraph.sync.setNoteColor(thisgraph.selectedNote.id, thisgraph.selectedNote.color);
       $(picker).fadeOut(100);
       return false;
     },
@@ -302,7 +318,7 @@ function Graph() {
       /* Reset button state. */
       graph.colorButton.setState(false); 
       $(".colorpicker").css('display', 'none'); 
-      thisgraph.sync.setNoteColor(thisgraph.selectedNote.id, graph.selectedNote.color);
+      thisgraph.sync.setNoteColor(thisgraph.selectedNote.id, thisgraph.selectedNote.color);
     }
   });
   
@@ -461,21 +477,6 @@ function Graph() {
   /////////////////////////////////////////////
 
 
-  this.vp = new Viewport();
-  this.vp.graph = this;
-  this.vp.minX = this.vp.maxX = this.extents.mid.x;
-  this.vp.minY = this.vp.maxY = this.extents.mid.y;
-  
-  /* Initialization is not complete enough to call setViewSize. */
-  this.vp.viewW = $("#vport").width();
-  this.vp.viewH = $("#vport").height();
-  //this.vp.setViewSize($("#vport").width(), $("#vport").height());
-  this.vp.scrollableY = this.vp.y2-this.vp.y1-this.vp.viewH;
-  this.vp.scrollableX = this.vp.x2-this.vp.x1-this.vp.viewW;
-  
-  $(window).resize(function() {
-    graph.vp.setViewSize($("#vport").width(), $("#vport").height());
-  });
   vScrollbar = document.createElement("div");
   $(vScrollbar).addClass("vScrollbar");
 
@@ -646,6 +647,9 @@ function Graph() {
   this.controlsAfterDrag = false;
   this.config.newOption("checkbox", "controlsAfterDrag", function(value) { graph.controlsAfterDrag = value; });
 
+  this.asyncAjax = true;
+  this.config.newOption("checkbox", "synchronousAjax", function(value) { graph.asyncAjax = (value == false); });
+  
   this.config.newOption("button", "Hide", function() { $(graph.config.div).hide("slow"); });
   //this.config.newOption("button", "setView", function() { graph.vp.setView(graph.vp.x, graph.vp.y); });
 
@@ -810,7 +814,7 @@ Graph.prototype.updateEdge = function(id,title,color,sourceId, targetId){
     
   // New edge (first hit)
   } else {
-    edge = new Edge();
+    edge = new Edge(thisgraph);
     edge.id = id;
     // In new edge it is okay to just assign straight away, since the methods just return null on "not found"
     if(sourceId) edge.startNote = thisgraph.getNoteById(sourceId);
