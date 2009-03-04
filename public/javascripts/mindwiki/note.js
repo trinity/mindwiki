@@ -456,7 +456,7 @@ Note.prototype.redraw = function() {
      type: "text",
      event: "dblclick",
      cssclass : "noteEdit",
-     placeholder: '',
+     placeholder: ''
   };
   // Editing the title. 
   $(titleTD).editable(function(value, settings) { 
