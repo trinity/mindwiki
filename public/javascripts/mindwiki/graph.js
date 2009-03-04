@@ -342,7 +342,7 @@ function Graph() {
     { 
       type: "text",
       event: "click",
-      cssclass : "noteTitleEdit",
+      cssclass : "noteTitleEdit"
   }).click(function (event) {
       event.stopPropagation();
   }).addClass("edgeTitle").hide();
