@@ -472,15 +472,47 @@ Note.prototype.redraw = function() {
   $(article).addClass("noteArticle").css({"backgroundColor": this.color}).append(this.articleContainer);
   thisnote.articleDiv = article; // for easier updating :)
 
-   // Editing note content. 
-  $(this.articleContainer).editable(function(value, settings) { 
-     thisgraph.sync.setNoteContent(thisnote, value);  
-     return(value);
-  }, { 
-     type: "text",
-     event: "dblclick",
-     cssclass : "noteEdit",
-     placeholder: '',
+     // launch editing:
+  $(this.div).dblclick(function(ev) {
+    // This code might be a bit flakey, still. Using the same textbox-id for all notes absolutely requires
+    // the calling of dialog("destroy").remove() to not cause some really annoyingly strange behaviour..
+    // Maybe FIX someday?
+
+    if (!thisnote.enabled)
+    {
+      return;
+    }
+
+    $("#mindwiki_world").append('<div id="editWindow" class="flora"></div>');
+    $("#editWindow").append('<p>Title<br /><input type="text" size="30" id="titleInputField" value="'+thisnote.name+'"/></p><p>Content<br /><textarea rows="15" cols="75" id="editableContentBox">'+thisnote.editableContent+'</textarea></p>');
+    $("#editableContentBox").markItUp(mySettings);
+    $("#editWindow").css({"zIndex": "2100000001", "overflow": "auto"}); // isn't there a 'top' option? :)
+    $("#editWindow").dialog({
+      width: 750,
+      height: 550,
+      modal: true,
+      title: thisnote.name+" (Editing)",
+      buttons: {
+        "Cancel": function(){
+          $(this).dialog("destroy").remove();
+        },
+        "Save": function(){
+
+          // Updating the title
+          var newTitle = $("#titleInputField").val();
+          if(thisnote.name != newTitle){
+            graph.sync.setNoteName(thisnote, newTitle);
+          }
+
+          // Updating the content
+          var boxContents = $("#editableContentBox").val();
+          thisnote.editableContent = boxContents;
+          thisnote.content = "Rendering edited content, please wait...";
+          graph.sync.setNoteContent(thisnote, boxContents);
+          $(this).dialog("destroy").remove(); // Don't edit lightly :)
+        }
+      }
+    });
   });
 
   // articleTD
