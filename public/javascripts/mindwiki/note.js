@@ -452,17 +452,17 @@ Note.prototype.redraw = function() {
   // titleTD
   $(titleTD).addClass("noteTitle").css({"backgroundColor": lightenColor(this.color)}).append(this.name);
   thisnote.titleTD = titleTD;
-
-  // Editing the title. 
-  $(titleTD).editable(function(value, settings) { 
-     graph.sync.setNoteName(thisnote, value);  
-     return(value);
-  }, { 
+  var settings = { 
      type: "text",
      event: "dblclick",
      cssclass : "noteEdit",
      placeholder: '',
-  });
+  };
+  // Editing the title. 
+  $(titleTD).editable(function(value, settings) { 
+     graph.sync.setNoteName(thisnote, value);  
+     return(value);
+  }, settings);
 
   /* Used to get width and height of content. */
   this.articleContainer = document.createElement("div");
