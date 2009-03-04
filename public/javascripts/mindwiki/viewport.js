@@ -184,7 +184,7 @@ Viewport.prototype.toLocalX = function(x) {
   var viewMid = (this.canvasX2 - this.canvasX1) / 2;
 
   if (this.graph.newViewport == true)
-    return Math.floor((x - worldMid) * this.scale + viewMid);
+    return (x - worldMid) * this.scale + viewMid;
   else
     return x;
   
@@ -195,7 +195,7 @@ Viewport.prototype.toLocalY = function(y) {
   var viewMid = (this.canvasY2 - this.canvasY1) / 2;
 
   if (this.graph.newViewport == true)
-    return Math.floor((y - worldMid) * this.scale + viewMid);
+    return (y - worldMid) * this.scale + viewMid;
   else
     return y;
 }
