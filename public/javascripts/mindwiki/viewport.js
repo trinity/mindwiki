@@ -235,9 +235,9 @@ Viewport.prototype.setScaleInt = function(scale) {
   this.scale = xScale < yScale ? xScale : yScale;
   
   /* Graph extents could be smaller than view thus causing zooming in. Perhaps not
-     something worth allowing. Limited by caller. */
- /* if (this.scale > 1.0)
-    this.scale = 1.0;*/
+     something worth allowing. */
+  if (this.scale > 1.0)
+    this.scale = 1.0;
   if (this.graph.scaleChanged != null)
     this.graph.scaleChanged();
 }
