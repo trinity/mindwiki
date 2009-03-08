@@ -199,15 +199,21 @@ Note.prototype.disable = function()
   this.enabled = false;
 }
 
-Note.prototype.enableTargetNotes = function() {
+Note.prototype.enableLinkedNotes = function() {
   for(var i=0;i<this.edgesFrom.length;i++){
     this.edgesFrom[i].endNote.enable();
   }
+  for(var i=0;i<this.edgesTo.length;i++){
+    this.edgesTo[i].startNote.enable();
+  }
 }
 
-Note.prototype.disableTargetNotes = function() {
+Note.prototype.disableLinkedNotes = function() {
   for(var i=0;i<this.edgesFrom.length;i++){
     this.edgesFrom[i].endNote.disable();
+  }
+  for(var i=0;i<this.edgesTo.length;i++){
+    this.edgesTo[i].startNote.disable();
   }
 }
 

@@ -648,7 +648,7 @@ Graph.prototype.beginEdgeCreation = function()
   this.globalStartNote = this.selectedNote;
   this.ch.setPriorityText("<b>Select target note</b> or click on active note to cancel.", 1);
   this.selectedNote.disable();
-  this.selectedNote.disableTargetNotes();
+  this.selectedNote.disableLinkedNotes();
 }
 
 Graph.prototype.endEdgeCreation = function()
@@ -658,7 +658,7 @@ Graph.prototype.endEdgeCreation = function()
     return;
   /* Restore color. */
   this.globalStartNote.enable();
-  this.globalStartNote.enableTargetNotes();
+  this.globalStartNote.enableLinkedNotes();
   this.globalStartNote = null; // ready for a new edge to be created
   this.ch.resetPriority(0);
   this.ch.set("");
