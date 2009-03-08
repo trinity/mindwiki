@@ -53,7 +53,7 @@ function Sync(graph) {
 function checkServerForUpdates(syncObject){
   var sync = syncObject;
   var thisgraph = syncObject.graph;
-
+/*
   $.ajax({
     url: "/graphs/updated_since/" + sync.graph.id,
     data: { "timestamp" : sync.timestamp },
@@ -114,8 +114,8 @@ function checkServerForUpdates(syncObject){
         sync.updateExtents();
     }
   });
+*/
 
-/*
   // Please do not delete: This will eventually replace the ajax call above.
   $.ajax({
     global: false, // Disables the spinner and all other possible global functions
@@ -123,15 +123,44 @@ function checkServerForUpdates(syncObject){
     data: { "timestamp" : sync.timestamp },
     dataType: "json",
     success: function(data){
+      // Update the timestamp
       if(data.time) sync.timestamp = data.time;
-      
+
+
+      // Handle the updates      
       var len = data.updates.length;
       for(var i=0;i<len;i++) {
-        alert(data.updates[i].sync_log.params);
+        //alert(data.updates[i].sync_log.params);
+        var params = JSON.parse(data.updates[i].sync_log.params);
+        //alert(params.note.name);
+        var old = thisgraph.getNoteById(params.note.id);
+        if(old != null) {
+          old.name = params.note.name;
+          old.x = params.note.x;
+          old.y = params.note.y;
+          old.width = params.note.width;
+          old.height = params.note.height;
+          old.zorder = params.note.zorder;
+          old.update();
+        }
       }
+
+
+      // Update the possibly new extents
+      if(data.extents) {
+        var e = data.extents;
+        thisgraph.extents.min.x = e.minX;
+        thisgraph.extents.min.y = e.minY;
+        thisgraph.extents.max.x = e.maxX;
+        thisgraph.extents.max.y = e.maxY;
+        thisgraph.vp.setScale(thisgraph.vp.callerScale);
+        thisgraph.extents.mid.x = Math.round((thisgraph.extents.min.x+thisgraph.extents.max.x)/2);
+        thisgraph.extents.mid.y = Math.round((thisgraph.extents.min.y+thisgraph.extents.max.y)/2);
+      }
+
     }
   });
-*/
+
 
   setTimeout(function(){checkServerForUpdates(sync);}, sync.refreshTime, sync);
 }
@@ -188,6 +217,7 @@ Sync.prototype.updateTimestampIfBigger = function(s){
 Sync.prototype.updateExtents = function(){
   var thissync = this;
   var thisgraph = this.graph;
+
   // Gets extents of the graph and calculates the middle point, also.
   $.ajax({
     url: "/graphs/get_extents/" + thissync.graph.id,

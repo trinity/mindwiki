@@ -41,6 +41,11 @@ class SyncLog < ActiveRecord::Base
       @l.save
     end    
     
+    def note_update(graph_id, note)
+      @l = SyncLog.new({:graph_id => graph_id, :params => note.to_json()})
+      @l.save
+    end
+    
 
   end # End "class << self"
 end

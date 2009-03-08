@@ -38,5 +38,7 @@ class Note < ActiveRecord::Base
     end
     SyncLog.note_destroy(self.graph.id, self.id)
   end
+
+  after_update { |obj| SyncLog.note_update(obj.graph.id, obj) }
                                                      
 end

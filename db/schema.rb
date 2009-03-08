@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20090217094332) do
+ActiveRecord::Schema.define(:version => 20090308113028) do
 
   create_table "articles", :force => true do |t|
     t.text     "content"
@@ -54,6 +54,7 @@ ActiveRecord::Schema.define(:version => 20090217094332) do
     t.datetime "created_at"
     t.integer  "graph_id"
     t.text     "params"
+    t.string   "sessionid"
   end
 
   add_index "sync_logs", ["created_at", "graph_id"], :name => "time_graph_index"
