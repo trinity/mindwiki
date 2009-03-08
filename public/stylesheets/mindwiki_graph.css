@@ -70,38 +70,6 @@
   z-index: 99999999;
 }
 
-.vScrollbar {
-  position: absolute;
-  top: 0px;
-  bottom: 16px;
-  right: 0px;
-  width: 16px;
-  background-color: green;
-  z-index: 99999999; /*top?*/
-}
-
-.vScrollbarIndicator {
-  position: absolute;
-  background-color: yellow;
-  width: 14px;
-}
-
-.hScrollbar {
-  position: absolute;
-  left: 0px;
-  bottom: 0px;
-  right: 16px;
-  height: 16px;
-  background-color: green;
-  z-index: 99999999; /*top?*/
-}
-
-.hScrollbarIndicator {
-  position: absolute;
-  background-color: yellow;
-  height: 14px;
-}
-
 .navigator {
   position: fixed;
   right: 100px;

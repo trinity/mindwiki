@@ -379,7 +379,7 @@ function Graph() {
       var currentEdge = graph.selectedEdge;
       $(graph.edgeTextDiv).css({
         "top" : top,
-        "left" : left,
+        "left" : left
       }).html(graph.selectedEdge.title).show().click(); // click opens the edit mode
       $(graph.edgeButtonsDiv).hide();
       event.stopPropagation();
@@ -426,68 +426,6 @@ function Graph() {
   
   $("#mindwiki_world").append(this.edgeButtonsDiv);
 
-  // EDGE BUTTONS & CONTROLS
-  /////////////////////////////////////////////
-
-
-  vScrollbar = document.createElement("div");
-  $(vScrollbar).addClass("vScrollbar");
-
-  vScrollbarIndicator = document.createElement("div");
-  $(vScrollbarIndicator).addClass("vScrollbarIndicator");
-  $(vScrollbar).append(vScrollbarIndicator);
-  
-  $(vScrollbarIndicator).css("height", this.vp.viewH / this.vp.scrollableY *640 /*scrollbarSize.y*/);
-  $(vScrollbar).slider({
-    //accept: ".vScrollbarIndicator",
-    handle: ".vScrollbarIndicator",
-    /*min: 0,
-    max: 1,*/
-    max: 1000,
-    step: 1,
-    axis: "vertical",
-    slide: function(ev, ui) {
-      var y = (ui.value/1000.0 * graph.vp.scrollableY);
-      y = Math.floor(y);
-      
-      if (graph.newViewport == true)
-        graph.vp.setViewYScrolled(y);
-      else
-        $("#mindwiki_world").css('top', -y + "px");
-    }
-  });
-  $("#vport").append(vScrollbar);
-
-
-  hScrollbar = document.createElement("div");
-  $(hScrollbar).addClass("hScrollbar");
-
-  hScrollbarIndicator = document.createElement("div");
-  $(hScrollbarIndicator).addClass("hScrollbarIndicator");
-  $(hScrollbar).append(hScrollbarIndicator);
-  
-  $(hScrollbarIndicator).css("width", this.vp.viewW / this.vp.scrollableX *640 /*scrollbarSize.x*/);
-  $(hScrollbar).slider({
-    //accept: ".vScrollbarIndicator",
-    handle: ".hScrollbarIndicator",
-    /*min: 0,
-    max: 1,*/
-    max: 1000,
-    step: 1,
-    axis: "horizontal",
-    slide: function(ev, ui) {
-      var x = (ui.value/1000.0 * graph.vp.scrollableX);
-      x = Math.floor(x);
-      
-      if (graph.newViewport == true)
-        graph.vp.setViewXScrolled(x);
-      else
-        $("#mindwiki_world").css('left', -x + "px");
-    }
-  });
-  
-  $("#vport").append(hScrollbar);
-
 
   /* Zoom scrollbar */
   this.zoomScrollbar = document.createElement("div");
@@ -511,8 +449,8 @@ function Graph() {
     $(zoomScrollbar).hide();
   } else {
     /* Currently not in use. */
-    $(vScrollbar).hide();
-    $(hScrollbar).hide();
+    //$(vScrollbar).hide();
+    //$(hScrollbar).hide();
     $(".mindwiki_viewport").css({"overflow": "hidden"});
   }
 
