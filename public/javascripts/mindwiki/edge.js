@@ -37,6 +37,7 @@ function Edge (graph)
 Edge.prototype.remove = function() 
 {
   var thisgraph = this.graph;
+  var thisedge = this;
   this.erase();
   
   // Make sure controls are not visible on this one
@@ -54,7 +55,7 @@ Edge.prototype.remove = function()
   thisgraph.sync.deleteEdge(this.id);
 
   // Delete the object
-  delete this;
+  delete thisedge;
 }
 
 Edge.prototype.setStartNote = function (note) 

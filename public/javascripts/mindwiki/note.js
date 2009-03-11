@@ -253,7 +253,7 @@ Note.prototype.remove = function() {
   this.graph.sync.deleteNote(thisnote.id);
 
   // Delete the object
-  delete this;
+  delete thisnote;
 }
 
 // Removes an edge from container.
