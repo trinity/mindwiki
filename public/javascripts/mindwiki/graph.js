@@ -269,6 +269,12 @@ function Graph() {
   });
   $(this.buttonsDiv).append(this.colorButton.div);
 
+   
+  // text button  
+  this.noteTextButton = document.createElement("div");
+  $(this.noteTextButton).addClass("noteTextButton");
+  $(this.buttonsDiv).append(this.noteTextButton);
+
   // delete button
   this.deleteButton = document.createElement("div");
   $(this.deleteButton).addClass("noteDeleteButton");
@@ -282,7 +288,6 @@ function Graph() {
   $(this.deleteButton).mouseout(function () {
     $(graph.deleteButton).removeClass().addClass("noteDeleteButton");
   });
-
 
   /* Controls */
   $(this.colorButton.div).ColorPicker({
@@ -313,6 +318,44 @@ function Graph() {
     }
   });
   
+  $(this.noteTextButton).click(function (event) {
+   	
+	// This code might be a bit flakey, still. Using the same textbox-id for all notes absolutely requires
+    // the calling of dialog("destroy").remove() to not cause some really annoyingly strange behaviour..
+    // Maybe FIX someday?
+
+    var currentNote = graph.selectedNote;
+    $("#mindwiki_world").append('<div id="editWindow" class="flora"></div>');
+    $("#editWindow").append('<p>Title<br /><input type="text" size="30" id="titleInputField" value="'+currentNote.name+'"/></p><p>Content<br /><textarea rows="15" cols="75" id="editableContentBox">'+currentNote.editableContent+'</textarea></p>');
+    $("#editableContentBox").markItUp(mySettings);
+    $("#editWindow").css({"zIndex": "2100000001", "overflow": "auto"}); // isn't there a 'top' option? :)
+    $("#editWindow").dialog({
+      width: 750,
+      height: 550,
+      modal: true,
+      title: graph.selectedNote.name+" (Editing)",
+      buttons: {
+        "Cancel": function(){
+          $(this).dialog("destroy").remove();
+        },
+        "Save": function(){
+
+          // Updating the title
+          var newTitle = $("#titleInputField").val();
+          if(currentNote.name != newTitle){
+            graph.sync.setNoteName(currentNote, newTitle);
+          }
+           // Updating the content
+          var boxContents = $("#editableContentBox").val();
+          currentNote.editableContent = boxContents;
+          currentNote.content = "Rendering edited content, please wait...";
+          graph.sync.setNoteContent(currentNote, boxContents);
+          $(this).dialog("destroy").remove(); // Don't edit lightly :)
+        }
+      }
+    });
+  });
+ 
   $(this.deleteButton).click(function () {
     if (graph.selectedNote != null)
     {
