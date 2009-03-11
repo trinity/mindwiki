@@ -5,7 +5,7 @@ ActionView::Helpers::AssetTagHelper.register_javascript_expansion :mindwiki_grap
  "jquery-1.3.2", "jquery-ui-personalized-1.6rc6",
  "jquery.livequery", "jquery.url", "jquery.scrollTo", "jquery.jeditable", "jquery.mousewheel",
  "raphael", "colorpicker", "json2",
- "markitup/jquery.markitup", "markitup/sets/textile/set",
+ "markitup/jquery.markitup", "markitup/jquery.jeditable.markitup.js", "markitup/sets/textile/set", 
  "mindwiki/misc", "mindwiki/context_help", "mindwiki/sync", "mindwiki/note", 
  "mindwiki/edge", "mindwiki/graph", "mindwiki/viewport", "mindwiki/config"]
 
