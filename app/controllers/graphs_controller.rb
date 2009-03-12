@@ -130,6 +130,18 @@ class GraphsController < ApplicationController
       format.xml { render :xml => @vp_notes.to_xml(:include => [:article, :edges_to, :edges_from]) }
     end
   end
+  
+  # Returns all notes with given name
+  def get_notes_by_name
+    respond_to do |format|
+      if params[:id].nil?
+        format.xml { render :xml => @graph.errors, :status => :unprocessable_entity }
+      end
+      @graph = Graph.find(params[:id],:select => "id")
+      @n_notes = @graph.notes_by_name(params[:name]);
+      format.xml { render :xml => @n_notes.to_xml(:include => [:article, :edges_to, :edges_from]) }
+    end
+  end
 
   def updated_since
     respond_to do |format|

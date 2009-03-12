@@ -60,6 +60,10 @@ class Graph < ActiveRecord::Base
     return vp_notes
   end
   
+  def notes_by_name(nname)
+    self.notes.find(:all, :conditions => ["name = ?", nname])
+  end
+  
   # Returns the extents and the middle point of the graph
   # [ min[x, y], max[x, y], mid[x, y] ]
   def get_extents

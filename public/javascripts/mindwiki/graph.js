@@ -14,7 +14,10 @@ function Graph() {
   this.selectedNote = null;
   this.selectedEdge = null;
 
-  // Graph extent-variables for Aapo:
+  // Maybe more sophisticated containers?!
+  this.notes = [];
+  this.edges = [];
+
   this.extents = new Object();
   this.extents.min = new Object();
   this.extents.max = new Object();
@@ -31,7 +34,18 @@ function Graph() {
   $(this.world).attr("id","mindwiki_world");
   $("#vport").append(this.world);
 
+  var thisgraph = this; // To be used in submethods
+
+  // Load graph ID from the path variable.
+  // Is ID the only numerical data in the path? Currently, yeah. Maybe sharpen up the regexp, still.
+  var id_from_pathname = new RegExp(/\d+/).exec(location.pathname);
+  this.id = parseInt(id_from_pathname[0]); // RegExp.exec puts matches into an array
+
   /* Init viewport. */
+
+  // Use new viewport?
+  this.newViewport = true;
+  
   this.vp = new Viewport();
   this.vp.graph = this;
   this.vp.minX = this.vp.maxX = this.extents.mid.x;
@@ -51,6 +65,11 @@ function Graph() {
   // Creating and attaching the server-syncer
   this.sync = new Sync(this);
 
+  if (this.newViewport == true) {
+    this.vp.initFromURL();
+  }
+
+  
   // To use in the scroll-event, so we are not loading stuff too aggressively
   this.vpLastUpdatedX = 0;
   this.vpLastUpdatedY = 0;
@@ -65,22 +84,8 @@ function Graph() {
   this.globalStartNote = null; // Used when creating new edges
   this.runningZ = 10; // Used for z-index = "top" within the context of notes
 
-  // Maybe more sophisticated containers?!
-  this.notes = [];
-  this.edges = [];
-
   // Do we want to center the selected note? TODO: Move to user preferences.
   this.scrollToSelected = true;
-
-  // Use new viewport?
-  this.newViewport = true;
-
-  var thisgraph = this; // To be used in submethods
-
-  // Load graph ID from the path variable.
-  // Is ID the only numerical data in the path? Currently, yeah. Maybe sharpen up the regexp, still.
-  var id_from_pathname = new RegExp(/\d+/).exec(location.pathname);
-  this.id = parseInt(id_from_pathname[0]); // RegExp.exec puts matches into an array
 
   this.sync.initGraph();
 
@@ -541,7 +546,6 @@ function Graph() {
    * End Context help
    */
   if (this.newViewport == true) {
-    this.vp.initFromURL();
     /* Set zoom clipping it if necessary. */
     this.vp.callerScale = this.setZoomSlider(this.vp.callerScale * 20) / 20;
 
@@ -698,12 +702,20 @@ Graph.prototype.getNoteById = function(id){
 
 Graph.prototype.getNoteCenterByName = function(name){
   var l = this.notes.length;
+  var n = null;
+  
   for(var i=0;i<l;i++)
     if(this.notes[i].name == name) {
-      var n = this.notes[i];
-      return {x: n.x + n.width / 2, y: n.y + n.height / 2};
+      n = this.notes[i];
     }
+  
   /* Search entire graph... */
+  if (n == null)
+   n = this.sync.findNoteByName(name);
+ 
+  if (n != null)
+    return {x: n.x + n.width / 2, y: n.y + n.height / 2};
+
   return null;
 }
 

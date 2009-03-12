@@ -507,6 +507,34 @@ Sync.prototype.getViewportNotes = function(x, y, w, h){
   });
 }
 
+/* Finds note by name. This call is synchronous. */
+Sync.prototype.findNoteByName = function(name){
+  var thisgraph = this.graph;
+  var tmp = null;
+  
+  $.ajax({
+    url: "/graphs/get_notes_by_name/" + thisgraph.id,
+    type: "POST",
+    data: {
+      "name" : name
+    },
+    async: false,
+    dataType: "xml",
+    success: function(data){
+      tmp = new Note(thisgraph);
+      $("note", data).each(function(i) {
+          tmp.x = parseInt($(this).find("x:first").text());
+          tmp.y = parseInt($(this).find("y:first").text());
+          tmp.width = parseInt($(this).find("width:first").text());  
+          tmp.height = parseInt($(this).find("height:first").text());
+      });
+    },
+    error: function(a,b,c){
+      alert(a + b + c);
+    }
+  });
+  return tmp;
+}
 
 /****************************************************************************
   Inform the server about a NEW EDGE.
