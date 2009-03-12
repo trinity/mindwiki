@@ -30,5 +30,27 @@ module RedClothYoutubeExtension
     end
   end
 end
+
+# [[note|graph.note]]
+module RedClothNoteExtension
+  def note(text)
+    # Do youtube-video-codes only have [a-zA-Z0-9] and "-" "_"?
+    text.gsub!(/\[\[(n|N)(o|O)(t|T)(e|E)\|([a-zA-Z0-9]|-|_|\.)+\]\]/) do |tag|    
+      note = tag.gsub(/\[|\]|((n|N)(o|O)(t|T)(e|E))\|/,"")
+      attr = "class=\"external_link\""
+
+      href = "" + note
+      if href.gsub!(/\./, "#note=") == nil
+        href = "#note=" + href
+	attr = ""
+      end
+       
+      "<a href=\"#{href}\" #{attr}> #{note} </a>"
+    end
+  end
+end
+
+
 RedCloth.send(:include, RedClothYoutubeExtension)
+RedCloth.send(:include, RedClothNoteExtension)
 

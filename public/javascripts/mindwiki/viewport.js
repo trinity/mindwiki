@@ -22,14 +22,29 @@ Viewport.prototype.worldTop = function() {
 
 Viewport.prototype.initFromURL = function() {
   var anchor = jQuery.url.attr("anchor");
+  var note, pos;
   if (anchor == null)
     return ;
   
   /* Use url plugin to parse it. Cheap I know..*/
   anchor = "?" + anchor;
-
-  this.x = parseInt(jQuery.url.setUrl(anchor).param("x"), 10);
-  this.y = parseInt(jQuery.url.setUrl(anchor).param("y"), 10);
+  
+  this.x = this.y = Number.Nan;
+  
+  if ((note = jQuery.url.setUrl(anchor).param("note")) != null && 
+      (pos = this.graph.getNoteCenterByName(note)) != null) {
+    this.x = pos.x;
+    this.y = pos.y;
+  } else if (note != null) {
+    alert("create note?");
+  }
+  
+  if (isNaN(this.x) == true)
+    this.x = parseInt(jQuery.url.setUrl(anchor).param("x"), 10);
+  
+  if (isNaN(this.y) == true)
+    this.y = parseInt(jQuery.url.setUrl(anchor).param("y"), 10);
+  
   this.callerScale = parseFloat(jQuery.url.setUrl(anchor).param("zoom"));
   
   /* These are not sane defaults but getting access to this.extents.mid. is not currently very easy. */

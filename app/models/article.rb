@@ -18,7 +18,7 @@ class Article < ActiveRecord::Base
       xml.tag!(:id, id.to_s) 
       xml.tag!(:content, content)
       if content_type == 1
-        xml.tag!(:content_rendered, RedCloth.new(white_list(content),[:filter_styles]).to_html(:textile, :youtube))
+        xml.tag!(:content_rendered, RedCloth.new(white_list(content),[:filter_styles]).to_html(:textile, :youtube, :note))
       end
       xml.tag!(:content_type, content_type.to_s)
       xml.tag!(:updated_at, updated_at.to_s)

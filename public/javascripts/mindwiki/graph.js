@@ -696,6 +696,17 @@ Graph.prototype.getNoteById = function(id){
   return null;
 }
 
+Graph.prototype.getNoteCenterByName = function(name){
+  var l = this.notes.length;
+  for(var i=0;i<l;i++)
+    if(this.notes[i].name == name) {
+      var n = this.notes[i];
+      return {x: n.x + n.width / 2, y: n.y + n.height / 2};
+    }
+  /* Search entire graph... */
+  return null;
+}
+
 Graph.prototype.getEdgeById = function(id){
   var l = this.edges.length;
   for(var i=0;i<l;i++){
