@@ -63,7 +63,7 @@ class NotesController < ApplicationController
     respond_to do |format|
       if @note.article.update_attribute(:content, params[:newContent])
         # Technically html :)
-        format.text { render :text => RedCloth.new(white_list(@note.article.content),[:filter_styles]).to_html(:textile, :youtube) }
+        format.text { render :text => RedCloth.new(white_list(@note.article.content),[:filter_styles]).to_html(:textile, :youtube, :note) }
       else
         format.text { render :text => "<p>Content update error.</p>" }
       end

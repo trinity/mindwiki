@@ -447,6 +447,12 @@
 	overflow: hidden;
 }
 
+.external_link
+{
+	background: url('http://bloggerbuster.com/images/bb_post/home.gif') no-repeat; /* find somethign better */
+	padding-right: 20px;
+	background-position: center right;
+}
 
 /* Just copy-pasted this here, even though we lack the pics etc.. */
 .flora .ui-dialog,
