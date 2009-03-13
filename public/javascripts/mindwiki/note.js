@@ -2,6 +2,7 @@
 
 // Note is the "class" for all notes.
 function Note(graph) {
+  this.visited = false;
   this.graph = graph;
   this.id = -1;
   this.name = "New note";
@@ -317,6 +318,35 @@ Note.prototype.newID = function() {
   this.graph.notes.push(this);
 }
 
+getOutgoingNotes = function(note) {
+  var notes = [];
+
+  for (var i = 0; i < note.edgesFrom.length; i++)
+    notes.push(note.edgesFrom[i].endNote);
+
+  for (var i = 0; i < note.edgesTo.length; i++)
+    notes.push(note.edgesTo[i].startNote);
+  
+  return notes;
+
+}
+
+getNoteWeight = function (note, maxWeight, visited) {
+  var weight = 1;
+  note.visited = visited;
+  
+  var notes = getOutgoingNotes(note);
+  for (var i = 0; i < notes.length; i++)
+    if (notes[i].visited != visited) {
+      weight += getNoteWeight(notes[i], maxWeight, visited);
+    }
+
+  if (weight > maxWeight) // TODO: do earlier
+    weight = maxWeight;
+
+  return weight;
+}
+
 // This function (re)constructs the whole div!
 // Use after loading a Note with data.
 Note.prototype.redraw = function() {
@@ -352,6 +382,36 @@ Note.prototype.redraw = function() {
       
       if (thisgraph.controlsAfterDrag == true)
         thisgraph.detachControls(thisnote);
+      
+      if (thisgraph.mMove == false)
+        return;
+	
+	var weights = [];
+        var notes = getOutgoingNotes(thisnote);
+	var avg = 0;
+	
+	for (var i = 0; i < notes.length; i++) {
+	  /* To prevent recursion back to this note. */
+	  thisnote.visited = true;
+	  
+	  var w = getNoteWeight(notes[i], 4, true);
+	  
+	  avg += w;
+	  weights.push(w);
+	  getNoteWeight(notes[i], 4, false); // reset visited flags
+	}
+
+	avg /= notes.length;
+
+	/* To prevent recursion back to this note. */
+	thisnote.visited = true;
+	for (var i = 0; i < notes.length; i++) {
+	  if (weights[i] < avg)
+            getNoteWeight(notes[i], 4, true);
+	}
+	thisnote.visited = false;
+	thisnote.lastX = this.x;
+	thisnote.lastY = this.y;
     },
     // Update note position after dragging.
     stop: function(event, ui){
@@ -360,6 +420,17 @@ Note.prototype.redraw = function() {
       graph.sync.setNotePosition(thisnote.id, thisnote.x, thisnote.y);
       if (thisgraph.controlsAfterDrag == true)
         thisgraph.attachControls(thisnote);
+      
+      if (thisgraph.mMove == false)
+        return;
+	
+      for (var i = 0; i < thisgraph.notes.length; i++) {
+        var note = thisgraph.notes[i];
+        if (note.visited) {
+	  note.visited = false;
+	  note.updateCSS();
+        }
+      }
     },
     drag: function(event, ui){
       thisnote.x = thisgraph.vp.toWorldX(ui.position.left);
@@ -379,6 +450,28 @@ Note.prototype.redraw = function() {
       // Safari 3.2 redraw workaround.
       if ($.browser.safari && $.browser.version <= 3)
         thisgraph.rc.circle(0, 0, 10).remove();
+	
+      if (thisgraph.mMove == false)
+        return;
+	
+    /* Why are these still undefined? */
+    if (thisnote.lastX == undefined)
+      thisnote.lastX = thisnote.x;
+
+    if (thisnote.lastY == undefined)
+      thisnote.lastY = thisnote.y;
+      
+      for (var i = 0; i < thisgraph.notes.length; i++) {
+        var note = thisgraph.notes[i];
+        if (note.visited) {
+	  note.x += (thisnote.x - thisnote.lastX);
+	  note.y += (thisnote.y - thisnote.lastY);
+	  note.updateCSS();
+        }
+      }
+      thisnote.lastX = thisnote.x;
+      thisnote.lastY = thisnote.y;
+	
     }
     //cancel: ":input,.noteArticle" // Cannot drag from article content
   });

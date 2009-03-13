@@ -94,6 +94,10 @@ function Graph() {
     var tmp = new Note(thisgraph);
     tmp.x = graph.vp.toWorldX(event.pageX - $(this).offset().left);
     tmp.y = graph.vp.toWorldY(event.pageY - $(this).offset().top);
+    /* Center */
+    tmp.x -= tmp.width / 2;
+    tmp.y -= tmp.height / 2;
+    
     tmp.newID();
     tmp.redraw();
     tmp.center(); // Center on create regardless of user preferences
@@ -558,6 +562,10 @@ function Graph() {
   this.config = new Config();
   $(this.config.getHandle()).addClass("config");
   //this.config.newOption("text", "example", function(value) { alert("text is " + value); });
+
+  this.mMove = false;
+  this.config.newOption("checkbox", "mMove", function(value) { graph.mMove = value; });
+
   this.config.newOption("checkbox", "scrollToSelected", function(value) { graph.scrollToSelected = value; });
 
   this.config.newOption("checkbox", "newViewport", function(value) { 
@@ -581,7 +589,7 @@ function Graph() {
       graph.vp.setView(graph.vp.x, graph.vp.y);
     }
    });
-   
+
   this.controlsAfterDrag = false;
   this.config.newOption("checkbox", "controlsAfterDrag", function(value) { graph.controlsAfterDrag = value; });
 
