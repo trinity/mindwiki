@@ -318,14 +318,16 @@ Note.prototype.newID = function() {
   this.graph.notes.push(this);
 }
 
-getOutgoingNotes = function(note) {
+getConnectedNotes = function(note) {
   var notes = [];
 
   for (var i = 0; i < note.edgesFrom.length; i++)
-    notes.push(note.edgesFrom[i].endNote);
+    if (note.edgesFrom[i].endNote)
+      notes.push(note.edgesFrom[i].endNote);
 
   for (var i = 0; i < note.edgesTo.length; i++)
-    notes.push(note.edgesTo[i].startNote);
+    if (note.edgesTo[i].startNote)
+      notes.push(note.edgesTo[i].startNote);
   
   return notes;
 
@@ -335,7 +337,7 @@ getNoteWeight = function (note, maxWeight, visited) {
   var weight = 1;
   note.visited = visited;
   
-  var notes = getOutgoingNotes(note);
+  var notes = getConnectedNotes(note);
   for (var i = 0; i < notes.length; i++)
     if (notes[i].visited != visited) {
       weight += getNoteWeight(notes[i], maxWeight, visited);
@@ -387,7 +389,7 @@ Note.prototype.redraw = function() {
         return;
 	
 	var weights = [];
-        var notes = getOutgoingNotes(thisnote);
+        var notes = getConnectedNotes(thisnote);
 	var avg = 0;
 	
 	for (var i = 0; i < notes.length; i++) {
