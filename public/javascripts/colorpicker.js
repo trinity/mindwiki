@@ -156,6 +156,21 @@
 				$(document).unbind('mousemove', moveHue);
 				return false;
 			},
+      // mindwiki
+			clickSelector = function (ev) {
+				change.apply(
+					$(this).parent().data('colorpicker')
+						.fields
+						.eq(6)
+						.val(parseInt(100*(150 - Math.max(0,Math.min(150,(ev.pageY - $(this).offset().top))))/150, 10))
+						.end()
+						.eq(5)
+						.val(parseInt(100*(Math.max(0,Math.min(150,(ev.pageX - $(this).offset().left))))/150, 10))
+						.get(0),
+					[$(this).parent().preview]
+				);
+				return false;
+			},
 			downSelector = function (ev) {
 				var current = {
 					cal: $(this).parent(),
@@ -164,6 +179,7 @@
 				current.preview = current.cal.data('colorpicker').livePreview;
 				$(document).bind('mouseup', current, upSelector);
 				$(document).bind('mousemove', current, moveSelector);
+        $(document).bind('click', current, moveSelector);
 			},
 			moveSelector = function (ev) {
 				change.apply(
@@ -184,6 +200,7 @@
 				fillHexFields(ev.data.cal.data('colorpicker').color, ev.data.cal.get(0));
 				$(document).unbind('mouseup', upSelector);
 				$(document).unbind('mousemove', moveSelector);
+        $(document).unbind('click', moveSelector);
 				return false;
 			},
 			enterSubmit = function (ev) {
@@ -341,6 +358,7 @@
 			HSBToHex = function (hsb) {
 				return RGBToHex(HSBToRGB(hsb));
 			};
+		
 		return {
 			init: function (options) {
 				options = $.extend({}, defaults, options||{});
@@ -371,7 +389,9 @@
 												.bind('blur', blur)
 												.bind('focus', focus);
 						cal.find('span').bind('mousedown', downIncrement);
-						options.selector = cal.find('div.colorpicker_color').bind('mousedown', downSelector);
+            // mindwiki
+						//options.selector = cal.find('div.colorpicker_color').bind('mousedown', downSelector);
+            options.selector = cal.find('div.colorpicker_color').bind('mousedown', clickSelector); // mindwiki
 						options.selectorIndic = options.selector.find('div div');
 						options.hue = cal.find('div.colorpicker_hue div');
 						cal.find('div.colorpicker_hue').bind('mousedown', downHue);
