@@ -118,6 +118,7 @@ Edge.prototype.update = function()
 {
   var thisgraph = this.graph;
 
+  /* Caller should probably take care of this. */
   if (this.startNote == null || this.endNote == null)
   {
     thisgraph.ch.setPriorityText("Trying to draw an edge (id:"+this.id+"), which has a null note!", 1);
@@ -183,6 +184,10 @@ Edge.prototype.update = function()
 
 Edge.prototype.redraw = function()
 {
+  /* Caller should probably take care of this. */
+  if (this.startNote == null || this.endNote == null)
+    return;
+  
   this.update();
 
   var p1 = "M " + this.x1 + " " + this.y1 + "L " + this.x2 + " " + this.y2;
