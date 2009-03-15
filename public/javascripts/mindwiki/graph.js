@@ -738,7 +738,7 @@ Graph.prototype.getEdgeById = function(id){
 
 // Updates edge. This is for tiled note loading.
 // (When we load the edge for the first time, the second note may not be read yet)
-Graph.prototype.updateEdge = function(id,title,color,sourceId, targetId){
+Graph.prototype.updateEdge = function(id,title,color,sourceId, targetId, directed){
   var thisgraph = this;
   var edge = null;
 
@@ -752,6 +752,7 @@ Graph.prototype.updateEdge = function(id,title,color,sourceId, targetId){
 
     edge.title = title;
     edge.color = color;
+    edge.setDirected(directed);
 
     if(!edge.startNote)
       edge.startNote = thisgraph.getNoteById(sourceId);
@@ -772,7 +773,8 @@ Graph.prototype.updateEdge = function(id,title,color,sourceId, targetId){
       }
     }
     // If we have both references, the edge can be drawn
-    if(edge.startNote && edge.endNote){
+    if(edge.startNote != null && edge.endNote != null){
+      //alert(edge.directed+": "+directed);
       edge.update();
       edge.draw();
     }

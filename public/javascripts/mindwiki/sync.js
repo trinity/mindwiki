@@ -96,7 +96,8 @@ function checkServerForUpdates(syncObject){
               $(this).find("name:first").text(), 
               $(this).find("color:first").text(),
               parseInt($(this).find("source-id").text()),
-              parseInt($(this).find("target-id").text())
+              parseInt($(this).find("target-id").text()),
+              $(this).find("directed:first").text() == "true"
             );
           });
           // Escapes the edges-to array first, then loops edges-to -fields inside
@@ -106,7 +107,8 @@ function checkServerForUpdates(syncObject){
               $(this).find("name:first").text(),
               $(this).find("color:first").text(),
               parseInt($(this).find("source-id").text()),
-              parseInt($(this).find("target-id").text()) 
+              parseInt($(this).find("target-id").text()),
+              $(this).find("directed:first").text() == "true"
             );
           }); 
       });
@@ -482,7 +484,9 @@ Sync.prototype.getViewportNotes = function(x, y, w, h){
               $(this).find("name:first").text(), 
               $(this).find("color:first").text(),
               parseInt($(this).find("source-id").text()),
-              parseInt($(this).find("target-id").text())
+              parseInt($(this).find("target-id").text()),
+              // booleans are read as strings, which need to be converted properly
+              $(this).find("directed:first").text() == "true"
             );
           });
           // Escapes the edges-to array first, then loops edges-to -fields inside
@@ -492,7 +496,8 @@ Sync.prototype.getViewportNotes = function(x, y, w, h){
               $(this).find("name:first").text(),
               $(this).find("color:first").text(),
               parseInt($(this).find("source-id").text()),
-              parseInt($(this).find("target-id").text()) 
+              parseInt($(this).find("target-id").text()),
+              $(this).find("directed:first").text() == "true"
             );
           }); 
       });
