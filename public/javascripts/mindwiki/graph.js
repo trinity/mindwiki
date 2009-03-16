@@ -65,8 +65,9 @@ function Graph() {
   // Creating and attaching the server-syncer
   this.sync = new Sync(this);
 
+  var newNoteName = false;
   if (this.newViewport == true) {
-    this.vp.initFromURL();
+    newNoteName = this.vp.initFromURL();
   }
 
   
@@ -91,20 +92,9 @@ function Graph() {
 
   // NEW NOTE creation by double clicking in the viewport
   $("#mindwiki_world").dblclick( function(event){
-    var tmp = new Note(thisgraph);
-    tmp.x = graph.vp.toWorldX(event.pageX - $(this).offset().left);
-    tmp.y = graph.vp.toWorldY(event.pageY - $(this).offset().top);
-    /* Center */
-    tmp.x -= tmp.width / 2;
-    tmp.y -= tmp.height / 2;
-    
-    tmp.newID();
-    tmp.redraw();
-    tmp.center(); // Center on create regardless of user preferences
-    // Let's select the new note right away, too.
-    graph.notes.push(tmp);
-    tmp.select();
-    tmp.update();
+    graph.createNoteAt(null,
+                       graph.vp.toWorldX(event.pageX - $(this).offset().left),
+                       graph.vp.toWorldY(event.pageY - $(this).offset().top));
   });
 		
   this.downX = -1; /* Set to -1 when no drag is in progress. */
@@ -214,6 +204,23 @@ function Graph() {
     e.stopPropagation();
   });
 
+  /* Booby trap internal links.
+     Wait 200ms so that (hopefully) window.location.href becomes valid.
+     No doubt this is a huge hack. */
+  $(".internal_link").livequery("click", function(event){
+    setTimeout(function() {
+      jQuery.url.setUrl(window.location.href);
+    
+      var newNoteName = graph.vp.initFromURL();
+      graph.vp.setView(graph.vp.x, graph.vp.y);
+
+      if (newNoteName != null)
+        graph.createNoteAt(newNoteName, graph.vp.x, graph.vp.y);
+    }, 200, null);
+    // note's click event is handled in the note class, but this is
+    // needed here to prevent click event to bubble to background.
+    event.stopPropagation();
+  });
 
   /* "Navigator" */
   this.viewAdd = function(x, y) {
@@ -605,6 +612,9 @@ function Graph() {
   // Initialize the server updating timer
   checkServerForUpdates(this.sync);
 
+  /* Create new note if requested. Hopefully all the init is completed. */
+  if (newNoteName != null)
+    this.createNoteAt(newNoteName, this.vp.x, this.vp.y);
 } // end constructor
 
 
@@ -619,7 +629,7 @@ Graph.prototype.scaleChanged = function() {
   var s = Math.floor(this.vp.scaleToView(100));
   
   if (this.selectedNote != null)
-    graph.selectedNote.scaleChanged();
+    this.selectedNote.scaleChanged();
   
   if (s < 60)
     $(".noteArticle").hide();
@@ -657,6 +667,31 @@ Graph.prototype.endEdgeCreation = function()
   this.ch.set("");
 }
 
+Graph.prototype.createNoteAt = function(name, x, y)
+{
+    var tmp = new Note(this);
+    
+    if (name != null)
+      tmp.name = name;
+    
+    tmp.x = x;
+    tmp.y = y;
+    
+    /* Center */
+    tmp.x -= tmp.width / 2;
+    tmp.y -= tmp.height / 2;
+    
+    tmp.newID();
+    tmp.redraw();
+    tmp.center(); // Center on create regardless of user preferences
+    // Let's select the new note right away, too.
+    this.notes.push(tmp);
+    tmp.select();
+    tmp.update();
+
+    return tmp;
+}
+
 // Show the user that we are loading...
 Graph.prototype.loading = function(isLoading){
   if(isLoading){
@@ -667,21 +702,21 @@ Graph.prototype.loading = function(isLoading){
 }
 
 Graph.prototype.attachControls = function(thisnote){
-  $(this.buttonsDiv).show(graph.controlsAfterDrag ? "fast" : "");
+  $(this.buttonsDiv).show(this.controlsAfterDrag ? "fast" : "");
   this.dragControls(thisnote);
 }
 
 Graph.prototype.dragControls = function(thisnote){
   $(this.buttonsDiv).css({
-    "top" : (graph.vp.toLocalY(thisnote.y)-26) +"px", /* FIXME: -26 */
-    "left" : graph.vp.toLocalX(thisnote.x)+"px",
-    "width" : graph.vp.scaleToView(thisnote.width) + "px"
+    "top" : (this.vp.toLocalY(thisnote.y)-26) +"px", /* FIXME: -26 */
+    "left" : this.vp.toLocalX(thisnote.x)+"px",
+    "width" : this.vp.scaleToView(thisnote.width) + "px"
   });
 }
 
 Graph.prototype.detachControls = function(thisnote){
   if (this.selectedNote == null || thisnote.id == this.selectedNote.id)
-    $(this.buttonsDiv).hide(graph.controlsAfterDrag ? "fast" : "");
+    $(this.buttonsDiv).hide(this.controlsAfterDrag ? "fast" : "");
 }
 
 

@@ -42,7 +42,7 @@ module RedClothNoteExtension
       href = "" + note
       if href.gsub!(/\./, "#note=") == nil
         href = "#note=" + href
-	attr = ""
+	attr = "class=\"internal_link\""
       end
        
       "<a href=\"#{href}\" #{attr}> #{note} </a>"

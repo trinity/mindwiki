@@ -50,8 +50,8 @@ Note.prototype.scaleChanged = function() {
   
   $(this.div).resizable('option', 'minWidth', thisgraph.vp.scaleToView(120));
   $(this.div).resizable('option', 'minHeight', thisgraph.vp.scaleToView(80));
-  $(this.div).resizable('option', 'maxWidth', thisgraph.vp.scaleToView(graph.vp.canvasBoundry));
-  $(this.div).resizable('option', 'maxHeight', thisgraph.vp.scaleToView(graph.vp.canvasBoundry));
+  $(this.div).resizable('option', 'maxWidth', thisgraph.vp.scaleToView(thisgraph.vp.canvasBoundry));
+  $(this.div).resizable('option', 'maxHeight', thisgraph.vp.scaleToView(thisgraph.vp.canvasBoundry));
 }
 
 // SELECTION.
@@ -70,8 +70,8 @@ Note.prototype.select = function() {
   {
     minWidth: thisgraph.vp.scaleToView(120),
     minHeight: thisgraph.vp.scaleToView(80),
-    maxWidth: thisgraph.vp.scaleToView(graph.vp.canvasBoundry),
-    maxHeight: thisgraph.vp.scaleToView(graph.vp.canvasBoundry),
+    maxWidth: thisgraph.vp.scaleToView(thisgraph.vp.canvasBoundry),
+    maxHeight: thisgraph.vp.scaleToView(thisgraph.vp.canvasBoundry),
     handles:  'se', // defines the resize handle location i.e. south east corner
     start: function(event, ui){
       /* Ensure canvas is large enough so note can leave visible viewport.
@@ -109,8 +109,8 @@ Note.prototype.select = function() {
   thisgraph.attachControls(this);
  
   // Bring selected to front. This is a temporary solution.
-  graph.runningZ++;
-  this.zorder = graph.runningZ;
+  thisgraph.runningZ++;
+  this.zorder = thisgraph.runningZ;
   $(this.div).css({"zIndex":thisnote.zorder});
   if(this.id >= 0) thisgraph.sync.setNoteZorder(this.id, this.zorder); // inform the server
 }

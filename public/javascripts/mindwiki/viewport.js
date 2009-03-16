@@ -20,9 +20,12 @@ Viewport.prototype.worldLeft = function() {
 Viewport.prototype.worldTop = function() {
 }
 
+/* Returns note name if "note=name" was specified but _not_ found in graph. */
 Viewport.prototype.initFromURL = function() {
   var anchor = jQuery.url.attr("anchor");
   var note, pos;
+  var vp = this;
+  
   if (anchor == null)
     return ;
   
@@ -35,8 +38,7 @@ Viewport.prototype.initFromURL = function() {
       (pos = this.graph.getNoteCenterByName(note)) != null) {
     this.x = pos.x;
     this.y = pos.y;
-  } else if (note != null) {
-    alert("create note?");
+    note = null;
   }
   
   if (isNaN(this.x) == true)
@@ -56,6 +58,8 @@ Viewport.prototype.initFromURL = function() {
 
   if (isNaN(this.callerScale) == true)
     this.callerScale = 1.0;
+
+  return note;
 }
 
 Viewport.prototype.updateURL = function() {
@@ -141,7 +145,7 @@ Viewport.prototype.setView = function(x, y) {
   
   this.graph.UpdateAllNotesCSS();
   if (this.graph.selectedNote != null)
-    this.graph.dragControls(graph.selectedNote);
+    this.graph.dragControls(this.graph.selectedNote);
   //this.updateURL();
 }
 

@@ -394,12 +394,13 @@ Sync.prototype.deleteNote = function(noteId){
  ****************************************************************************/
 
 Sync.prototype.createNote = function(note){
+  var thisgraph = this.graph;
   var n = note;
   $.ajax({
     url: "/notes/create",
     type: "POST",
     data: {
-      "graph_id" : graph.id,
+      "graph_id" : thisgraph.id,
       "note[name]" : n.name,
       "note[color]" : n.color,
       "note[x]" : n.x,
@@ -526,8 +527,8 @@ Sync.prototype.findNoteByName = function(name){
     async: false,
     dataType: "xml",
     success: function(data){
-      tmp = new Note(thisgraph);
       $("note", data).each(function(i) {
+      tmp = new Note(thisgraph);
           tmp.x = parseInt($(this).find("x:first").text());
           tmp.y = parseInt($(this).find("y:first").text());
           tmp.width = parseInt($(this).find("width:first").text());  
