@@ -63,5 +63,6 @@ class Edge < ActiveRecord::Base
   end
 
   after_update { |edge| SyncLog.edge_update(edge.source_note.graph.id, edge) }
+  after_create { |edge| SyncLog.edge_update(edge.source_note.graph_id, edge) }
 
 end

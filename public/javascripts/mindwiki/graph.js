@@ -781,13 +781,16 @@ Graph.prototype.updateEdge = function(id,title,color,sourceId, targetId, directe
   if(thisgraph.getEdgeById(id) != null){
     edge = thisgraph.getEdgeById(id);
 
-    // Is the edge already okay?
-    if(edge.startNote && edge.endNote)
-      return;
-
-    edge.title = title;
-    edge.color = color;
+    edge.setTitle(title);
+    edge.setColor(color);
     edge.setDirected(directed);
+
+    // Is the edge already okay?
+    if(edge.startNote != null && edge.endNote != null){
+      edge.redraw();
+      //alert("edge "+edge.id+" redraw!");
+      return;
+    }
 
     if(!edge.startNote)
       edge.startNote = thisgraph.getNoteById(sourceId);
@@ -818,11 +821,16 @@ Graph.prototype.updateEdge = function(id,title,color,sourceId, targetId, directe
   } else {
     edge = new Edge(thisgraph);
     edge.id = id;
+    edge.title = title;
+    edge.color = color;
+    edge.setDirected(directed);
     // In new edge it is okay to just assign straight away, since the methods just return null on "not found"
     if(sourceId) edge.startNote = thisgraph.getNoteById(sourceId);
     if(targetId) edge.endNote = thisgraph.getNoteById(targetId);
     thisgraph.edges.push(edge);
   }
+
+
 }
 
 // Helper function to remove objects from arrays (notes and edges).

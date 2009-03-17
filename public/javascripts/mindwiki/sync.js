@@ -78,28 +78,66 @@ function checkServerForUpdates(syncObject){
         
         // NOTE UPDATE
         else if(params.note != null){
-          var old = thisgraph.getNoteById(params.note.id);
-          if(old != null) {
-            old.name = params.note.name;
-            old.x = params.note.x;
-            old.y = params.note.y;
-            old.width = params.note.width;
-            old.height = params.note.height;
-            old.zorder = params.note.zorder;
-            old.update();
+          var n = thisgraph.getNoteById(params.note.id);
+          if(!n) {
+            // NEW note
+            n = new Note(thisgraph);
+            n.id = params.note.id;
+            n.name = params.note.name;
+            n.x = params.note.x;
+            n.y = params.note.y;
+            n.width = params.note.width;
+            n.height = params.note.height;
+            n.zorder = params.note.zorder;
+            thisgraph.notes.push(n);
+            n.redraw();
+            thisgraph.runningZ = thisgraph.runningZ < n.zorder ? n.zorder : thisgraph.runningZ;
+          }
+          else{
+            // OLD note
+            n.name = params.note.name;
+            n.x = params.note.x;
+            n.y = params.note.y;
+            n.width = params.note.width;
+            n.height = params.note.height;
+            n.zorder = params.note.zorder;
+            n.update();
           }
         }
 
         // EDGE UPDATE
         else if(params.edge != null){
-          alert("edge updated!");
+          var edgeCandidate = thisgraph.getEdgeById(params.edge.id);
+          if(edgeCandidate != null){
+            // Edge already exists. Just update the properties.
+            thisgraph.updateEdge(params.edge.id, params.edge.name, params.edge.color, params.edge.source_id, params.edge.target_id, params.edge.directed);
+          }
+          else{
+            // Edge is not loaded, yet. Check for client-side note references, and add if possible.
+            var src = thisgraph.getNoteById(params.edge.source_id);
+            var trg = thisgraph.getNoteById(params.edge.target_id);
+            if(src != null && trg != null){
+              var e = new Edge(thisgraph);
+              e.id = params.edge.id;
+              thisgraph.edges.push(e);
+              e.startNote = src;
+              e.endNote = trg;
+              e.startNote.edgesFrom.push(e);
+              e.endNote.edgesTo.push(e);
+              e.setTitle(params.edge.name);
+              e.setColor(params.edge.color);
+              e.setDirected(params.edge.directed);
+              e.update();
+              e.draw();
+            }
+          }
         }
 
         // ARTICLE UPDATE
         else if(params.article != null){
-          //alert(params.article.notes.length);
           var noteRefCount = params.article.notes.length;
           var noteRefCountPtr = 0;
+          // One article can be the info source for multiple notes
           for(;noteRefCountPtr < noteRefCount; noteRefCountPtr++){
             var noteCandidate = thisgraph.getNoteById(params.article.notes[noteRefCountPtr].id)
             if(noteCandidate != null){ // Note exists at the client
@@ -415,7 +453,7 @@ Sync.prototype.getViewportNotes = function(x, y, w, h){
       "vport_height": h
     },
     success: function(data){
-      thissync.updateTimestamp(data);
+      //thissync.updateTimestamp(data);
       $("note",data).each(function(i){
           var tmp = new Note(thisgraph);
           tmp.id = parseInt($(this).find("id:first").text());

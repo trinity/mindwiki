@@ -35,6 +35,11 @@ class SyncLog < ActiveRecord::Base
       @l = SyncLog.new({:graph_id => graph_id, :params => note.to_json()})
       @l.save
     end
+
+    def note_create_new(graph_id, note)
+      @l = SyncLog.new({:graph_id => graph_id, :params => note.to_json()})
+      @l.save
+    end
     
     # EDGE
     def edge_destroy(graph_id, edge_id)
