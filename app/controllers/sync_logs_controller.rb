@@ -12,7 +12,8 @@ class SyncLogsController < ApplicationController
       else
         @now = time_now()
         if !params[:timestamp].empty?
-          @updates = SyncLog.find(:all, :order => "created_at ASC", :conditions => [ "created_at >= ? AND created_at < ? AND graph_id = ?", params[:timestamp], @now, params[:id]])
+          # graph_id = NULL means we push the update to all clients regardless of active graph
+          @updates = SyncLog.find(:all, :order => "created_at ASC", :conditions => [ "created_at >= ? AND created_at < ? AND (graph_id = ? OR graph_id IS NULL)", params[:timestamp], @now, params[:id]])
           @graph = Graph.find(params[:id])
           if !@graph.nil? and @updates.count > 0
             @exts = @graph.get_extents

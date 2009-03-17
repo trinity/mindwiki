@@ -7,9 +7,10 @@ class SyncLogTest < ActiveSupport::TestCase
     assert_difference "SyncLog.count" do
       s = SyncLog.new()
       
-      # graph_id is needed
-      assert_equal false, s.save
-      s.graph_id = graphs(:ruby_graph).id
+      # graph_id is NOT needed
+      # graph_id = NULL means we push the update to all clients
+      #assert_equal false, s.save
+      #s.graph_id = graphs(:ruby_graph).id
             
       # no more requirements
       assert s.save

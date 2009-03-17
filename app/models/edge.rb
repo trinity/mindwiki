@@ -61,4 +61,7 @@ class Edge < ActiveRecord::Base
     end
     return Edge.first(:conditions => {:source_id => self.target_note.id, :target_id => self.source_note.id}).nil?
   end
+
+  after_update { |edge| SyncLog.edge_update(edge.source_note.graph.id, edge) }
+
 end

@@ -53,72 +53,7 @@ function Sync(graph) {
 function checkServerForUpdates(syncObject){
   var sync = syncObject;
   var thisgraph = syncObject.graph;
-/*
-  $.ajax({
-    url: "/graphs/updated_since/" + sync.graph.id,
-    data: { "timestamp" : sync.timestamp },
-    dataType: "xml",
-    success: function(data){
-      var update = false;
-      sync.updateTimestamp(data);
-      $("note",data).each(function(i){
-          update = true;
-	  
-          var tmp = new Note(thisgraph);
-          tmp.id = parseInt($(this).find("id:first").text());
-          tmp.name = $(this).find("name:first").text();
-          tmp.x = parseInt($(this).find("x:first").text());
-          tmp.y = parseInt($(this).find("y:first").text());
-          tmp.width = parseInt($(this).find("width:first").text());  
-          tmp.height = parseInt($(this).find("height:first").text());
-          tmp.color = $(this).find("color:first").text();
-          tmp.zorder = parseInt($(this).find("zorder:first").text());
 
-          $("article",this).each(function(j){ // There's really only one :)
-            tmp.content = $(this).find("content_rendered:first").text();
-            var contentType = parseInt($(this).find("content_type:first").text());
-            if(contentType == 1) // RedCloth-parse included
-              tmp.editableContent = $(this).find("content:first").text();
-          });
-
-          // Only add the note to the graph if it is not already in.
-          // TODO: Check timestamps to see if update is in order.
-          if(!thisgraph.getNoteById(tmp.id)){
-            thisgraph.notes.push(tmp);
-            tmp.redraw();
-            thisgraph.runningZ = thisgraph.runningZ < tmp.zorder ? tmp.zorder : thisgraph.runningZ;
-          }
-
-          // Escapes the edges-to array first, then loops edges-to -fields inside
-          $("edges-to",$(this).find("edges-to:first")).each(function(k){
-            thisgraph.updateEdge(
-              parseInt($(this).find("id:first").text()),
-              $(this).find("name:first").text(), 
-              $(this).find("color:first").text(),
-              parseInt($(this).find("source-id").text()),
-              parseInt($(this).find("target-id").text()),
-              $(this).find("directed:first").text() == "true"
-            );
-          });
-          // Escapes the edges-to array first, then loops edges-to -fields inside
-          $("edges-from",$(this).find("edges-from:first")).each(function(l){
-            thisgraph.updateEdge(
-              parseInt($(this).find("id:first").text()),
-              $(this).find("name:first").text(),
-              $(this).find("color:first").text(),
-              parseInt($(this).find("source-id").text()),
-              parseInt($(this).find("target-id").text()),
-              $(this).find("directed:first").text() == "true"
-            );
-          }); 
-      });
-      //if (update == true) alert("it is true"); // update is never set to true for some reason.
-        sync.updateExtents();
-    }
-  });
-*/
-
-  // Please do not delete: This will eventually replace the ajax call above.
   $.ajax({
     global: false, // Disables the spinner and all other possible global functions
     url: "/check_for_updates/" + sync.graph.id,
@@ -132,18 +67,47 @@ function checkServerForUpdates(syncObject){
       // Handle the updates      
       var len = data.updates.length;
       for(var i=0;i<len;i++) {
-        //alert(data.updates[i].sync_log.params);
+
+        // Parameters for this particular update
         var params = JSON.parse(data.updates[i].sync_log.params);
-        //alert(params.note.name);
-        var old = thisgraph.getNoteById(params.note.id);
-        if(old != null) {
-          old.name = params.note.name;
-          old.x = params.note.x;
-          old.y = params.note.y;
-          old.width = params.note.width;
-          old.height = params.note.height;
-          old.zorder = params.note.zorder;
-          old.update();
+
+        // GRAPH UPDATE
+        if(params.graph != null){
+          alert("graph updated!");
+        }
+        
+        // NOTE UPDATE
+        else if(params.note != null){
+          var old = thisgraph.getNoteById(params.note.id);
+          if(old != null) {
+            old.name = params.note.name;
+            old.x = params.note.x;
+            old.y = params.note.y;
+            old.width = params.note.width;
+            old.height = params.note.height;
+            old.zorder = params.note.zorder;
+            old.update();
+          }
+        }
+
+        // EDGE UPDATE
+        else if(params.edge != null){
+          alert("edge updated!");
+        }
+
+        // ARTICLE UPDATE
+        else if(params.article != null){
+          //alert(params.article.notes.length);
+          var noteRefCount = params.article.notes.length;
+          var noteRefCountPtr = 0;
+          for(;noteRefCountPtr < noteRefCount; noteRefCountPtr++){
+            var noteCandidate = thisgraph.getNoteById(params.article.notes[noteRefCountPtr].id)
+            if(noteCandidate != null){ // Note exists at the client
+              noteCandidate.editableContent = params.article.content;
+              noteCandidate.content = params.article.redcloth_rendering;
+              noteCandidate.update();
+            }
+          }
         }
       }
 

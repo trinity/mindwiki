@@ -1,9 +1,6 @@
 class SyncLog < ActiveRecord::Base
 
-  validates_presence_of :graph_id
-
   class << self # Class methods
-
 
     # GRAPH
     
@@ -29,23 +26,37 @@ class SyncLog < ActiveRecord::Base
     
     # NOTE
     def note_destroy(graph_id, note_id)
-      params = { :act => "n_d" }
+      params = { :note_destroy => note_id }
       @l = SyncLog.new({:graph_id => graph_id, :params => params.to_json})
       @l.save
     end    
-    
-    # EDGE
-    def edge_destroy(graph_id, edge_id)
-      params = { :act => "e_d" }
-      @l = SyncLog.new({:graph_id => graph_id, :params => params.to_json})
-      @l.save
-    end    
-    
+
     def note_update(graph_id, note)
       @l = SyncLog.new({:graph_id => graph_id, :params => note.to_json()})
       @l.save
     end
     
+    # EDGE
+    def edge_destroy(graph_id, edge_id)
+      params = { :edge_destroy => edge_id }
+      @l = SyncLog.new({:graph_id => graph_id, :params => params.to_json})
+      @l.save
+    end    
+    
+    def edge_update(graph_id, edge)
+      @l = SyncLog.new({:graph_id => graph_id, :params => edge.to_json()})
+      @l.save
+    end
+    
+    # ARTICLE
+    def article_update(art)
+      # :methods => :redcloth_rendering includes the derived attribute into the json
+      @l = SyncLog.new({:graph_id => nil, :params => art.to_json(:methods => :redcloth_rendering, :include => {:notes => { :only => :id}})})
+      @l.save
+    end
+
+    # Article destroying is not checked, since clients cannot destroy articles without
+    # deleting a note.    
 
   end # End "class << self"
 end
