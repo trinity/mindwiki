@@ -51,8 +51,6 @@ function Graph() {
   this.vp.viewW = $("#vport").width();
   this.vp.viewH = $("#vport").height();
   //this.vp.setViewSize($("#vport").width(), $("#vport").height());
-  this.vp.scrollableY = this.vp.y2-this.vp.y1-this.vp.viewH;
-  this.vp.scrollableX = this.vp.x2-this.vp.x1-this.vp.viewW;
   
   $(window).resize(function() {
     graph.vp.setViewSize($("#vport").width(), $("#vport").height());
@@ -61,17 +59,7 @@ function Graph() {
   // Creating and attaching the server-syncer
   this.sync = new Sync(this);
 
-  var newNoteName = false;
-  newNoteName = this.vp.initFromURL();
-
-  
-  // To use in the scroll-event, so we are not loading stuff too aggressively
-  this.vpLastUpdatedX = 0;
-  this.vpLastUpdatedY = 0;
-  this.vpLastUpdatedWidth = 0;
-  this.vpLastUpdatedHeight = 0;
-  // Reloads data via ajax every x pixels scrolled.
-  this.reloadDistance = 500; 
+  var newNoteName = this.vp.initFromURL();
 
   this.rc = Raphael("mindwiki_world", 9999, 9999); // Raphael canvas, FIXME: static size
   this.color = "#dddddd";
@@ -539,7 +527,6 @@ function Graph() {
   /* Set zoom clipping it if necessary. */
   this.vp.callerScale = this.setZoomSlider(this.vp.callerScale * 20) / 20;
 
-  this.reloadDistance = 100;
   this.config = new Config();
   $(this.config.getHandle()).addClass("config");
   //this.config.newOption("text", "example", function(value) { alert("text is " + value); });
