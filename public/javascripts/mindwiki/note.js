@@ -35,8 +35,8 @@ Note.prototype.updateCSS = function() {
   $(this.div).css({
     "backgroundColor" : this.color, // doesn't really show -> bars and content overwrite
     "position" : "absolute",
-    "top" : thisgraph.vp.toLocalY(this.y) + "px",
-    "left" : thisgraph.vp.toLocalX(this.x) + "px",
+    "top" : thisgraph.vp.toViewY(this.y) + "px",
+    "left" : thisgraph.vp.toViewX(this.x) + "px",
     "width" : thisgraph.vp.scaleToView(this.width) + "px",
     "height" : thisgraph.vp.scaleToView(this.height) + "px"
   });
@@ -366,8 +366,8 @@ Note.prototype.redraw = function() {
   $(this.div).addClass("note").css({
     "backgroundColor" : this.color, // doesn't really show -> bars and content overwrite
     "position" : "absolute",
-    "top" : thisgraph.vp.toLocalY(this.y) + "px",
-    "left" : thisgraph.vp.toLocalX(this.x) + "px",
+    "top" : thisgraph.vp.toViewY(this.y) + "px",
+    "left" : thisgraph.vp.toViewX(this.x) + "px",
     "width" : thisgraph.vp.scaleToView(this.width) + "px",
     "height" : thisgraph.vp.scaleToView(this.height) + "px",
     "zIndex" : thisnote.zorder

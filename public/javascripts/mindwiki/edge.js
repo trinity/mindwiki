@@ -126,10 +126,10 @@ Edge.prototype.update = function()
   }
 
   // Less writing if we assume edges are in local coords all the way.
-  var sx = thisgraph.vp.toLocalX(this.startNote.x) + thisgraph.vp.scaleToView(this.startNote.width / 2);
-  var sy = thisgraph.vp.toLocalY(this.startNote.y) + thisgraph.vp.scaleToView(this.startNote.height / 2);
-  var ex = thisgraph.vp.toLocalX(this.endNote.x) + thisgraph.vp.scaleToView(this.endNote.width / 2);
-  var ey = thisgraph.vp.toLocalY(this.endNote.y) + thisgraph.vp.scaleToView(this.endNote.height / 2);
+  var sx = thisgraph.vp.toViewX(this.startNote.x) + thisgraph.vp.scaleToView(this.startNote.width / 2);
+  var sy = thisgraph.vp.toViewY(this.startNote.y) + thisgraph.vp.scaleToView(this.startNote.height / 2);
+  var ex = thisgraph.vp.toViewX(this.endNote.x) + thisgraph.vp.scaleToView(this.endNote.width / 2);
+  var ey = thisgraph.vp.toViewY(this.endNote.y) + thisgraph.vp.scaleToView(this.endNote.height / 2);
 
   // viewport doesn't have standard coordinate system. that's why we count each y-coordinate
   // as negative to use standard 2D algebra.

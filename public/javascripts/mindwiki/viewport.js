@@ -14,12 +14,6 @@ function Viewport() {
     this.canvasBoundry = 400; /* Same as reloadDistance really. */
 }
 
-Viewport.prototype.worldLeft = function() {
-}
-
-Viewport.prototype.worldTop = function() {
-}
-
 /* Returns note name if "note=name" was specified but _not_ found in graph. */
 Viewport.prototype.initFromURL = function() {
   var anchor = jQuery.url.attr("anchor");
@@ -149,14 +143,6 @@ Viewport.prototype.setView = function(x, y) {
   //this.updateURL();
 }
 
-Viewport.prototype.setViewXScrolled = function(x) {
-  setViewFastMove(x, this.y);
-}
-
-Viewport.prototype.setViewYScrolled = function(y) {
-  setViewFastMove(this.x, y);
-}
-
 Viewport.prototype.setViewX = function(x) {
   setView(x, this.y);
 }
@@ -183,14 +169,14 @@ Viewport.prototype.canvasTop = function() {
 }
 
 /* Both return floats. */
-Viewport.prototype.toLocalX = function(x) {
+Viewport.prototype.toViewX = function(x) {
   var worldMid = (this.canvasX1 + this.canvasX2) / 2;
   var viewMid = (this.canvasX2 - this.canvasX1) / 2;
 
   return (x - worldMid) * this.scale + viewMid;
 }
 
-Viewport.prototype.toLocalY = function(y) {
+Viewport.prototype.toViewY = function(y) {
   var worldMid = (this.canvasY1 + this.canvasY2) / 2;
   var viewMid = (this.canvasY2 - this.canvasY1) / 2;
 

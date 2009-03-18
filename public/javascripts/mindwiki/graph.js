@@ -660,8 +660,8 @@ Graph.prototype.attachControls = function(thisnote){
 
 Graph.prototype.dragControls = function(thisnote){
   $(this.buttonsDiv).css({
-    "top" : (this.vp.toLocalY(thisnote.y)-26) +"px", /* FIXME: -26 */
-    "left" : this.vp.toLocalX(thisnote.x)+"px",
+    "top" : (this.vp.toViewY(thisnote.y)-26) +"px", /* FIXME: -26 */
+    "left" : this.vp.toViewX(thisnote.x)+"px",
     "width" : this.vp.scaleToView(thisnote.width) + "px"
   });
 }
