@@ -76,8 +76,7 @@ Note.prototype.select = function() {
     start: function(event, ui){
       /* Ensure canvas is large enough so note can leave visible viewport.
        * This seems to cause problems with ff3. Call setView after drag ends instead. */
-      /*if (graph.newViewport == true)
-        graph.vp.setView(graph.vp.x1, graph.vp.y1);*/
+      //thisgraph.vp.setView(thisgraph.vp.x1, thisgraph.vp.y1);
     },
     // Update note size after resizing.
     stop: function(event, ui){
@@ -251,7 +250,7 @@ Note.prototype.remove = function() {
   // Notify the graph object
   this.graph.disconnectNote(this.id);
   // Notify the server
-  this.graph.sync.deleteNote(thisnote.id);
+  this.graph.sync.deleteNote(this.id);
 
   // Delete the object
   delete thisnote;
@@ -294,7 +293,10 @@ Note.prototype.center = function(){
   var moveToX = thisnote.x - xOffset;
   var moveToY = thisnote.y - yOffset;
   
-  if (this.graph.newViewport == true) /* Does not currently work perfectly. */
+  /* Moving as it was before.
+     It was nice but currently there is no way mimic the behaviour with new viewport.*/
+  /*
+  if (this.graph.newViewport == true)
     ;//graph.vp.setViewFastMove(moveToX, moveToY);
     //graph.vp.setView(moveToX, moveToY);
   else {
@@ -302,6 +304,7 @@ Note.prototype.center = function(){
     if(moveToY<0)moveToY=0;
     $("#vport").scrollTo({left:moveToX, top:moveToY},100,{axis:"xy"}); // 100 is the scroll time
   }
+  */
 }
 
 // Just remove the div of the note from the DOM-tree. 
@@ -379,8 +382,7 @@ Note.prototype.redraw = function() {
     start: function(event, ui){
       /* Ensure canvas is large enough so note can leave visible viewport.
        * This seems to cause problems with ff3. Call setView after drag ends instead. */
-      /*if (graph.newViewport == true)
-        graph.vp.setView(graph.vp.x1, graph.vp.y1);*/
+      //thisgraph.vp.setView(thisgraph.vp.x1, thisgraph.vp.y1);
       
       if (thisgraph.controlsAfterDrag == true)
         thisgraph.detachControls(thisnote);

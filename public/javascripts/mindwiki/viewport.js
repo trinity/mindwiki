@@ -167,76 +167,48 @@ Viewport.prototype.setViewY = function(y) {
 
 
 Viewport.prototype.viewX = function() {
-  if (this.graph.newViewport == true) {
-    return this.x;
-  } else {
-    return $("#vport").scrollLeft();
-  }
+  return this.x;
 }
 
 Viewport.prototype.viewY = function() {
-  if (this.graph.newViewport == true) {
-    return this.y;
-  } else {
-    return $("#vport").scrollTop();
-  }
+  return this.y;
 }
 
 Viewport.prototype.canvasLeft = function() {
-  if (this.graph.newViewport == true) {
-    return this.canvasX1;
-  } else {
-    return $("#vport").scrollLeft();
-  }
+  return this.canvasX1;
 }
 
 Viewport.prototype.canvasTop = function() {
-  if (this.graph.newViewport == true) {
-    return this.canvasY1;
-  } else {
-    return $("#vport").scrollTop();
-  }
+  return this.canvasY1;
 }
 
+/* Both return floats. */
 Viewport.prototype.toLocalX = function(x) {
   var worldMid = (this.canvasX1 + this.canvasX2) / 2;
   var viewMid = (this.canvasX2 - this.canvasX1) / 2;
 
-  if (this.graph.newViewport == true)
-    return (x - worldMid) * this.scale + viewMid;
-  else
-    return x;
-  
+  return (x - worldMid) * this.scale + viewMid;
 }
 
 Viewport.prototype.toLocalY = function(y) {
   var worldMid = (this.canvasY1 + this.canvasY2) / 2;
   var viewMid = (this.canvasY2 - this.canvasY1) / 2;
 
-  if (this.graph.newViewport == true)
-    return (y - worldMid) * this.scale + viewMid;
-  else
-    return y;
+  return (y - worldMid) * this.scale + viewMid;
 }
 
 Viewport.prototype.toWorldX = function(x) {
   var viewMid = (this.canvasX2 - this.canvasX1) / 2;
   var worldMid = (this.canvasX1 + this.canvasX2) / 2;
   
-  if (this.graph.newViewport == true)
-    return Math.floor((x - viewMid) / this.scale + worldMid);
-  else
-    return x;
+  return Math.floor((x - viewMid) / this.scale + worldMid);
 }
 
 Viewport.prototype.toWorldY = function(y) {
   var viewMid = (this.canvasY2 - this.canvasY1) / 2;
   var worldMid = (this.canvasY1 + this.canvasY2) / 2;
 
-  if (this.graph.newViewport == true)
-    return Math.floor((y - viewMid) / this.scale + worldMid);
-  else
-    return y;
+  return Math.floor((y - viewMid) / this.scale + worldMid);
 }
 
 Viewport.prototype.setScaleInt = function(scale) {
@@ -335,25 +307,4 @@ Viewport.prototype.worldWidth = function() {
 
 Viewport.prototype.worldHeight = function() {
   return this.maxY - this.minY;
-}
-
-  // Load more notes after window has been resized enough
-Viewport.prototype.addNewNotes = function() {
-  // Load notes after scrolled
-  if (this.graph.newViewport == true) {
-    var vpX = this.canvasLeft();
-    var vpY = this.canvasTop();
-  } else {
-    $("#vport").scrollLeft();
-    $("#vport").scrollTop();
-  }
-  var rd = this.graph.reloadDistance;
-  // Reload, if we have moved beyond the reload distance
-  if(vpX>this.graph.vpLastUpdatedX+rd || vpX<this.graph.vpLastUpdatedX-rd ||
-     vpY>this.graph.vpLastUpdatedY+rd || vpY<this.graph.vpLastUpdatedY-rd)
-  {
-    this.graph.sync.getViewportNotesOld();
-    this.graph.vpLastUpdatedX = vpX;
-    this.graph.vpLastUpdatedY = vpY;
-  }
 }

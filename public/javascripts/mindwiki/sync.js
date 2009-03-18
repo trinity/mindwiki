@@ -433,13 +433,6 @@ Sync.prototype.createNote = function(note){
   TODO: Get only the notes that we already do not have in the client, or notes
         that have changed since the last update.
  ****************************************************************************/
-
-Sync.prototype.getViewportNotesOld = function(){
-  var thisgraph = this.graph;
-  this.getViewportNotes(thisgraph.vp.worldLeft(), thisgraph.vp.worldTop(),
-                        thisgraph.vp.worldWidth(), thisgraph.vp.worldHeight());
-}
-
 Sync.prototype.getViewportNotes = function(x, y, w, h){
   var thissync = this;
   var thisgraph = this.graph;

@@ -42,10 +42,6 @@ function Graph() {
   this.id = parseInt(id_from_pathname[0]); // RegExp.exec puts matches into an array
 
   /* Init viewport. */
-
-  // Use new viewport?
-  this.newViewport = true;
-  
   this.vp = new Viewport();
   this.vp.graph = this;
   this.vp.minX = this.vp.maxX = this.extents.mid.x;
@@ -66,9 +62,7 @@ function Graph() {
   this.sync = new Sync(this);
 
   var newNoteName = false;
-  if (this.newViewport == true) {
-    newNoteName = this.vp.initFromURL();
-  }
+  newNoteName = this.vp.initFromURL();
 
   
   // To use in the scroll-event, so we are not loading stuff too aggressively
@@ -116,8 +110,7 @@ function Graph() {
     var x = -(event.pageX - graph.downX);
     var y = -(event.pageY - graph.downY);
 
-    if (graph.newViewport == true)
-      graph.vp.addViewFastMove(graph.vp.scaleToWorld(x), graph.vp.scaleToWorld(y));
+    graph.vp.addViewFastMove(graph.vp.scaleToWorld(x), graph.vp.scaleToWorld(y));
     
     graph.downX = event.pageX;
     graph.downY = event.pageY;
@@ -125,8 +118,7 @@ function Graph() {
   
   $("#mindwiki_world").mouseup(function (event) {
     /* "Workaround". */
-    if (graph.newViewport == true)
-        graph.vp.setView(graph.vp.viewX(), graph.vp.viewY());
+    graph.vp.setView(graph.vp.viewX(), graph.vp.viewY());
 
     $("#mindwiki_world").css({"cursor": "default"});
     graph.downX = -1;
@@ -495,27 +487,14 @@ function Graph() {
     max: 20,
     value: 20,
     slide: function(ev, ui) {
-      if (graph.newViewport == true)
-        graph.vp.setScale(ui.value/20.0);
+      graph.vp.setScale(ui.value/20.0);
       graph.vp.updateURL();
     }
   });
   
   $("#vport").append(this.zoomScrollbar);
   
-  /* HIDE since they do not really work right... */
-  if (this.newViewport == false) {
-    $(zoomScrollbar).hide();
-  } else {
-    /* Currently not in use. */
-    //$(vScrollbar).hide();
-    //$(hScrollbar).hide();
-    $(".mindwiki_viewport").css({"overflow": "hidden"});
-  }
-
-  // Load notes after scrolled
-  $("#vport").scroll(function() { graph.vp.addNewNotes(); });
-
+  $(".mindwiki_viewport").css({"overflow": "hidden"});
 
   /*
    * Context help (Might be better inside context_help.js)
@@ -556,15 +535,10 @@ function Graph() {
   /*
    * End Context help
    */
-  if (this.newViewport == true) {
-    /* Set zoom clipping it if necessary. */
-    this.vp.callerScale = this.setZoomSlider(this.vp.callerScale * 20) / 20;
 
-    /* setScale will be called by updateExtents(called by initGraph) when the ajax call completes.
-       FIXME: it is currently possible that it finishes before viewport init is completed. */
-  } else {
-    this.sync.getViewportNotesOld(); // viewport scroll action goes right away atm
-  }
+  /* Set zoom clipping it if necessary. */
+  this.vp.callerScale = this.setZoomSlider(this.vp.callerScale * 20) / 20;
+
   this.reloadDistance = 100;
   this.config = new Config();
   $(this.config.getHandle()).addClass("config");
@@ -574,28 +548,6 @@ function Graph() {
   this.config.newOption("checkbox", "mMove", function(value) { graph.mMove = value; });
 
   this.config.newOption("checkbox", "scrollToSelected", function(value) { graph.scrollToSelected = value; });
-
-  this.config.newOption("checkbox", "newViewport", function(value) { 
-    graph.newViewport = value;
-    if (graph.newViewport == false) {
-      $(".mindwiki_viewport").css({"overflow": "auto"});
-      $(vScrollbar).hide();
-      $(hScrollbar).hide();
-      $(zoomScrollbar).hide();
-      graph.vp.setView(0, 0);
-    } else {
-      $(zoomScrollbar).show();
-      graph.ch.setPriorityText("<h3>Warning: currently this feature might damage your graph.</>", 100);
-      $(".mindwiki_viewport").css({"overflow": "hidden"});
-      $("#vport").scrollTo({left:0, top:0},100,{axis:"xy"}); // 100 is the scroll time
-      
-      graph.vp.setViewSize($("#vport").width(), $("#vport").height());
-      /*$(vScrollbar).show();
-      $(hScrollbar).show();*/
-      graph.vp.initFromURL();
-      graph.vp.setView(graph.vp.x, graph.vp.y);
-    }
-   });
 
   this.controlsAfterDrag = false;
   this.config.newOption("checkbox", "controlsAfterDrag", function(value) { graph.controlsAfterDrag = value; });
