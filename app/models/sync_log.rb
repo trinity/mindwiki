@@ -5,9 +5,7 @@ class SyncLog < ActiveRecord::Base
     # GRAPH
     
     def graph_destroy(graph_id, user)
-      params = {
-        :act => "g_d"
-      }
+      params = { :graph_destroy => graph_id }
       # FIXME: user is never properly initialized
       if !user.nil?
         if !user.login.nil?

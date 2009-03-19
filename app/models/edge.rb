@@ -11,9 +11,6 @@ class Edge < ActiveRecord::Base
 
   validates_uniqueness_of :source_id, :scope => [:target_id]
  
-  def after_destroy #{ |obj| SyncLog.edge_destroy(obj.source_note.graph.id, obj.id) }
-    SyncLog.edge_destroy(self.source_note.graph.id, self.id)
-  end
 
   def validate
     validate_color('color')
@@ -64,5 +61,8 @@ class Edge < ActiveRecord::Base
 
   after_update { |edge| SyncLog.edge_update(edge.source_note.graph.id, edge) }
   after_create { |edge| SyncLog.edge_update(edge.source_note.graph_id, edge) }
+  def after_destroy #{ |obj| SyncLog.edge_destroy(obj.source_note.graph.id, obj.id) }
+    SyncLog.edge_destroy(self.source_note.graph.id, self.id)
+  end
 
 end

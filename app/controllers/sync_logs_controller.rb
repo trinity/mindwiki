@@ -14,7 +14,7 @@ class SyncLogsController < ApplicationController
         if !params[:timestamp].empty?
           # graph_id = NULL means we push the update to all clients regardless of active graph
           @updates = SyncLog.find(:all, :order => "created_at ASC", :conditions => [ "created_at >= ? AND created_at < ? AND (graph_id = ? OR graph_id IS NULL)", params[:timestamp], @now, params[:id]])
-          @graph = Graph.find(params[:id])
+          @graph = Graph.find(:first, :conditions => ["id = ?", params[:id]]) # find(params[:id]) raises a RecordNotFound error upon deleted graph
           if !@graph.nil? and @updates.count > 0
             @exts = @graph.get_extents
           end

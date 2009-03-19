@@ -67,13 +67,20 @@ function checkServerForUpdates(syncObject){
       // Handle the updates      
       var len = data.updates.length;
       for(var i=0;i<len;i++) {
+        // TODO: Maybe sort the data.updates-array first to avoid unfortunate conflicts?
 
         // Parameters for this particular update
         var params = JSON.parse(data.updates[i].sync_log.params);
 
         // GRAPH UPDATE
         if(params.graph != null){
-          alert("graph updated!");
+           $("#mindwiki_world").css({"backgroundColor" : params.graph.color});
+        }
+
+        // GRAPH DESTROY
+        else if(params.graph_destroy){
+          // TODO: Go to offline-mode and give an option to upload the local copy to the server as a new graph again.
+          alert("This graph has been destroyed by another user. This graph will not work correctly any further.");
         }
         
         // NOTE UPDATE
@@ -105,6 +112,46 @@ function checkServerForUpdates(syncObject){
           }
         }
 
+        // NOTE DESTROY
+        else if(params.note_destroy){
+          var note = thisgraph.getNoteById(params.note_destroy);
+          if(note){
+            var thisnote = note;
+           thisgraph.detachControls(thisnote);
+
+  // Copypasta from Note.remove
+  
+  // First hide/delete edges and the note from client viewing:
+  if(note.edgesTo != null){
+    for(var i=0;i<note.edgesTo.length;i++){
+      // Disassociate from the other note  
+      note.edgesTo[i].startNote.disconnectEdgeFromById(note.edgesTo[i].id);
+      // Erase the edge from the display
+      note.edgesTo[i].erase();
+      note.graph.disconnectEdge(note.edgesTo[i].id);
+    }
+  }  
+  if(note.edgesFrom != null){
+    for(var i=0;i<note.edgesFrom.length;i++){
+      // Disassociate from the other note
+      note.edgesFrom[i].endNote.disconnectEdgeToById(note.edgesFrom[i].id);
+      // Erase the edge from the display
+      note.edgesFrom[i].erase();
+      note.graph.disconnectEdge(note.edgesFrom[i].id);
+
+    }
+  }  
+  note.deleteDivFromDom();
+
+  // TODO: Have graph object call the sync/delete also.
+  // Notify the graph object
+  thisgraph.disconnectNote(note.id);
+
+            delete note;
+            note = null;
+          }
+        }
+
         // EDGE UPDATE
         else if(params.edge != null){
           var edgeCandidate = thisgraph.getEdgeById(params.edge.id);
@@ -130,6 +177,20 @@ function checkServerForUpdates(syncObject){
               e.update();
               e.draw();
             }
+          }
+        }
+
+        // EDGE DESTROY
+        else if(params.edge_destroy != null){
+          var edge = thisgraph.getEdgeById(params.edge_destroy);
+          if(edge){
+            // Copypaste from Edge.prototype.remove (without informing the server)
+            edge.erase();
+            if(edge.selected) thisgraph.detachControlsFromEdge(edge);
+            edge.startNote.disconnectEdgeFromById(edge.id);
+            edge.endNote.disconnectEdgeToById(edge.id);
+            thisgraph.disconnectEdge(edge.id);
+            delete edge;
           }
         }
 
