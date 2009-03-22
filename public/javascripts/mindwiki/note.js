@@ -321,6 +321,17 @@ Note.prototype.newID = function() {
   this.graph.notes.push(this);
 }
 
+Note.prototype.redrawEdges = function() {
+  var l = this.edgesTo.length;
+  for(var i=0;i<l;i++){
+    this.edgesTo[i].redraw();
+  }
+  l = this.edgesFrom.length;
+  for(var i=0;i<l;i++){
+    this.edgesFrom[i].redraw();
+  }
+}
+
 getConnectedNotes = function(note) {
   var notes = [];
 
@@ -336,14 +347,18 @@ getConnectedNotes = function(note) {
 
 }
 
-getNoteWeight = function (note, maxWeight, visited) {
+getNoteWeight = function (note, maxWeight, visited, list) {
   var weight = 1;
   note.visited = visited;
+  if (list != null)
+    list.push(note);
   
   var notes = getConnectedNotes(note);
   for (var i = 0; i < notes.length; i++)
     if (notes[i].visited != visited) {
-      weight += getNoteWeight(notes[i], maxWeight, visited);
+      weight += getNoteWeight(notes[i], maxWeight, visited, list);
+      /*if (weight > maxWeight)
+	break;*/
     }
 
   if (weight > maxWeight) // TODO: do earlier
@@ -395,27 +410,34 @@ Note.prototype.redraw = function() {
 	var avg = 0;
 	
 	for (var i = 0; i < notes.length; i++) {
+	  var cnotes = [];
 	  /* To prevent recursion back to this note. */
 	  thisnote.visited = true;
 	  
-	  var w = getNoteWeight(notes[i], 4, true);
+	  var w = getNoteWeight(notes[i], 5, true, cnotes);
 	  
 	  avg += w;
 	  weights.push(w);
-	  getNoteWeight(notes[i], 4, false); // reset visited flags
+	  
+	  /* Reset visited flags */
+	  for (var ii = 0; ii < cnotes.length; ii++)
+	    cnotes[ii].visited = false;
+	  
+	  thisnote.visited = false;
 	}
 
 	avg /= notes.length;
+	
+	thisgraph.draggingNotes = [];
 
 	/* To prevent recursion back to this note. */
 	thisnote.visited = true;
+	/* Collect all notes we want to drag to thisgraph.draggingNotes.*/
 	for (var i = 0; i < notes.length; i++) {
 	  if (weights[i] < avg)
-            getNoteWeight(notes[i], 4, true);
+            getNoteWeight(notes[i], 5, true, thisgraph.draggingNotes);
 	}
 	thisnote.visited = false;
-	thisnote.lastX = this.x;
-	thisnote.lastY = this.y;
     },
     // Update note position after dragging.
     stop: function(event, ui){
@@ -428,26 +450,21 @@ Note.prototype.redraw = function() {
       if (thisgraph.mMove == false)
         return;
 	
-      for (var i = 0; i < thisgraph.notes.length; i++) {
-        var note = thisgraph.notes[i];
-        if (note.visited) {
-	  note.visited = false;
-	  note.updateCSS();
-        }
+      /* Update positions. */
+      for (var i = 0; i < thisgraph.draggingNotes.length; i++) {
+        var note = thisgraph.draggingNotes[i];
+        note.visited = false;
+        thisgraph.sync.setNotePosition(note.id, note.x, note.y);
       }
+	
+      thisgraph.startX = thisgraph.startY = undefined;
     },
     drag: function(event, ui){
       thisnote.x = thisgraph.vp.toWorldX(ui.position.left);
       thisnote.y = thisgraph.vp.toWorldY(ui.position.top);
       // let's update the related edges:
-      var l = thisnote.edgesTo.length;
-      for(var i=0;i<l;i++){
-        thisnote.edgesTo[i].redraw();
-      }
-      l = thisnote.edgesFrom.length;
-      for(var i=0;i<l;i++){
-        thisnote.edgesFrom[i].redraw();
-      }
+      thisnote.redrawEdges();
+
       if (graph.controlsAfterDrag == false)
         thisgraph.dragControls(thisnote);
 
@@ -458,24 +475,27 @@ Note.prototype.redraw = function() {
       if (thisgraph.mMove == false)
         return;
 	
-    /* Why are these still undefined? */
-    if (thisnote.lastX == undefined)
-      thisnote.lastX = thisnote.x;
-
-    if (thisnote.lastY == undefined)
-      thisnote.lastY = thisnote.y;
+      /* FIXME: these are not the values when dragging started!
+         ui.position is not valid at start(). */
+      if (thisgraph.startX == undefined)
+	thisgraph.startX = ui.position.left;
+      if (thisgraph.startY == undefined)
+	thisgraph.startY = ui.position.top;
       
-      for (var i = 0; i < thisgraph.notes.length; i++) {
-        var note = thisgraph.notes[i];
-        if (note.visited) {
-	  note.x += (thisnote.x - thisnote.lastX);
-	  note.y += (thisnote.y - thisnote.lastY);
-	  note.updateCSS();
-        }
-      }
-      thisnote.lastX = thisnote.x;
-      thisnote.lastY = thisnote.y;
+      for (var i = 0; i < thisgraph.draggingNotes.length; i++) {
+        var note = thisgraph.draggingNotes[i];
 	
+	if (note.visited == false) /* note.visited is set if everything works as expected. */
+          thisgraph.ch.setPriorityText("Internal error 124623", 20);
+	
+	note.x += thisgraph.vp.scaleToWorld(ui.position.left - thisgraph.startX);
+	note.y += thisgraph.vp.scaleToWorld(ui.position.top - thisgraph.startY);
+	note.updateCSS();
+	/* FIXME: Some edges will redrawn twice! */
+	note.redrawEdges();
+      }
+	thisgraph.startX = ui.position.left;
+	thisgraph.startY = ui.position.top;
     }
     //cancel: ":input,.noteArticle" // Cannot drag from article content
   });

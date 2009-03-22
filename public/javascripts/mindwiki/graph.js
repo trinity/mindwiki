@@ -531,8 +531,8 @@ function Graph() {
   $(this.config.getHandle()).addClass("config");
   //this.config.newOption("text", "example", function(value) { alert("text is " + value); });
 
-  this.mMove = false;
-  this.config.newOption("checkbox", "mMove", function(value) { graph.mMove = value; });
+  this.mMove = true;
+//  this.config.newOption("checkbox", "mMove", function(value) { graph.mMove = value; });
 
   this.config.newOption("checkbox", "scrollToSelected", function(value) { graph.scrollToSelected = value; });
 
