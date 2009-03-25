@@ -184,19 +184,16 @@ function Graph() {
     e.stopPropagation();
   });
 
-  /* Booby trap internal links.
-     Wait 200ms so that (hopefully) window.location.href becomes valid.
-     No doubt this is a huge hack. */
+  /* Booby trap internal links. Slightly hackish.. */
   $(".internal_link").livequery("click", function(event){
-    setTimeout(function() {
-      jQuery.url.setUrl(window.location.href);
+    jQuery.url.setUrl(event.target);
     
-      var newNoteName = graph.vp.initFromURL();
-      graph.vp.setView(graph.vp.x, graph.vp.y);
+    var newNoteName = graph.vp.initFromURL();
+    graph.vp.setView(graph.vp.x, graph.vp.y);
 
-      if (newNoteName != null)
-        graph.createNoteAt(newNoteName, graph.vp.x, graph.vp.y);
-    }, 200, null);
+    if (newNoteName != null)
+      graph.createNoteAt(newNoteName, graph.vp.x, graph.vp.y);
+
     // note's click event is handled in the note class, but this is
     // needed here to prevent click event to bubble to background.
     event.stopPropagation();
