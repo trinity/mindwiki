@@ -332,31 +332,30 @@ Note.prototype.redrawEdges = function() {
   }
 }
 
-getConnectedNotes = function(note) {
+Note.prototype.getConnectedNotes = function() {
   var notes = [];
 
-  for (var i = 0; i < note.edgesFrom.length; i++)
-    if (note.edgesFrom[i].endNote)
-      notes.push(note.edgesFrom[i].endNote);
+  for (var i = 0; i < this.edgesFrom.length; i++)
+    if (this.edgesFrom[i].endNote)
+      notes.push(this.edgesFrom[i].endNote);
 
-  for (var i = 0; i < note.edgesTo.length; i++)
-    if (note.edgesTo[i].startNote)
-      notes.push(note.edgesTo[i].startNote);
+  for (var i = 0; i < this.edgesTo.length; i++)
+    if (this.edgesTo[i].startNote)
+      notes.push(this.edgesTo[i].startNote);
   
   return notes;
-
 }
 
-getNoteWeight = function (note, maxWeight, visited, list) {
+Note.prototype.getNoteWeight = function (maxWeight, visited, list) {
   var weight = 1;
-  note.visited = visited;
+  this.visited = visited;
   if (list != null)
-    list.push(note);
+    list.push(this);
   
-  var notes = getConnectedNotes(note);
+  var notes = this.getConnectedNotes();
   for (var i = 0; i < notes.length; i++)
     if (notes[i].visited != visited) {
-      weight += getNoteWeight(notes[i], maxWeight, visited, list);
+      weight += notes[i].getNoteWeight(maxWeight, visited, list);
       /*if (weight > maxWeight)
 	break;*/
     }
@@ -406,7 +405,7 @@ Note.prototype.redraw = function() {
         return;
 	
 	var weights = [];
-        var notes = getConnectedNotes(thisnote);
+        var notes = thisnote.getConnectedNotes();
 	var avg = 0;
 	
 	for (var i = 0; i < notes.length; i++) {
@@ -414,7 +413,7 @@ Note.prototype.redraw = function() {
 	  /* To prevent recursion back to this note. */
 	  thisnote.visited = true;
 	  
-	  var w = getNoteWeight(notes[i], 5, true, cnotes);
+	  var w = notes[i].getNoteWeight(5, true, cnotes);
 	  
 	  avg += w;
 	  weights.push(w);
@@ -435,7 +434,7 @@ Note.prototype.redraw = function() {
 	/* Collect all notes we want to drag to thisgraph.draggingNotes.*/
 	for (var i = 0; i < notes.length; i++) {
 	  if (weights[i] < avg)
-            getNoteWeight(notes[i], 5, true, thisgraph.draggingNotes);
+            notes[i].getNoteWeight(5, true, thisgraph.draggingNotes);
 	}
 	thisnote.visited = false;
     },
