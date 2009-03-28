@@ -13,7 +13,7 @@ function Graph() {
   this.id = -1;
   this.selectedNote = null;
   this.selectedEdge = null;
-
+  
   // Maybe more sophisticated containers?!
   this.notes = [];
   this.edges = [];
@@ -64,6 +64,19 @@ function Graph() {
   this.rc = Raphael("mindwiki_world", 9999, 9999); // Raphael canvas, FIXME: static size
   this.color = "#dddddd";
 
+
+  // these are used to display the ghost edge when creating new edges
+  this.drawGhost = false;
+  this.ghostEdge = new Edge(this);
+  this.ghostNote = new Note(this);
+  this.ghostNote.width = 100;
+  this.ghostNote.height = 100;
+  this.ghostEdge.setEndNote(this.ghostNote);
+  this.ghostEdge.setTitle("New edge");
+  this.ghostEdge.setColor("#aaaaaa");
+  this.ghostEdge.ghost = true;
+  
+
   this.globalStartNote = null; // Used when creating new edges
   this.runningZ = 10; // Used for z-index = "top" within the context of notes
 
@@ -88,6 +101,15 @@ function Graph() {
   });
   
   $("#mindwiki_world").mousemove(function (event) {
+
+    // ghost
+    if (graph.drawGhost) {
+      graph.ghostNote.x = graph.vp.toWorldX(event.pageX - $(this).offset().left);
+      graph.ghostNote.y = graph.vp.toWorldY(event.pageY - $(this).offset().top);
+      graph.ghostEdge.redraw();
+      return;
+    }
+
     if (graph.downX == -1)
       return;
       
@@ -588,6 +610,13 @@ Graph.prototype.beginEdgeCreation = function()
   this.ch.setPriorityText("<b>Select target note</b> or click on active note to cancel.", 1);
   this.selectedNote.disable();
   this.selectedNote.disableLinkedNotes();
+
+  this.ghostNote.x = this.selectedNote.x;
+  this.ghostNote.y = this.selectedNote.y;
+  this.ghostEdge.setStartNote(this.selectedNote);
+  this.ghostEdge.update();
+  this.ghostEdge.draw();
+  this.drawGhost = true;
 }
 
 Graph.prototype.endEdgeCreation = function()
@@ -601,6 +630,10 @@ Graph.prototype.endEdgeCreation = function()
   this.globalStartNote = null; // ready for a new edge to be created
   this.ch.resetPriority(0);
   this.ch.set("");
+  
+  this.drawGhost = false;
+  this.ghostEdge.erase();
+  this.ghostEdge.setStartNote(null);
 }
 
 Graph.prototype.createNoteAt = function(name, x, y)

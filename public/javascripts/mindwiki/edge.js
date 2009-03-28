@@ -32,6 +32,7 @@ function Edge (graph)
   this.circle2 = null;
   this.arrowSize = 10;
   this.strokeWidth = 3;
+  this.ghost = false;
 }
 
 Edge.prototype.remove = function() 
@@ -131,6 +132,13 @@ Edge.prototype.update = function()
   var ex = thisgraph.vp.toViewX(this.endNote.x) + thisgraph.vp.scaleToView(this.endNote.width / 2);
   var ey = thisgraph.vp.toViewY(this.endNote.y) + thisgraph.vp.scaleToView(this.endNote.height / 2);
 
+  if (this.ghost)
+  {
+    ex = thisgraph.vp.toViewX(this.endNote.x);
+    ey = thisgraph.vp.toViewY(this.endNote.y);
+  }
+
+
   // viewport doesn't have standard coordinate system. that's why we count each y-coordinate
   // as negative to use standard 2D algebra.
   var negsy = -sy;
@@ -154,6 +162,12 @@ Edge.prototype.update = function()
   rectangleIntersection(ex, negey, thisgraph.vp.scaleToView(this.endNote.width), thisgraph.vp.scaleToView(this.endNote.height), a, result);
   this.x2 = result[0];
   this.y2 = -result[1];
+
+  if (this.ghost)
+  {
+    this.x2 = ex;
+    this.y2 = ey;
+  }
 
   // Viewport doesn't have standard coordinate system. That is why we count each y-coordinate
   // as negative to use standard 2D algebra.
@@ -180,6 +194,8 @@ Edge.prototype.update = function()
   }
   this.textX = txtDx + (this.x1 + this.x2) / 2;
   this.textY = txtDy + (this.y1 + this.y2) / 2;
+  
+  result = null;
 }
 
 Edge.prototype.redraw = function()
@@ -281,6 +297,7 @@ Edge.prototype.draw = function ()
       thisgraph.localCoordinates(event.pageX,event.pageY,result);
       thisgraph.selectEdge(thisEdge,result[0],result[1]);
       event.stopPropagation();
+      result = null;
     };
   }
 }
