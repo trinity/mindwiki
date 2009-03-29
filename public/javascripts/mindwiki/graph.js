@@ -561,6 +561,9 @@ function Graph() {
   this.asyncAjax = true;
   this.config.newOption("checkbox", "synchronousAjax", function(value) { graph.asyncAjax = (value == false); });
   
+  this.debug = false;
+  this.config.newOption("checkbox", "debug", function(value) { graph.debug = value; });
+
   this.config.newOption("button", "Hide", function() { $(graph.config.div).hide("slow"); });
   //this.config.newOption("button", "setView", function() { graph.vp.setView(graph.vp.x, graph.vp.y); });
 

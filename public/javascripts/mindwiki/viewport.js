@@ -269,6 +269,34 @@ Viewport.prototype.expandWorld = function(minX, minY, maxX, maxY) {
     this.graph.sync.getViewportNotes(this.minX/**/, this.maxY, this.maxX - this.minX/**/, maxY - this.maxY);
     this.maxY = maxY;
   }
+
+  if (this.graph.debug) {
+    /* Draw a crosshair with circles showing the extents.
+       The raphael canvas is scrolled so it is fairly difficult to estimate where extents really are.
+       Because of that, it is a good idea to set canvasBoundry to something like 10.
+       If everything works as expected, circle should appear at the corner of the direction you are moving. */
+    var x1, y1, x2, y2;
+    x1 = this.toViewX(this.minX);
+    y1 = this.toViewY(this.minY);
+    x2 = this.toViewX(this.maxX);
+    y2 = this.toViewY(this.maxY);
+    
+    if (this.extentsPath1 == undefined) {
+      this.extentsPath1 = this.graph.rc.path({stroke: "#00ffff", "stroke-width": 2}).absolutely().moveTo(x1,y1).lineTo(x2,y2);
+      this.extentsPath2 = this.graph.rc.path({stroke: "#00ffff", "stroke-width": 2}).absolutely().moveTo(x1,y2).lineTo(x2,y1);
+      this.circle1 = this.graph.rc.circle(x1, y1, this.canvasBoundry*2);
+      this.circle2 = this.graph.rc.circle(x1, y2, this.canvasBoundry*2);
+      this.circle3 = this.graph.rc.circle(x2, y1, this.canvasBoundry*2);
+      this.circle4 = this.graph.rc.circle(x2, y2, this.canvasBoundry*2);
+    }
+    
+    this.extentsPath1.attr("path", "M " + x1 + " " + y1 + "L " + x2 + " " + y2);
+    this.extentsPath2.attr("path", "M " + x1 + " " + y2 + "L " + x2 + " " + y1);
+    this.circle1.attr({cx: x1, cy: y1});
+    this.circle2.attr({cx: x1, cy: y2});
+    this.circle3.attr({cx: x2, cy: y1});
+    this.circle4.attr({cx: x2, cy: y2});
+  }
 }
 
 Viewport.prototype.worldLeft = function() {
