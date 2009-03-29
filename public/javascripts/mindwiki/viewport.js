@@ -80,9 +80,9 @@ Viewport.prototype.clipViewToUniverse = function(pos) {
 }
 
 Viewport.prototype.addViewFastMove = function(x, y) {
-  var newPos = this.clipViewToUniverse({x:x, y:y});
-  x = newPos.x;
-  y = newPos.y;
+  var newPos = this.clipViewToUniverse({x:this.x + x, y: this.y + y});
+  x = newPos.x - this.x;
+  y = newPos.y - this.y;
 
   /* Same as scaleToView but with floating point precision.*/
   this.canvasMoveX += x * this.scale;
@@ -105,6 +105,17 @@ Viewport.prototype.addViewFastMove = function(x, y) {
 
   $("#mindwiki_world").css('left', -this.canvasMoveX + "px");
   $("#mindwiki_world").css('top', -this.canvasMoveY + "px");
+
+  if (this.graph.debug) {
+    x1 = this.toViewX(this.x);
+    y1 = this.toViewY(this.y);
+    
+    if (this.viewCanvasCircle == undefined) {
+      this.viewCanvasCircle = this.graph.rc.circle(x1, y1, 10);
+    }
+    
+    this.viewCanvasCircle.attr({cx: x1, cy: y1});
+  }
   //this.graph.ch.setPriorityText("Canvas move " + this.canvasMoveX + " " + this.canvasMoveY, 10);
 }
 
@@ -125,8 +136,9 @@ Viewport.prototype.setView = function(x, y) {
   this.x = x;
   this.y = y;
   
-  this.canvasX1 = x - this.scaleToWorld(this.viewW / 2 - this.canvasBoundry);
-  this.canvasY1 = y - this.scaleToWorld(this.viewH / 2 - this.canvasBoundry);
+
+  this.canvasX1 = x - this.scaleToWorld(this.viewW / 2 + this.canvasBoundry);
+  this.canvasY1 = y - this.scaleToWorld(this.viewH / 2 + this.canvasBoundry);
   this.canvasX2 = x + this.scaleToWorld(this.viewW / 2 + this.canvasBoundry);
   this.canvasY2 = y + this.scaleToWorld(this.viewH / 2 + this.canvasBoundry);
   this.canvasMoveX = this.canvasBoundry;
@@ -141,6 +153,17 @@ Viewport.prototype.setView = function(x, y) {
   if (this.graph.selectedNote != null)
     this.graph.dragControls(this.graph.selectedNote);
   //this.updateURL();
+
+  if (this.graph.debug) {
+    x1 = this.toViewX(this.x);
+    y1 = this.toViewY(this.y);
+    
+    if (this.viewCircle == undefined) {
+      this.viewCircle = this.graph.rc.circle(x1, y1, 5);
+    }
+    
+    this.viewCircle.attr({cx: x1, cy: y1});
+  }
 }
 
 Viewport.prototype.setViewX = function(x) {
