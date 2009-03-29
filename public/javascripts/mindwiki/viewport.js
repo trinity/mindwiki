@@ -125,10 +125,10 @@ Viewport.prototype.setView = function(x, y) {
   this.x = x;
   this.y = y;
   
-  this.canvasX1 = x - this.viewW / 2 - this.canvasBoundry;
-  this.canvasY1 = y - this.viewH / 2 - this.canvasBoundry;
-  this.canvasX2 = x + this.viewW / 2 + this.canvasBoundry;
-  this.canvasY2 = y + this.viewH / 2 + this.canvasBoundry;
+  this.canvasX1 = x - this.scaleToWorld(this.viewW / 2 - this.canvasBoundry);
+  this.canvasY1 = y - this.scaleToWorld(this.viewH / 2 - this.canvasBoundry);
+  this.canvasX2 = x + this.scaleToWorld(this.viewW / 2 + this.canvasBoundry);
+  this.canvasY2 = y + this.scaleToWorld(this.viewH / 2 + this.canvasBoundry);
   this.canvasMoveX = this.canvasBoundry;
   this.canvasMoveY = this.canvasBoundry;
 
@@ -171,27 +171,27 @@ Viewport.prototype.canvasTop = function() {
 /* Both return floats. */
 Viewport.prototype.toViewX = function(x) {
   var worldMid = (this.canvasX1 + this.canvasX2) / 2;
-  var viewMid = (this.canvasX2 - this.canvasX1) / 2;
+  var viewMid = this.viewW / 2 + this.canvasBoundry;
 
   return (x - worldMid) * this.scale + viewMid;
 }
 
 Viewport.prototype.toViewY = function(y) {
   var worldMid = (this.canvasY1 + this.canvasY2) / 2;
-  var viewMid = (this.canvasY2 - this.canvasY1) / 2;
+  var viewMid = this.viewH / 2 + this.canvasBoundry;
 
   return (y - worldMid) * this.scale + viewMid;
 }
 
 Viewport.prototype.toWorldX = function(x) {
-  var viewMid = (this.canvasX2 - this.canvasX1) / 2;
+  var viewMid = this.viewW / 2 + this.canvasBoundry;
   var worldMid = (this.canvasX1 + this.canvasX2) / 2;
   
   return Math.floor((x - viewMid) / this.scale + worldMid);
 }
 
 Viewport.prototype.toWorldY = function(y) {
-  var viewMid = (this.canvasY2 - this.canvasY1) / 2;
+  var viewMid = this.viewH / 2 + this.canvasBoundry;
   var worldMid = (this.canvasY1 + this.canvasY2) / 2;
 
   return Math.floor((y - viewMid) / this.scale + worldMid);
