@@ -16,6 +16,7 @@ class EdgesController < ApplicationController
 
     respond_to do |format|
       if @edge.save
+        SyncLog.edge_update(@edge.source_note.graph.id, @edge, params[:clientId])
         format.xml  { render :xml => @edge.to_xml(:only => [:id]), :status => :created }
       else
         format.xml  { render :xml => @edge.errors, :status => :unprocessable_entity }
@@ -30,6 +31,7 @@ class EdgesController < ApplicationController
 
     respond_to do |format|
       if @edge.update_attributes(params[:edge])
+        SyncLog.edge_update(@edge.source_note.graph.id, @edge, params[:clientId])
         format.xml  { head :ok }
       else
         format.xml  { render :xml => @edge.errors, :status => :unprocessable_entity }

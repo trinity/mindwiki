@@ -20,6 +20,7 @@ class NotesController < ApplicationController
 
     respond_to do |format|
       if @note.save
+        SyncLog.note_create_new(@note.graph.id, @note, params[:clientId])
         format.xml { render :xml => @note.to_xml(:only => [:id]), :status => :created }
       else
         format.xml { render :xml => @note.errors, :status => :unprocessable_entity }
@@ -36,6 +37,7 @@ class NotesController < ApplicationController
 
     respond_to do |format|
       if @note.update_attributes(params[:note])
+        SyncLog.note_update(@note.graph.id, @note, params[:clientId])
         format.xml  { head :ok }
       else
         format.xml  { render :xml => @note.errors, :status => :unprocessable_entity }

@@ -59,8 +59,8 @@ class Edge < ActiveRecord::Base
     return Edge.first(:conditions => {:source_id => self.target_note.id, :target_id => self.source_note.id}).nil?
   end
 
-  after_update { |edge| SyncLog.edge_update(edge.source_note.graph.id, edge) }
-  after_create { |edge| SyncLog.edge_update(edge.source_note.graph_id, edge) }
+#  after_update { |edge| SyncLog.edge_update(edge.source_note.graph.id, edge) }
+#  after_create { |edge| SyncLog.edge_update(edge.source_note.graph_id, edge) }
   def after_destroy #{ |obj| SyncLog.edge_destroy(obj.source_note.graph.id, obj.id) }
     SyncLog.edge_destroy(self.source_note.graph.id, self.id)
   end

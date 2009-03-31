@@ -29,13 +29,13 @@ class SyncLog < ActiveRecord::Base
       @l.save
     end    
 
-    def note_update(graph_id, note)
-      @l = SyncLog.new({:graph_id => graph_id, :params => note.to_json()})
+    def note_update(graph_id, note, clientId)
+      @l = SyncLog.new({:graph_id => graph_id, :sessionid => clientId, :params => note.to_json()})
       @l.save
     end
 
-    def note_create_new(graph_id, note)
-      @l = SyncLog.new({:graph_id => graph_id, :params => note.to_json()})
+    def note_create_new(graph_id, note, clientId)
+      @l = SyncLog.new({:graph_id => graph_id, :sessionid => clientId, :params => note.to_json()})
       @l.save
     end
     
@@ -46,8 +46,8 @@ class SyncLog < ActiveRecord::Base
       @l.save
     end    
     
-    def edge_update(graph_id, edge)
-      @l = SyncLog.new({:graph_id => graph_id, :params => edge.to_json()})
+    def edge_update(graph_id, edge, clientId)
+      @l = SyncLog.new({:graph_id => graph_id, :sessionid => clientId, :params => edge.to_json()})
       @l.save
     end
     

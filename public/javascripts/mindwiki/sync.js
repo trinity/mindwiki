@@ -11,12 +11,17 @@ function Sync(graph) {
 
   var thissync = this;     // For submethods
   this.graph = graph;
-  this.refreshTime = 4000; // How ofter do we poll the server for updates? (in milliseconds)
+  this.refreshTime = 2500; // How ofter do we poll the server for updates? (in milliseconds)
   this.timestamp = "";     // The latest timestamp from the server
-
+  
+  // Generate (hopefully) unique id for this client.
+  // Used for ignoring syncs originating from oneself.
+  this.uniqueId = this.generateUniqueId();  
 
  /****************************************************************************
-   Loading spinner
+   Global ajax functions:
+
+   Loading the spinner during ajax-calls
   ****************************************************************************/
 
   this.loadingDiv = document.createElement("div");
@@ -69,6 +74,11 @@ function checkServerForUpdates(syncObject){
       for(var i=0;i<len;i++) {
         // TODO: Maybe sort the data.updates-array first to avoid unfortunate conflicts?
 
+        // Ignore updates made by oneself
+        if(data.updates[i].sync_log.sessionid != null || data.updates[i].sync_log.sessionid != "")
+          if(parseInt(data.updates[i].sync_log.sessionid) == sync.uniqueId)
+            continue; // jumps to the next iteration in the for-loop
+        
         // Parameters for this particular update
         var params = JSON.parse(data.updates[i].sync_log.params);
 
@@ -95,6 +105,7 @@ function checkServerForUpdates(syncObject){
             n.name = params.note.name;
             n.x = params.note.x;
             n.y = params.note.y;
+            n.color = params.note.color;
             n.width = params.note.width;
             n.height = params.note.height;
             n.zorder = params.note.zorder;
@@ -107,6 +118,7 @@ function checkServerForUpdates(syncObject){
             n.name = params.note.name;
             n.x = params.note.x;
             n.y = params.note.y;
+            n.color = params.note.color;
             n.width = params.note.width;
             n.height = params.note.height;
             n.zorder = params.note.zorder;
@@ -355,9 +367,10 @@ Sync.prototype.initGraph = function(){
  ****************************************************************************/
 
 Sync.prototype.setNoteColor = function(noteId, newColor){
+  var t = this;
   $.ajax({
     url: "/notes/update/"+noteId,
-    data: { "note[color]" : newColor },
+    data: { "note[color]" : newColor, "clientId" : t.uniqueId },
     dataType: "html"
   });
 }
@@ -368,9 +381,10 @@ Sync.prototype.setNoteColor = function(noteId, newColor){
  ****************************************************************************/
 
 Sync.prototype.setNoteZorder = function(noteId, newZ){
+  var t = this;
   $.ajax({
     url: "/notes/update/"+noteId,
-    data: { "note[zorder]" : newZ },
+    data: { "note[zorder]" : newZ, "clientId" : t.uniqueId },
     dataType: "html"
   });
 }
@@ -381,12 +395,14 @@ Sync.prototype.setNoteZorder = function(noteId, newZ){
  ****************************************************************************/
 
 Sync.prototype.setNotePosition = function(noteId, newx, newy){
+  var t = this;
   $.ajax({
     url: "/notes/update/"+noteId,
     dataType: "html",
     data: {
       "note[x]" : newx,
-      "note[y]" : newy
+      "note[y]" : newy,
+      "clientId" : t.uniqueId
     }
   });
 }
@@ -397,12 +413,14 @@ Sync.prototype.setNotePosition = function(noteId, newx, newy){
  ****************************************************************************/
 
 Sync.prototype.setNoteSize = function(noteId, neww, newh){
+  var t = this;
   $.ajax({
     url: "/notes/update/"+noteId,
     dataType: "html",
     data: {
       "note[width]" : neww,
-      "note[height]" : newh
+      "note[height]" : newh,
+      "clientId" : t.uniqueId
     }
   });
 }
@@ -413,11 +431,12 @@ Sync.prototype.setNoteSize = function(noteId, neww, newh){
  ****************************************************************************/
 
 Sync.prototype.setNoteName = function(note, newName){
+  var t = this;
   var n = note;
   $.ajax({
     url: "/notes/update/"+n.id,
     dataType: "html",
-    data: { "note[name]" : newName },
+    data: { "note[name]" : newName, "clientId" : t.uniqueId },
     success: function(data){
       n.name=newName;
       n.update();
@@ -431,10 +450,11 @@ Sync.prototype.setNoteName = function(note, newName){
  ****************************************************************************/
 
 Sync.prototype.setNoteContent = function(note, newContent){
+  var t = this;
   var n = note;
   $.ajax({
     url: "/notes/update_content/"+n.id,
-    data: { "newContent" : newContent },
+    data: { "newContent" : newContent, "clientId" : t.uniqueId },
     dataType: "html",
     success: function(data){
       n.content=data;
@@ -459,6 +479,7 @@ Sync.prototype.deleteNote = function(noteId){
  ****************************************************************************/
 
 Sync.prototype.createNote = function(note){
+  var t = this;
   var thisgraph = this.graph;
   var n = note;
   $.ajax({
@@ -473,7 +494,7 @@ Sync.prototype.createNote = function(note){
       "note[width]" : n.width,
       "note[height]" : n.height,
       "note[zorder]" : n.zorder,
-      "article_content" : n.content
+      "article_content" : n.content, "clientId" : t.uniqueId
     },
     dataType: "xml",
     success: function(data){
@@ -606,6 +627,7 @@ Sync.prototype.findNoteByName = function(name){
  ****************************************************************************/
 
 Sync.prototype.createEdge = function(edge){
+  var t = this;
   var e = edge;
   $.ajax({
     url: "/edges/create",
@@ -615,7 +637,7 @@ Sync.prototype.createEdge = function(edge){
       "edge[color]" : e.color,           
       "edge[source_id]" : e.startNote.id,
       "edge[target_id]" : e.endNote.id,
-      "edge[directed]" : e.directed
+      "edge[directed]" : e.directed, "clientId" : t.uniqueId
     },
     dataType: "xml",
     success: function(data){
@@ -643,11 +665,12 @@ Sync.prototype.deleteEdge = function(edgeId){
  ****************************************************************************/
 
 Sync.prototype.setEdgeName = function(edge, newName){
+  var t = this;
   var e = edge;
   $.ajax({
     url: "/edges/update/"+e.id,
     dataType: "html",
-    data: { "edge[name]" : newName },
+    data: { "edge[name]" : newName, "clientId" : t.uniqueId },
     success: function(data){
       e.name=newName;
       e.redraw();
@@ -660,9 +683,10 @@ Sync.prototype.setEdgeName = function(edge, newName){
  ****************************************************************************/
 
 Sync.prototype.setEdgeColor = function(edge){
+  var t = this;
   $.ajax({
     url: "/edges/update/"+edge.id,
-    data: { "edge[color]" : edge.color },
+    data: { "edge[color]" : edge.color, "clientId" : t.uniqueId },
     dataType: "html"
   });
 }
@@ -672,11 +696,20 @@ Sync.prototype.setEdgeColor = function(edge){
  ****************************************************************************/
 
 Sync.prototype.setEdgeDirection = function(edge){
+  var t = this;
   $.ajax({
     url: "/edges/update/"+edge.id,
-    data: { "edge[directed]" : edge.directed },
+    data: { "edge[directed]" : edge.directed, "clientId" : t.uniqueId },
     dataType: "html"
   });
 }
 
+/****************************************************************************
+  Generate a unique identification for the client.
+ ****************************************************************************/
 
+Sync.prototype.generateUniqueId = function(){
+  var d = new Date;
+  var uid = d.getTime()+Math.floor(1000000*Math.random());
+  return uid;
+}

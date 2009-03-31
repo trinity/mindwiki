@@ -39,10 +39,10 @@ class Note < ActiveRecord::Base
     SyncLog.note_destroy(self.graph.id, self.id)
   end
 
-  after_update { |note| SyncLog.note_update(note.graph.id, note) }
+  #after_update { |note| SyncLog.note_update(note.graph.id, note) }
 
   #after_create { |note| SyncLog.note_create(note.graph.id, note) }
-  after_create :log_new_note
+  #after_create :log_new_note
   
   def log_new_note
     SyncLog.note_create_new(self.graph.id, self)
