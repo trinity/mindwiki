@@ -75,6 +75,8 @@ function checkServerForUpdates(syncObject){
         // GRAPH UPDATE
         if(params.graph != null){
            $("#mindwiki_world").css({"backgroundColor" : params.graph.color});
+           $(".graphNameLink").html(params.graph.name);
+           document.title = params.graph.name + " (MindWiki)";
         }
 
         // GRAPH DESTROY
