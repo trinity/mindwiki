@@ -437,6 +437,20 @@ Note.prototype.redraw = function() {
             notes[i].getNoteWeight(5, true, thisgraph.draggingNotes);
 	}
 	thisnote.visited = false;
+	
+	if (thisgraph.draggingNotes.length > 0) {
+	  var helperText = document.createElement("div");
+	  $(helperText).html("Mindwiki can automatically move groups of notes for you. <br>" +
+	                     "This feature can be disabled in personal preferences if you do not like it or find it confusing.");
+
+	  this.dragConfig = new Config();
+	  this.dragConfig.newOption("button", "Do not show this message again", function() {
+	    alert("You didn't seriously think that would do anything did you? :)");
+	  });
+
+	  helperText.appendChild(this.dragConfig.getHandle());
+	  thisgraph.ch.setPriorityTextTimeout(helperText, 20, 15);
+	}
     },
     // Update note position after dragging.
     stop: function(event, ui){

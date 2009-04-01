@@ -4,6 +4,7 @@
 
 function ContextHelp() {
   this.priority = 0;
+  this.timerCount = 0;
 }
 
 
@@ -26,6 +27,25 @@ ContextHelp.prototype.setPriorityText = function(text, p) {
   
   $("#context_help").empty().append(text);
   this.text = text;
+}
+
+ContextHelp.prototype.setPriorityTextTimeout = function(text, p, time) {
+  var ch =  this;
+
+  this.setPriorityText(text, p);
+
+  setTimeout(function() {
+    /* Multiple calls to setPriorityTextTimeout will set timers
+       for each causing the message do disappear when first timer times out. 
+       Sort this out by keeping a counter of active timers and ignoring others but the last one. */
+    this.timerCount--;
+    if (this.timerCount > 0)
+      return;
+    
+    ch.resetPriority(0);
+    ch.set(""); 
+  }, time * 1000, ch);
+  this.timerCount++;
 }
 
 ContextHelp.prototype.resetPriority = function(p) {
