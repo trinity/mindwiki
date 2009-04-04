@@ -759,7 +759,10 @@ Graph.prototype.updateEdge = function(id,title,color,sourceId, targetId, directe
 
     // Is the edge already okay?
     if(edge.startNote != null && edge.endNote != null){
-      edge.redraw();
+      //edge.redraw();
+      // erase/draw instead, to update edge text properly
+      edge.erase();
+      edge.draw();
       //alert("edge "+edge.id+" redraw!");
       return;
     }
