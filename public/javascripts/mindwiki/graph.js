@@ -4,7 +4,7 @@ $(document).ready(function(){
   var graphs = /\/graphs\/\d+/; // regexp to identify pathnames that should have mindwiki graphs
   if(graphs.exec(document.location.pathname)){
     // Please note the sad global nature of these variables.
-    graph = new Graph();
+    /*graph =*/ new Graph();
   }
 });
 

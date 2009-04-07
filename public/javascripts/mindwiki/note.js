@@ -83,7 +83,7 @@ Note.prototype.select = function() {
     stop: function(event, ui){
       thisnote.width = thisgraph.vp.scaleToWorld(ui.size.width);
       thisnote.height = thisgraph.vp.scaleToWorld(ui.size.height);
-      graph.sync.setNoteSize(thisnote, thisnote.width, thisnote.height);
+      thisgraph.sync.setNoteSize(thisnote, thisnote.width, thisnote.height);
     },
     resize: function(event, ui){
       thisnote.width = thisgraph.vp.scaleToWorld(ui.size.width);
@@ -97,7 +97,7 @@ Note.prototype.select = function() {
       for(var i=0;i<l;i++){
         thisnote.edgesFrom[i].redraw();
       }
-      graph.dragControls(thisnote);
+      thisgraph.dragControls(thisnote);
       thisnote.syncErrorDrag();
     }
   }).find('.ui-resizable-se').addClass('ui-icon-grip-diagonal-se'); // Default is too small.
@@ -125,7 +125,7 @@ Note.prototype.deselect = function() {
   $(this.div).resizable("destroy");
 
   $(this.div).removeClass("noteSelected");
-  /* graph.detachControls(thisnote); */
+  /* thisgraph.detachControls(thisnote); */
 }
 
 // Update the note on the screen to reflect the note object.
@@ -299,8 +299,8 @@ Note.prototype.center = function(){
      It was nice but currently there is no way mimic the behaviour with new viewport.*/
   /*
   if (this.graph.newViewport == true)
-    ;//graph.vp.setViewFastMove(moveToX, moveToY);
-    //graph.vp.setView(moveToX, moveToY);
+    ;//thisgraph.vp.setViewFastMove(moveToX, moveToY);
+    //thisgraph.vp.setView(moveToX, moveToY);
   else {
     if(moveToX<0)moveToX=0;
     if(moveToY<0)moveToY=0;
@@ -488,7 +488,7 @@ Note.prototype.redraw = function() {
     stop: function(event, ui){
       thisnote.x = thisgraph.vp.toWorldX(ui.position.left);
       thisnote.y = thisgraph.vp.toWorldY(ui.position.top);
-      graph.sync.setNotePosition(thisnote, thisnote.x, thisnote.y);
+      thisgraph.sync.setNotePosition(thisnote, thisnote.x, thisnote.y);
       if (thisgraph.controlsAfterDrag == true)
         thisgraph.attachControls(thisnote);
       
@@ -510,7 +510,7 @@ Note.prototype.redraw = function() {
       // let's update the related edges:
       thisnote.redrawEdges();
 
-      if (graph.controlsAfterDrag == false)
+      if (thisgraph.controlsAfterDrag == false)
         thisgraph.dragControls(thisnote);
 
       thisnote.syncErrorDrag();
@@ -549,7 +549,7 @@ Note.prototype.redraw = function() {
   $(this.div).mouseover( function()
   {
     /* Do not attempt to highlight note which we are creating edge from. */
-    if (graph.globalStartNote != null || thisgraph.globalStartNote != thisnote) {
+    if (thisgraph.globalStartNote != null || thisgraph.globalStartNote != thisnote) {
       /* Guessing adding context help here is not necessary. */
       $(thisnote.div).addClass("noteTargeted");
       thisgraph.lastTargetNote = thisnote;
@@ -581,7 +581,7 @@ Note.prototype.redraw = function() {
         return;
       }
       // Are we in the edge creation mode?
-      if (graph.globalStartNote != null) {
+      if (thisgraph.globalStartNote != null) {
         // Create edge. No selection.
         var tmpEdge = new Edge(thisgraph);
         tmpEdge.rCanvas = thisgraph.rc;
@@ -589,8 +589,8 @@ Note.prototype.redraw = function() {
         tmpEdge.setEndNote(thisnote);
         tmpEdge.newID(); // notifies server
         //add the edge to notes for updating
-        graph.globalStartNote.edgesFrom.push(tmpEdge);
-        graph.addEdge(tmpEdge);
+        thisgraph.globalStartNote.edgesFrom.push(tmpEdge);
+        thisgraph.addEdge(tmpEdge);
         thisnote.edgesTo.push(tmpEdge);
         tmpEdge.update();
         tmpEdge.draw(); // draws clientside
@@ -630,7 +630,7 @@ Note.prototype.redraw = function() {
   };
   // Editing the title. 
   $(titleTD).editable(function(value, settings) { 
-     graph.sync.setNoteName(thisnote, value);  
+     thisgraph.sync.setNoteName(thisnote, value);  
      return(value);
   }, settings);
 
@@ -671,14 +671,14 @@ Note.prototype.redraw = function() {
           // Updating the title
           var newTitle = $("#titleInputField").val();
           if(thisnote.name != newTitle){
-            graph.sync.setNoteName(thisnote, newTitle);
+            thisgraph.sync.setNoteName(thisnote, newTitle);
           }
 
           // Updating the content
           var boxContents = $("#editableContentBox").val();
           thisnote.editableContent = boxContents;
           thisnote.content = "Rendering edited content, please wait...";
-          graph.sync.setNoteContent(thisnote, boxContents);
+          thisgraph.sync.setNoteContent(thisnote, boxContents);
           $(this).dialog("destroy").remove(); // Don't edit lightly :)
         }
       }
