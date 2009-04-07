@@ -9,7 +9,6 @@ $(document).ready(function(){
 });
 
 function Graph() {
-
   this.id = -1;
   this.selectedNote = null;
   this.selectedEdge = null;
@@ -34,12 +33,56 @@ function Graph() {
   $(this.world).attr("id","mindwiki_world");
   $("#vport").append(this.world);
 
-  var thisgraph = this; // To be used in submethods
-
   // Load graph ID from the path variable.
   // Is ID the only numerical data in the path? Currently, yeah. Maybe sharpen up the regexp, still.
   var id_from_pathname = new RegExp(/\d+/).exec(location.pathname);
   this.id = parseInt(id_from_pathname[0]); // RegExp.exec puts matches into an array
+
+  this.rc = Raphael("mindwiki_world", 9999, 9999); // Raphael canvas, FIXME: static size
+  this.color = "#dddddd";
+  this.globalStartNote = null; // Used when creating new edges
+  this.runningZ = 10; // Used for z-index = "top" within the context of notes
+  $(".mindwiki_viewport").css({"overflow": "hidden"});
+
+
+  this.viewportInit();
+  this.syncInit();
+  
+  var newNoteName = this.vp.initFromURL();
+
+  this.ghostEdgeInit();
+  this.sync.initGraph();
+  this.uiInit();
+  this.contextHelpInit();
+
+  /* Set zoom clipping it if necessary. */
+  this.vp.callerScale = this.setZoomSlider(this.vp.callerScale * 20) / 20;
+
+  this.configInit();
+
+  // Initialize the server updating timer
+  checkServerForUpdates(this.sync);
+
+  /* Create new note if requested. Hopefully all the init is completed. */
+  if (newNoteName != null)
+    this.createNoteAt(newNoteName, this.vp.x, this.vp.y);
+} // end constructor
+
+Graph.prototype.ghostEdgeInit = function() {
+  // these are used to display the ghost edge when creating new edges
+  this.drawGhost = false;
+  this.ghostEdge = new Edge(this);
+  this.ghostNote = new Note(this);
+  this.ghostNote.width = 100;
+  this.ghostNote.height = 100;
+  this.ghostEdge.setEndNote(this.ghostNote);
+  this.ghostEdge.setTitle("New edge");
+  this.ghostEdge.setColor("#aaaaaa");
+  this.ghostEdge.ghost = true;
+}
+
+Graph.prototype.viewportInit = function() {
+  var graph = this;
 
   /* Init viewport. */
   this.vp = new Viewport();
@@ -55,6 +98,47 @@ function Graph() {
   $(window).resize(function() {
     graph.vp.setViewSize($("#vport").width(), $("#vport").height());
   });
+}
+
+Graph.prototype.contextHelpInit = function() {
+  var graph = this;
+
+  this.ch = new ContextHelp();
+
+  $("#mindwiki_world").mouseover( function(){
+    graph.ch.set("Create new notes by double clicking the background.");
+    // The final event, no need to stop propagation
+  });
+
+  $(".note").livequery("mouseover", function(e){
+    graph.ch.set("<b>Edit content</b> by double clicking the content area.");
+    e.stopPropagation();
+  });
+
+  $(this.arrowButton.div).mouseover(function(e)
+  {
+    graph.ch.set("<b>Create a connection</b> by clicking the arrow button of the first note, and then clicking the second note.");
+    e.stopPropagation();
+  }
+  );
+
+  $(this.colorButton.div).mouseover(function(e)
+  {
+    graph.ch.set("<b>Change color.</b>");
+    e.stopPropagation();
+  }
+  );
+  
+  $(this.deleteButton).mouseover(function(e)
+  {
+    graph.ch.set("<b>Delete note.</b>");
+    e.stopPropagation();
+  }
+  );
+}
+
+Graph.prototype.syncInit = function() {
+  var graph = this;
 
   // Creating and attaching the server-syncer
   this.sync = new Sync(this);
@@ -77,106 +161,11 @@ function Graph() {
   this.sync.noteSyncFailureResolved = function(note) {
     note.syncError(null);
   }
+}
 
-  var newNoteName = this.vp.initFromURL();
+Graph.prototype.zoomInit = function() {
+  var graph = this;
 
-  this.rc = Raphael("mindwiki_world", 9999, 9999); // Raphael canvas, FIXME: static size
-  this.color = "#dddddd";
-
-
-  // these are used to display the ghost edge when creating new edges
-  this.drawGhost = false;
-  this.ghostEdge = new Edge(this);
-  this.ghostNote = new Note(this);
-  this.ghostNote.width = 100;
-  this.ghostNote.height = 100;
-  this.ghostEdge.setEndNote(this.ghostNote);
-  this.ghostEdge.setTitle("New edge");
-  this.ghostEdge.setColor("#aaaaaa");
-  this.ghostEdge.ghost = true;
-  
-
-  this.globalStartNote = null; // Used when creating new edges
-  this.runningZ = 10; // Used for z-index = "top" within the context of notes
-
-  // Do we want to center the selected note? TODO: Move to user preferences.
-  this.scrollToSelected = true;
-
-  this.sync.initGraph();
-
-  // NEW NOTE creation by double clicking in the viewport
-  $("#mindwiki_world").dblclick( function(event){
-    graph.createNoteAt(null,
-                       graph.vp.toWorldX(event.pageX - $(this).offset().left),
-                       graph.vp.toWorldY(event.pageY - $(this).offset().top));
-  });
-		
-  this.downX = -1; /* Set to -1 when no drag is in progress. */
-  this.cursorChanged = false;
-  $("#mindwiki_world").mousedown(function (event) {
-    graph.downX = event.pageX;
-    graph.downY = event.pageY;
-    graph.cursorChanged = false;
-  });
-  
-  $("#mindwiki_world").mousemove(function (event) {
-
-    // ghost
-    if (graph.drawGhost) {
-      graph.ghostNote.x = graph.vp.toWorldX(event.pageX - $(this).offset().left);
-      graph.ghostNote.y = graph.vp.toWorldY(event.pageY - $(this).offset().top);
-      graph.ghostEdge.redraw();
-      return;
-    }
-
-    if (graph.downX == -1)
-      return;
-      
-    if (graph.cursorChanged == false) {
-      $("#mindwiki_world").css({"cursor": "move"});
-      graph.cursorChanged = true;
-    }
-    var x = -(event.pageX - graph.downX);
-    var y = -(event.pageY - graph.downY);
-
-    graph.vp.addViewFastMove(graph.vp.scaleToWorld(x), graph.vp.scaleToWorld(y));
-    
-    graph.downX = event.pageX;
-    graph.downY = event.pageY;
-  });
-  
-  $("#mindwiki_world").mouseup(function (event) {
-    /* "Workaround". */
-    graph.vp.setView(graph.vp.viewX(), graph.vp.viewY());
-
-    $("#mindwiki_world").css({"cursor": "default"});
-    graph.downX = -1;
-    graph.vp.updateURL();
-  });
-
-  $("#mindwiki_world").click( function(event){
-    var x = event.pageX - $(this).offset().left;
-    var y = event.pageY - $(this).offset().top;
-    
-    var margin = 10;
-
-    /* edges are in local coordinates. */
-    thisgraph.edgeClick(x,y,margin);
-    
-    // if clicked empty space, note is unselected.
-    if (thisgraph.selectedNote != null)
-    {
-      thisgraph.selectedNote.deselect();
-      /* detachControls should be called in deselect but that seems little wasteful since
-         in most cases we would be selecting another note. */
-      thisgraph.detachControls(thisgraph.selectedNote);
-      thisgraph.selectedNote = null;
-    }
-    thisgraph.endEdgeCreation();
-    // hide edge text edit. just in case it's visible.
-    $(".edgeTitle").hide();
-  });
-  
   /* Updated slider position returning new value it was clipped to. */
   this.setZoomSlider = function(newVal) {
     if (newVal < $(this.zoomScrollbar).slider('option', 'min'))
@@ -201,44 +190,27 @@ function Graph() {
     
     event.stopPropagation();
   });
+
+  /* Zoom scrollbar */
+  this.zoomScrollbar = document.createElement("div");
+  $(this.zoomScrollbar).addClass("zoomScrollbar");
+
+  $(this.zoomScrollbar).slider({
+    min: 0,
+    max: 20,
+    value: 20,
+    slide: function(ev, ui) {
+      graph.vp.setScale(ui.value/20.0);
+      graph.vp.updateURL();
+    }
+  });
   
-  $(".note").livequery("click", function(event){
-    // note's click event is handled in the note class, but this is
-    // needed here to prevent click event to bubble to background.
-    event.stopPropagation();
-  });
-		
-  $(".note").livequery("dblclick", function(event){
-    // this event should never fire...
-    event.stopPropagation();
-  });
-		
-  $(".noteTitle").livequery("dblclick", function(event){
-    // this event is not used. we just prevent the dblclick
-    // to bubble to parents.
-    event.stopPropagation();
-  });
+  $("#vport").append(this.zoomScrollbar);
 
-  // Stop events in class stop_propagation
-  // Used for youtube-videos, for instance..
-  $(".stop_propagation").livequery("mousedown", function(e){
-    e.stopPropagation();
-  });
+}
 
-  /* Booby trap internal links. Slightly hackish.. */
-  $(".internal_link").livequery("click", function(event){
-    jQuery.url.setUrl(event.target);
-    
-    var newNoteName = graph.vp.initFromURL();
-    graph.vp.setView(graph.vp.x, graph.vp.y);
-
-    if (newNoteName != null)
-      graph.createNoteAt(newNoteName, graph.vp.x, graph.vp.y);
-
-    // note's click event is handled in the note class, but this is
-    // needed here to prevent click event to bubble to background.
-    event.stopPropagation();
-  });
+Graph.prototype.navigatorInit = function() {
+  var graph = this;
 
   /* "Navigator" */
   this.viewAdd = function(x, y) {
@@ -279,6 +251,10 @@ function Graph() {
   $(this.navigatorDiv).append(this.navigatorDown);
   
   $("#mindwiki_world").append(this.navigatorDiv);
+}
+
+Graph.prototype.noteControlsInit = function() {
+  var graph = this;
 
  // Initialize controls 
   this.buttonsDiv = document.createElement("div");
@@ -288,18 +264,18 @@ function Graph() {
   // arrow button
   this.arrowButton = new ToggleButton("noteArrowButton", function(value) {
     if (value == true)
-      thisgraph.beginEdgeCreation();
+      graph.beginEdgeCreation();
     else
-      thisgraph.endEdgeCreation();
+      graph.endEdgeCreation();
   });
   $(this.buttonsDiv).append(this.arrowButton.div);
 
   // color button
   this.colorButton = new ToggleButton("noteColorButton", function(value) {
     if (value == true)
-      $(thisgraph.colorButton.div).ColorPicker("show");
+      $(graph.colorButton.div).ColorPicker("show");
     else
-      $(thisgraph.colorButton.div).ColorPicker("hide");
+      $(graph.colorButton.div).ColorPicker("hide");
   });
   $(this.buttonsDiv).append(this.colorButton.div);
 
@@ -336,7 +312,7 @@ function Graph() {
     onHide: function(picker){
       /* Reset button state. */
       graph.colorButton.setState(false); 
-      thisgraph.sync.setNoteColor(thisgraph.selectedNote, thisgraph.selectedNote.color);
+      graph.sync.setNoteColor(graph.selectedNote, graph.selectedNote.color);
       $(picker).fadeOut(100);
       return false;
     },
@@ -348,7 +324,7 @@ function Graph() {
       /* Reset button state. */
       graph.colorButton.setState(false); 
       $(".colorpicker").css('display', 'none'); 
-      thisgraph.sync.setNoteColor(thisgraph.selectedNote, thisgraph.selectedNote.color);
+      graph.sync.setNoteColor(graph.selectedNote, graph.selectedNote.color);
     }
   });
   
@@ -400,7 +376,10 @@ function Graph() {
 
   //$("#vport").append(this.buttonsDiv);
   $("#mindwiki_world").append(this.buttonsDiv);
-  
+}
+
+Graph.prototype.edgeControlsInit = function() {
+  var graph = this;
   /////////////////////////////////////////////////////////////////
   //
   // EDGE BUTTONS & CONTROLS
@@ -503,67 +482,140 @@ function Graph() {
   
   $("#mindwiki_world").append(this.edgeButtonsDiv);
 
+}
 
-  /* Zoom scrollbar */
-  this.zoomScrollbar = document.createElement("div");
-  $(this.zoomScrollbar).addClass("zoomScrollbar");
+Graph.prototype.worldInit = function() {
+  var graph = this;
 
-  $(this.zoomScrollbar).slider({
-    min: 0,
-    max: 20,
-    value: 20,
-    slide: function(ev, ui) {
-      graph.vp.setScale(ui.value/20.0);
-      graph.vp.updateURL();
+  // NEW NOTE creation by double clicking in the viewport
+  $("#mindwiki_world").dblclick( function(event){
+    graph.createNoteAt(null,
+                       graph.vp.toWorldX(event.pageX - $(this).offset().left),
+                       graph.vp.toWorldY(event.pageY - $(this).offset().top));
+  });
+		
+  this.downX = -1; /* Set to -1 when no drag is in progress. */
+  this.cursorChanged = false;
+  $("#mindwiki_world").mousedown(function (event) {
+    graph.downX = event.pageX;
+    graph.downY = event.pageY;
+    graph.cursorChanged = false;
+  });
+  
+  $("#mindwiki_world").mousemove(function (event) {
+
+    // ghost
+    if (graph.drawGhost) {
+      graph.ghostNote.x = graph.vp.toWorldX(event.pageX - $(this).offset().left);
+      graph.ghostNote.y = graph.vp.toWorldY(event.pageY - $(this).offset().top);
+      graph.ghostEdge.redraw();
+      return;
     }
+
+    if (graph.downX == -1)
+      return;
+      
+    if (graph.cursorChanged == false) {
+      $("#mindwiki_world").css({"cursor": "move"});
+      graph.cursorChanged = true;
+    }
+    var x = -(event.pageX - graph.downX);
+    var y = -(event.pageY - graph.downY);
+
+    graph.vp.addViewFastMove(graph.vp.scaleToWorld(x), graph.vp.scaleToWorld(y));
+    
+    graph.downX = event.pageX;
+    graph.downY = event.pageY;
   });
   
-  $("#vport").append(this.zoomScrollbar);
-  
-  $(".mindwiki_viewport").css({"overflow": "hidden"});
+  $("#mindwiki_world").mouseup(function (event) {
+    /* "Workaround". */
+    graph.vp.setView(graph.vp.viewX(), graph.vp.viewY());
 
-  /*
-   * Context help (Might be better inside context_help.js)
-   */
-  this.ch = new ContextHelp();
-
-  $("#mindwiki_world").mouseover( function(){
-    graph.ch.set("Create new notes by double clicking the background.");
-    // The final event, no need to stop propagation
+    $("#mindwiki_world").css({"cursor": "default"});
+    graph.downX = -1;
+    graph.vp.updateURL();
   });
 
-  $(".note").livequery("mouseover", function(e){
-    graph.ch.set("<b>Edit content</b> by double clicking the content area.");
+  $("#mindwiki_world").click( function(event){
+    var x = event.pageX - $(this).offset().left;
+    var y = event.pageY - $(this).offset().top;
+    
+    var margin = 10;
+
+    /* edges are in local coordinates. */
+    graph.edgeClick(x,y,margin);
+    
+    // if clicked empty space, note is unselected.
+    if (graph.selectedNote != null)
+    {
+      graph.selectedNote.deselect();
+      /* detachControls should be called in deselect but that seems little wasteful since
+         in most cases we would be selecting another note. */
+      graph.detachControls(graph.selectedNote);
+      graph.selectedNote = null;
+    }
+    graph.endEdgeCreation();
+    // hide edge text edit. just in case it's visible.
+    $(".edgeTitle").hide();
+  });
+}
+
+Graph.prototype.noteInit = function() {
+  var graph = this;
+
+  $(".note").livequery("click", function(event){
+    // note's click event is handled in the note class, but this is
+    // needed here to prevent click event to bubble to background.
+    event.stopPropagation();
+  });
+		
+  $(".note").livequery("dblclick", function(event){
+    // this event should never fire...
+    event.stopPropagation();
+  });
+		
+  $(".noteTitle").livequery("dblclick", function(event){
+    // this event is not used. we just prevent the dblclick
+    // to bubble to parents.
+    event.stopPropagation();
+  });
+
+  // Stop events in class stop_propagation
+  // Used for youtube-videos, for instance..
+  $(".stop_propagation").livequery("mousedown", function(e){
     e.stopPropagation();
   });
 
-  $(this.arrowButton.div).mouseover(function(e)
-  {
-    graph.ch.set("<b>Create a connection</b> by clicking the arrow button of the first note, and then clicking the second note.");
-    e.stopPropagation();
-  }
-  );
+  /* Booby trap internal links. Slightly hackish.. */
+  $(".internal_link").livequery("click", function(event){
+    jQuery.url.setUrl(event.target);
+    
+    var newNoteName = graph.vp.initFromURL();
+    graph.vp.setView(graph.vp.x, graph.vp.y);
 
-  $(this.colorButton.div).mouseover(function(e)
-  {
-    graph.ch.set("<b>Change color.</b>");
-    e.stopPropagation();
-  }
-  );
+    if (newNoteName != null)
+      graph.createNoteAt(newNoteName, graph.vp.x, graph.vp.y);
+
+    // note's click event is handled in the note class, but this is
+    // needed here to prevent click event to bubble to background.
+    event.stopPropagation();
+  });
+}
+
+Graph.prototype.uiInit = function() {
+  var graph = this;
   
-  $(this.deleteButton).mouseover(function(e)
-  {
-    graph.ch.set("<b>Delete note.</b>");
-    e.stopPropagation();
-  }
-  );
+  this.worldInit();
+  this.noteInit();
+  this.zoomInit();
+  this.navigatorInit();
+  this.noteControlsInit();
+  this.edgeControlsInit();
+}
 
-  /*
-   * End Context help
-   */
-
-  /* Set zoom clipping it if necessary. */
-  this.vp.callerScale = this.setZoomSlider(this.vp.callerScale * 20) / 20;
+Graph.prototype.configInit = function() {
+  var graph = this;
 
   this.config = new Config();
   $(this.config.getHandle()).addClass("config");
@@ -572,6 +624,8 @@ function Graph() {
   this.mMove = true;
 //  this.config.newOption("checkbox", "mMove", function(value) { graph.mMove = value; });
 
+  // Do we want to center the selected note? TODO: Move to user preferences.
+  this.scrollToSelected = true;
   this.config.newOption("checkbox", "scrollToSelected", function(value) { graph.scrollToSelected = value; });
 
   this.controlsAfterDrag = false;
@@ -587,16 +641,7 @@ function Graph() {
   //this.config.newOption("button", "setView", function() { graph.vp.setView(graph.vp.x, graph.vp.y); });
 
   $("#vport").append(this.config.getHandle());
-
-
-  // Initialize the server updating timer
-  checkServerForUpdates(this.sync);
-
-  /* Create new note if requested. Hopefully all the init is completed. */
-  if (newNoteName != null)
-    this.createNoteAt(newNoteName, this.vp.x, this.vp.y);
-} // end constructor
-
+}
 
 // Loads more notes and edges after viewport size or scrolling has been changed.
 // They could be in different methods to increase performance somewhat.
@@ -765,12 +810,12 @@ Graph.prototype.getEdgeById = function(id){
 // Updates edge. This is for tiled note loading.
 // (When we load the edge for the first time, the second note may not be read yet)
 Graph.prototype.updateEdge = function(id,title,color,sourceId, targetId, directed){
-  var thisgraph = this;
+  var graph = this;
   var edge = null;
 
   // The edge already exists (second hit)
-  if(thisgraph.getEdgeById(id) != null){
-    edge = thisgraph.getEdgeById(id);
+  if(graph.getEdgeById(id) != null){
+    edge = graph.getEdgeById(id);
 
     edge.setTitle(title);
     edge.setColor(color);
@@ -787,9 +832,9 @@ Graph.prototype.updateEdge = function(id,title,color,sourceId, targetId, directe
     }
 
     if(!edge.startNote)
-      edge.startNote = thisgraph.getNoteById(sourceId);
+      edge.startNote = graph.getNoteById(sourceId);
     if(!edge.endNote)
-      edge.endNote = thisgraph.getNoteById(targetId);
+      edge.endNote = graph.getNoteById(targetId);
 
     // References to this edge:
     // Startnote
@@ -813,15 +858,15 @@ Graph.prototype.updateEdge = function(id,title,color,sourceId, targetId, directe
     
   // New edge (first hit)
   } else {
-    edge = new Edge(thisgraph);
+    edge = new Edge(graph);
     edge.id = id;
     edge.title = title;
     edge.color = color;
     edge.setDirected(directed);
     // In new edge it is okay to just assign straight away, since the methods just return null on "not found"
-    if(sourceId) edge.startNote = thisgraph.getNoteById(sourceId);
-    if(targetId) edge.endNote = thisgraph.getNoteById(targetId);
-    thisgraph.edges.push(edge);
+    if(sourceId) edge.startNote = graph.getNoteById(sourceId);
+    if(targetId) edge.endNote = graph.getNoteById(targetId);
+    graph.edges.push(edge);
   }
 
 
