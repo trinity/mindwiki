@@ -370,6 +370,9 @@ Sync.prototype.tryNoteSync = function(note){
   /* Set synchronous mode. */
   jQuery.ajaxSetup({ async: false });
   
+  if (note.createNoteDirty) /* Should discard all others. */
+    this.createNote(note);
+
   /* It might make more sense not to pass note.color etc. as arguments.*/
   if (note.setNoteColorDirty)
     this.setNoteColor(note, note.color);
@@ -389,6 +392,9 @@ Sync.prototype.tryNoteSync = function(note){
   if (note.setNoteContentDirty) // Same here
     this.setNoteContent(note, "Argh!");
     
+  if (note.createNoteDirty)
+    failed.push("new");
+
   if (note.setNoteColorDirty)
     failed.push("color");
 
@@ -589,6 +595,7 @@ Sync.prototype.createNote = function(note){
   var t = this;
   var thisgraph = this.graph;
   var n = note;
+  n.createNoteDirty = true;
   $.ajax({
     url: "/notes/create",
     type: "POST",
@@ -606,11 +613,14 @@ Sync.prototype.createNote = function(note){
     dataType: "xml",
     success: function(data){
       $("note", data).each(function(i) {
+        n.createNoteDirty = false;
         n.id = parseInt($(this).find("id:first").text());
       });
     },   
     error: function(a,b,c){
-      alert("Cannot create new note to db: "+a+b+c);
+      if (t.noteSyncFailure != null)
+        t.noteSyncFailure(n);
+      //alert("Cannot create new note to db: "+a+b+c);
     }
   });
 }
