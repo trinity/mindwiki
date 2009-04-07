@@ -362,16 +362,87 @@ Sync.prototype.initGraph = function(){
 }
 
 
+Sync.prototype.tryNoteSync = function(note){
+  var thissync = this;
+  var failed = [];
+  var errorString = "";
+
+  /* Set synchronous mode. */
+  jQuery.ajaxSetup({ async: false });
+  
+  /* It might make more sense not to pass note.color etc. as arguments.*/
+  if (note.setNoteColorDirty)
+    this.setNoteColor(note, note.color);
+
+  if (note.setNoteZorderDirty)
+    this.setNoteZorder(note, note.zorder);
+
+  if (note.setNotePositionDirty)
+    this.setNotePosition(note, note.x, note.y);
+
+  if (note.setNoteSizeDirty)
+    this.setNoteSize(note, note.width, note.height);
+
+  if (note.setNoteNameDirty) // n.name is set on success so this does not work
+    this.setNoteName(note, "Argh!");
+
+  if (note.setNoteContentDirty) // Same here
+    this.setNoteContent(note, "Argh!");
+    
+  if (note.setNoteColorDirty)
+    failed.push("color");
+
+  if (note.setNoteZorderDirty)
+    failed.push("zorder");
+
+  if (note.setNotePositionDirty)
+    failed.push("position");
+
+  if (note.setNoteSizeDirty)
+    failed.push("size");
+
+  if (note.setNoteNameDirty)
+    failed.push("name");
+
+  if (note.setNoteContentDirty)
+    failed.push("content");
+
+  for (var i = 0; i < failed.length; i++) {
+    errorString += failed[i];
+    
+    if (i < failed.length - 2)
+      errorString += ", ";
+    else if (i == failed.length - 2)
+      errorString += " and ";
+  }
+  
+  jQuery.ajaxSetup({ async: thissync.graph.asyncAjax });
+
+  note.syncFailureReason = errorString;
+  if (failed.length == 0)
+    this.noteSyncFailureResolved(note);
+  else
+    this.noteSyncFailure(note);
+}
+
 /****************************************************************************
   Inform the server about a NOTE COLOR change.
  ****************************************************************************/
 
-Sync.prototype.setNoteColor = function(noteId, newColor){
+Sync.prototype.setNoteColor = function(note, newColor){
   var t = this;
+  note.setNoteColorDirty = true;
   $.ajax({
-    url: "/notes/update/"+noteId,
+    url: "/notes/update/"+note.id,
     data: { "note[color]" : newColor, "clientId" : t.uniqueId },
-    dataType: "html"
+    dataType: "html",
+    success: function(data){
+      note.setNoteColorDirty = false;
+    },
+    error: function(a,b,c){
+      if (t.noteSyncFailure != null)
+        t.noteSyncFailure(note);
+    }
   });
 }
 
@@ -380,12 +451,20 @@ Sync.prototype.setNoteColor = function(noteId, newColor){
   Inform the server about a NOTE Z-ORDER change.
  ****************************************************************************/
 
-Sync.prototype.setNoteZorder = function(noteId, newZ){
+Sync.prototype.setNoteZorder = function(note, newZ){
   var t = this;
+  note.setNoteZorderDirty = true;
   $.ajax({
-    url: "/notes/update/"+noteId,
+    url: "/notes/update/"+note.id,
     data: { "note[zorder]" : newZ, "clientId" : t.uniqueId },
-    dataType: "html"
+    dataType: "html",
+    success: function(data){
+      note.setNoteZorderDirty = false;
+    },
+    error: function(a,b,c){
+      if (t.noteSyncFailure != null)
+        t.noteSyncFailure(note);
+    }
   });
 }
 
@@ -394,15 +473,23 @@ Sync.prototype.setNoteZorder = function(noteId, newZ){
   Inform the server about a NOTE POSITION change.
  ****************************************************************************/
 
-Sync.prototype.setNotePosition = function(noteId, newx, newy){
+Sync.prototype.setNotePosition = function(note, newx, newy){
   var t = this;
+  note.setNotePositionDirty = true;
   $.ajax({
-    url: "/notes/update/"+noteId,
+    url: "/notes/update/"+note.id,
     dataType: "html",
     data: {
       "note[x]" : newx,
       "note[y]" : newy,
       "clientId" : t.uniqueId
+    },
+    success: function(data){
+      note.setNotePositionDirty = false;
+    },
+    error: function(a,b,c){
+      if (t.noteSyncFailure != null)
+        t.noteSyncFailure(note);
     }
   });
 }
@@ -412,15 +499,23 @@ Sync.prototype.setNotePosition = function(noteId, newx, newy){
   Inform the server about a NOTE SIZE change.
  ****************************************************************************/
 
-Sync.prototype.setNoteSize = function(noteId, neww, newh){
+Sync.prototype.setNoteSize = function(note, neww, newh){
   var t = this;
+  note.setNoteSizeDirty = true;
   $.ajax({
-    url: "/notes/update/"+noteId,
+    url: "/notes/update/"+note.id,
     dataType: "html",
     data: {
       "note[width]" : neww,
       "note[height]" : newh,
       "clientId" : t.uniqueId
+    },
+    success: function(data){
+      note.setNoteSizeDirty = false;
+    },
+    error: function(a,b,c){
+      if (t.noteSyncFailure != null)
+        t.noteSyncFailure(note);
     }
   });
 }
@@ -433,13 +528,19 @@ Sync.prototype.setNoteSize = function(noteId, neww, newh){
 Sync.prototype.setNoteName = function(note, newName){
   var t = this;
   var n = note;
+  note.setNoteNameDirty = true;
   $.ajax({
     url: "/notes/update/"+n.id,
     dataType: "html",
     data: { "note[name]" : newName, "clientId" : t.uniqueId },
     success: function(data){
+      note.setNoteNameDirty = false;
       n.name=newName;
       n.update();
+    },
+    error: function(a,b,c){
+      if (t.noteSyncFailure != null)
+        t.noteSyncFailure(note);
     }
   });
 }
@@ -452,13 +553,19 @@ Sync.prototype.setNoteName = function(note, newName){
 Sync.prototype.setNoteContent = function(note, newContent){
   var t = this;
   var n = note;
+  note.setNoteContentDirty = true;
   $.ajax({
     url: "/notes/update_content/"+n.id,
     data: { "newContent" : newContent, "clientId" : t.uniqueId },
     dataType: "html",
     success: function(data){
+      note.setNoteContentDirty = false;
       n.content=data;
       n.update();
+    },
+    error: function(a,b,c){
+      if (t.noteSyncFailure != null)
+        t.noteSyncFailure(note);
     }
   });
 }

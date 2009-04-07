@@ -2,6 +2,7 @@
 
 // Note is the "class" for all notes.
 function Note(graph) {
+  this.syncErrorDiv = null;
   this.visited = false;
   this.graph = graph;
   this.id = -1;
@@ -82,7 +83,7 @@ Note.prototype.select = function() {
     stop: function(event, ui){
       thisnote.width = thisgraph.vp.scaleToWorld(ui.size.width);
       thisnote.height = thisgraph.vp.scaleToWorld(ui.size.height);
-      graph.sync.setNoteSize(thisnote.id, thisnote.width, thisnote.height);
+      graph.sync.setNoteSize(thisnote, thisnote.width, thisnote.height);
     },
     resize: function(event, ui){
       thisnote.width = thisgraph.vp.scaleToWorld(ui.size.width);
@@ -97,6 +98,7 @@ Note.prototype.select = function() {
         thisnote.edgesFrom[i].redraw();
       }
       graph.dragControls(thisnote);
+      thisnote.syncErrorDrag();
     }
   }).find('.ui-resizable-se').addClass('ui-icon-grip-diagonal-se'); // Default is too small.
 
@@ -111,7 +113,7 @@ Note.prototype.select = function() {
   thisgraph.runningZ++;
   this.zorder = thisgraph.runningZ;
   $(this.div).css({"zIndex":thisnote.zorder});
-  if(this.id >= 0) thisgraph.sync.setNoteZorder(this.id, this.zorder); // inform the server
+  if(this.id >= 0) thisgraph.sync.setNoteZorder(this, this.zorder); // inform the server
 }
 
 Note.prototype.deselect = function() {
@@ -366,6 +368,36 @@ Note.prototype.getNoteWeight = function (maxWeight, visited, list) {
   return weight;
 }
 
+Note.prototype.syncError = function(content) {
+  if (this.syncErrorDiv == null) {
+    this.syncErrorDiv = document.createElement("div");
+    $(this.syncErrorDiv).addClass("syncError");
+    $("#mindwiki_world").append(this.syncErrorDiv);
+  }
+  if (content == null) {
+    $(this.syncErrorDiv).hide("slow");
+    // TODO: destroy this.syncErrorDiv
+  }
+  
+  $(this.syncErrorDiv).html(content);
+  this.syncErrorDrag();
+}
+
+Note.prototype.syncErrorDrag = function() {
+  var thisgraph = this.graph;
+  var thisnote = this;
+  
+  if (this.syncErrorDiv == null)
+    return;
+  
+  $(this.syncErrorDiv).css({
+    "top" : (thisgraph.vp.toViewY(thisnote.y)+thisgraph.vp.scaleToView(thisnote.height)+5) +"px", /* FIXME: +5 */
+    "left" : thisgraph.vp.toViewX(thisnote.x)+"px",
+    "position" : "absolute",
+    "width" : thisgraph.vp.scaleToView(thisnote.width) + "px"
+  });
+}
+
 // This function (re)constructs the whole div!
 // Use after loading a Note with data.
 Note.prototype.redraw = function() {
@@ -456,7 +488,7 @@ Note.prototype.redraw = function() {
     stop: function(event, ui){
       thisnote.x = thisgraph.vp.toWorldX(ui.position.left);
       thisnote.y = thisgraph.vp.toWorldY(ui.position.top);
-      graph.sync.setNotePosition(thisnote.id, thisnote.x, thisnote.y);
+      graph.sync.setNotePosition(thisnote, thisnote.x, thisnote.y);
       if (thisgraph.controlsAfterDrag == true)
         thisgraph.attachControls(thisnote);
       
@@ -467,7 +499,7 @@ Note.prototype.redraw = function() {
       for (var i = 0; i < thisgraph.draggingNotes.length; i++) {
         var note = thisgraph.draggingNotes[i];
         note.visited = false;
-        thisgraph.sync.setNotePosition(note.id, note.x, note.y);
+        thisgraph.sync.setNotePosition(note, note.x, note.y);
       }
 	
       thisgraph.startX = thisgraph.startY = undefined;
@@ -480,6 +512,8 @@ Note.prototype.redraw = function() {
 
       if (graph.controlsAfterDrag == false)
         thisgraph.dragControls(thisnote);
+
+      thisnote.syncErrorDrag();
 
       // Safari 3.2 redraw workaround.
       if ($.browser.safari && $.browser.version <= 3)

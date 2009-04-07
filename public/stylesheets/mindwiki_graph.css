@@ -32,6 +32,12 @@
   overflow: hidden;
 }
 
+.syncError {
+  position: absolute;
+  border: 3px solid red;
+  background: gray;
+}
+
 .config {
   position: fixed;
   top: 25px;

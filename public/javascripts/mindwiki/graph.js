@@ -58,6 +58,25 @@ function Graph() {
 
   // Creating and attaching the server-syncer
   this.sync = new Sync(this);
+  var thissync = this.sync;
+
+  /* Initialize sync error handler. */
+  this.sync.noteSyncFailure = function(note) {
+    var helperText = document.createElement("div");
+    $(helperText).html("Failed to update note " + note.syncFailureReason + " on server.");
+
+    note.syncRetryConfig = new Config();
+    note.syncRetryConfig.newOption("button", "Try again", function() {
+      thissync.tryNoteSync(note);
+    });
+
+    helperText.appendChild(note.syncRetryConfig.getHandle());
+    note.syncError(helperText);
+  }
+  
+  this.sync.noteSyncFailureResolved = function(note) {
+    note.syncError(null);
+  }
 
   var newNoteName = this.vp.initFromURL();
 
@@ -317,7 +336,7 @@ function Graph() {
     onHide: function(picker){
       /* Reset button state. */
       graph.colorButton.setState(false); 
-      thisgraph.sync.setNoteColor(thisgraph.selectedNote.id, thisgraph.selectedNote.color);
+      thisgraph.sync.setNoteColor(thisgraph.selectedNote, thisgraph.selectedNote.color);
       $(picker).fadeOut(100);
       return false;
     },
@@ -329,7 +348,7 @@ function Graph() {
       /* Reset button state. */
       graph.colorButton.setState(false); 
       $(".colorpicker").css('display', 'none'); 
-      thisgraph.sync.setNoteColor(thisgraph.selectedNote.id, thisgraph.selectedNote.color);
+      thisgraph.sync.setNoteColor(thisgraph.selectedNote, thisgraph.selectedNote.color);
     }
   });
   
