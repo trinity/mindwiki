@@ -946,7 +946,7 @@ Graph.prototype.setEdgeDirected = function(value)
   {
     this.selectedEdge.setDirected(value);
     this.selectedEdge.redraw();
-    this.sync.setEdgeDirection(graph.selectedEdge);
+    this.sync.setEdgeDirection(this.selectedEdge);
   }
 }
 
