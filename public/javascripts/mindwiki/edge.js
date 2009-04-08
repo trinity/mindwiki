@@ -38,7 +38,6 @@ function Edge (graph)
 Edge.prototype.remove = function() 
 {
   var thisgraph = this.graph;
-  var thisedge = this;
   this.erase();
   
   // Make sure controls are not visible on this one
@@ -55,8 +54,9 @@ Edge.prototype.remove = function()
   // Notify the server
   thisgraph.sync.deleteEdge(this.id);
 
-  // Delete the object
-  delete thisedge;
+  delete this.all;
+  if (browserD() != "ie7")
+    delete this;
 }
 
 Edge.prototype.setStartNote = function (note) 
@@ -194,7 +194,6 @@ Edge.prototype.update = function()
   }
   this.textX = txtDx + (this.x1 + this.x2) / 2;
   this.textY = txtDy + (this.y1 + this.y2) / 2;
-  
   result = null;
 }
 
@@ -231,7 +230,10 @@ Edge.prototype.redraw = function()
   {
     if (this.text != null)
     {
-      this.text.attr("x", this.textX).attr("y", this.textY).rotate(radToDeg(this.textAngle), true);
+      if (browserD() == "ie7")
+        this.text.attr("x", this.textX).attr("y", this.textY);
+      else
+        this.text.attr("x", this.textX).attr("y", this.textY).rotate(radToDeg(this.textAngle), true);
     }
   }
 }
@@ -290,8 +292,14 @@ Edge.prototype.draw = function ()
   if (this.title.length > 0)
   {
     var thisEdge = this;
-    this.text = this.rCanvas.text(this.textX, this.textY, this.title).attr({"font": '14px "Arial"'})
-    .attr({"font-weight": "bold"}).attr("fill", this.color).rotate(radToDeg(this.textAngle));
+    if (browserD() == "ie7") {
+      this.text = this.rCanvas.text(this.textX, this.textY, this.title).attr({"font": '14px "Arial"'})
+      .attr({"font-weight": "bold"}).attr("fill", this.color);
+    }
+    else {
+      this.text = this.rCanvas.text(this.textX, this.textY, this.title).attr({"font": '14px "Arial"'})
+      .attr({"font-weight": "bold"}).attr("fill", this.color).rotate(radToDeg(this.textAngle));
+    }
     this.text.node.onclick = function(event) {
       var result = new Array();
       thisgraph.localCoordinates(event.pageX,event.pageY,result);

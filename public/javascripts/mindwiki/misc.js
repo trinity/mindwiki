@@ -138,3 +138,12 @@ function lightenColor (color) {
 function radToDeg(rad) {
   return (rad / Math.PI) * 180.0;
 }
+
+// browser detection, damnit
+function browserD()
+{
+  var res;
+  if ($.browser.msie && $.browser.version == 7)
+    res = "ie7";
+  return res;
+}

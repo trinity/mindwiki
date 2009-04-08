@@ -78,12 +78,16 @@ Note.prototype.select = function() {
       /* Ensure canvas is large enough so note can leave visible viewport.
        * This seems to cause problems with ff3. Call setView after drag ends instead. */
       //thisgraph.vp.setView(thisgraph.vp.x1, thisgraph.vp.y1);
+      
+      //Works around the invisible graph -bug in ie
+      $("#vport").css({"height": thisgraph.vp.viewH});
     },
     // Update note size after resizing.
     stop: function(event, ui){
       thisnote.width = thisgraph.vp.scaleToWorld(ui.size.width);
       thisnote.height = thisgraph.vp.scaleToWorld(ui.size.height);
       thisgraph.sync.setNoteSize(thisnote, thisnote.width, thisnote.height);
+      $("#vport").css({"height": ""});
     },
     resize: function(event, ui){
       thisnote.width = thisgraph.vp.scaleToWorld(ui.size.width);
@@ -254,8 +258,9 @@ Note.prototype.remove = function() {
   // Notify the server
   this.graph.sync.deleteNote(this.id);
 
-  // Delete the object
-  delete thisnote;
+  delete this.all;
+  if (browserD() != "ie7")
+    delete this;
 }
 
 // Removes an edge from container.
@@ -430,6 +435,9 @@ Note.prototype.redraw = function() {
        * This seems to cause problems with ff3. Call setView after drag ends instead. */
       //thisgraph.vp.setView(thisgraph.vp.x1, thisgraph.vp.y1);
       
+      //Works around the invisible graph -bug in ie
+      $("#vport").css({"height": thisgraph.vp.viewH});
+      
       if (thisgraph.controlsAfterDrag == true)
         thisgraph.detachControls(thisnote);
       
@@ -489,6 +497,7 @@ Note.prototype.redraw = function() {
       thisnote.x = thisgraph.vp.toWorldX(ui.position.left);
       thisnote.y = thisgraph.vp.toWorldY(ui.position.top);
       thisgraph.sync.setNotePosition(thisnote, thisnote.x, thisnote.y);
+      $("#vport").css({"height": ""});
       if (thisgraph.controlsAfterDrag == true)
         thisgraph.attachControls(thisnote);
       
