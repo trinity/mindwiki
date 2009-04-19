@@ -86,7 +86,7 @@ function Graph() {
   /* Set zoom clipping it if necessary. */
   this.vp.callerScale = this.setZoomSlider(this.vp.callerScale * 20) / 20;
 
-  this.configInit();
+  //this.configInit(); // debug config
 
   // Initialize the server updating timer
   checkServerForUpdates(this.sync);
