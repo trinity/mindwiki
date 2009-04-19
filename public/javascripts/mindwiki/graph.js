@@ -163,6 +163,35 @@ Graph.prototype.contextHelpInit = function() {
     e.stopPropagation();
   }
   );
+
+  /* Edges. */
+  $(this.edgeTextButton).mouseover(function(e)
+  {
+    graph.ch.set("<b>Edit text.</b>");
+    e.stopPropagation();
+  }
+  );
+
+  $(this.edgeColorButton).mouseover(function(e)
+  {
+    graph.ch.set("<b>Edit color.</b>");
+    e.stopPropagation();
+  }
+  );
+
+  $(this.edgeDirectionButton.div).mouseover(function(e)
+  {
+    graph.ch.set("<b>Make directed/undirected.</b>");
+    e.stopPropagation();
+  }
+  );
+
+  $(this.edgeDeleteButton.div).mouseover(function(e)
+  {
+    graph.ch.set("<b>Delete connection.</b>");
+    e.stopPropagation();
+  }
+  );
 }
 
 Graph.prototype.syncInit = function() {
