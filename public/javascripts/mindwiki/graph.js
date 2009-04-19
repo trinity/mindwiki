@@ -86,7 +86,7 @@ function Graph() {
   /* Set zoom clipping it if necessary. */
   this.vp.callerScale = this.setZoomSlider(this.vp.callerScale * 20) / 20;
 
-  //this.configInit(); // debug config
+  this.configInit(false); // set to true to show config
 
   // Initialize the server updating timer
   checkServerForUpdates(this.sync);
@@ -642,33 +642,33 @@ Graph.prototype.uiInit = function() {
   this.edgeControlsInit();
 }
 
-Graph.prototype.configInit = function() {
+Graph.prototype.configInit = function(show) {
   var graph = this;
 
-  this.config = new Config();
-  $(this.config.getHandle()).addClass("config");
-  //this.config.newOption("text", "example", function(value) { alert("text is " + value); });
-
   this.mMove = true;
-//  this.config.newOption("checkbox", "mMove", function(value) { graph.mMove = value; });
+  this.scrollToSelected = true;
+  this.controlsAfterDrag = false;
+  this.asyncAjax = true;
+  this.debug = false;
+
+  if (show) {
+    this.config = new Config();
+    $(this.config.getHandle()).addClass("config");
+    //this.config.newOption("text", "example", function(value) { alert("text is " + value); });
+    //this.config.newOption("button", "setView", function() { graph.vp.setView(graph.vp.x, graph.vp.y); });
+
+    this.config.newOption("checkbox", "mMove", function(value) { graph.mMove = value; });
+    this.config.newOption("checkbox", "scrollToSelected", function(value) { graph.scrollToSelected = value; });
+    this.config.newOption("checkbox", "controlsAfterDrag", function(value) { graph.controlsAfterDrag = value; });
+    this.config.newOption("checkbox", "synchronousAjax", function(value) { graph.asyncAjax = (value == false); });
+    this.config.newOption("checkbox", "debug", function(value) { graph.debug = value; });
+    this.config.newOption("button", "Hide", function() { $(graph.config.div).hide("slow"); });
+
+    $("#vport").append(this.config.getHandle());
+  }
+
 
   // Do we want to center the selected note? TODO: Move to user preferences.
-  this.scrollToSelected = true;
-  this.config.newOption("checkbox", "scrollToSelected", function(value) { graph.scrollToSelected = value; });
-
-  this.controlsAfterDrag = false;
-  this.config.newOption("checkbox", "controlsAfterDrag", function(value) { graph.controlsAfterDrag = value; });
-
-  this.asyncAjax = true;
-  this.config.newOption("checkbox", "synchronousAjax", function(value) { graph.asyncAjax = (value == false); });
-  
-  this.debug = false;
-  this.config.newOption("checkbox", "debug", function(value) { graph.debug = value; });
-
-  this.config.newOption("button", "Hide", function() { $(graph.config.div).hide("slow"); });
-  //this.config.newOption("button", "setView", function() { graph.vp.setView(graph.vp.x, graph.vp.y); });
-
-  $("#vport").append(this.config.getHandle());
 }
 
 // Loads more notes and edges after viewport size or scrolling has been changed.
