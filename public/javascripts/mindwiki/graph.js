@@ -139,27 +139,27 @@ Graph.prototype.contextHelpInit = function() {
   });
 
   $(".note").livequery("mouseover", function(e){
-    graph.ch.set("<b>Edit content</b> by double clicking the content area.");
+    graph.ch.set("<strong>Edit content</strong> by double clicking the content area.");
     e.stopPropagation();
   });
 
   $(this.arrowButton.div).mouseover(function(e)
   {
-    graph.ch.set("<b>Create a connection</b> by clicking the arrow button of the first note, and then clicking the second note.");
+    graph.ch.set("<strong>Create a connection</strong> by clicking the arrow button of the first note, and then clicking the second note.");
     e.stopPropagation();
   }
   );
 
   $(this.colorButton.div).mouseover(function(e)
   {
-    graph.ch.set("<b>Change color.</b>");
+    graph.ch.set("<strong>Change color.</strong>");
     e.stopPropagation();
   }
   );
   
   $(this.deleteButton).mouseover(function(e)
   {
-    graph.ch.set("<b>Delete note.</b>");
+    graph.ch.set("<strong>Delete note.</strong>");
     e.stopPropagation();
   }
   );
@@ -167,28 +167,28 @@ Graph.prototype.contextHelpInit = function() {
   /* Edges. */
   $(this.edgeTextButton).mouseover(function(e)
   {
-    graph.ch.set("<b>Edit text.</b>");
+    graph.ch.set("<strong>Edit text.</strong>");
     e.stopPropagation();
   }
   );
 
   $(this.edgeColorButton).mouseover(function(e)
   {
-    graph.ch.set("<b>Edit color.</b>");
+    graph.ch.set("<strong>Edit color.</strong>");
     e.stopPropagation();
   }
   );
 
   $(this.edgeDirectionButton.div).mouseover(function(e)
   {
-    graph.ch.set("<b>Make directed/undirected.</b>");
+    graph.ch.set("<strong>Make directed/undirected.</strong>");
     e.stopPropagation();
   }
   );
 
   $(this.edgeDeleteButton.div).mouseover(function(e)
   {
-    graph.ch.set("<b>Delete connection.</b>");
+    graph.ch.set("<strong>Delete connection.</strong>");
     e.stopPropagation();
   }
   );
@@ -731,7 +731,7 @@ Graph.prototype.scaleChanged = function() {
 Graph.prototype.beginEdgeCreation = function()
 {
   this.globalStartNote = this.selectedNote;
-  this.ch.setPriorityText("<b>Select target note</b> or click on active note to cancel.", 1);
+  this.ch.setPriorityText("<strong>Select target note</strong> or click on active note to cancel.", 1);
   this.selectedNote.disable();
   this.selectedNote.disableLinkedNotes();
 
