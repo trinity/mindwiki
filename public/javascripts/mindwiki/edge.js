@@ -154,7 +154,7 @@ Edge.prototype.update = function()
     return;
   }
 
-  // Less writing if we assume edges are in local coords all the way.
+  // Less writing if we assume edges are in view coords all the way.
   var sx = thisgraph.vp.toViewX(this.startNote.x) + thisgraph.vp.scaleToView(this.startNote.width / 2);
   var sy = thisgraph.vp.toViewY(this.startNote.y) + thisgraph.vp.scaleToView(this.startNote.height / 2);
   var ex = thisgraph.vp.toViewX(this.endNote.x) + thisgraph.vp.scaleToView(this.endNote.width / 2);

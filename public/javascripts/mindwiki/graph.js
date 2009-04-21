@@ -576,10 +576,11 @@ Graph.prototype.worldInit = function() {
       $("#mindwiki_world").css({"cursor": "move"});
       graph.cursorChanged = true;
     }
-    var x = -(event.pageX - graph.downX);
-    var y = -(event.pageY - graph.downY);
-
-    graph.vp.addViewFastMove(graph.vp.scaleToWorld(x), graph.vp.scaleToWorld(y));
+    var x = event.pageX - graph.downX;
+    var y = event.pageY - graph.downY;
+    
+    /* Reverse direction and scale to world. */
+    graph.vp.addViewFastMove(graph.vp.scaleToWorld(-x), graph.vp.scaleToWorld(-y));
     
     graph.downX = event.pageX;
     graph.downY = event.pageY;
@@ -695,16 +696,6 @@ Graph.prototype.configInit = function(show) {
 
     $("#vport").append(this.config.getHandle());
   }
-
-
-  // Do we want to center the selected note? TODO: Move to user preferences.
-}
-
-// Loads more notes and edges after viewport size or scrolling has been changed.
-// They could be in different methods to increase performance somewhat.
-Graph.prototype.viewportChanged = function()
-{
-
 }
 
 Graph.prototype.scaleChanged = function() {
@@ -745,9 +736,12 @@ Graph.prototype.beginEdgeCreation = function()
 
 Graph.prototype.endEdgeCreation = function()
 {
+  /* Restore toggle button. */
   this.arrowButton.setState(false);
+  
   if (this.globalStartNote == null)
     return;
+  
   /* Restore color. */
   this.globalStartNote.enable();
   this.globalStartNote.enableLinkedNotes();
@@ -814,7 +808,9 @@ Graph.prototype.detachControls = function(thisnote){
 
 
 Graph.prototype.attachControlsToEdge = function(x,y){
+  /* Restore toggle button. */
   this.edgeDirectionButton.setState(this.selectedEdge.isDirected() == false);
+  
   $(this.edgeButtonsDiv).show();
   $(this.edgeButtonsDiv).css({
     "top" : y-31 +"px",
