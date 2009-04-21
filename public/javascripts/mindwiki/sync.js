@@ -138,7 +138,7 @@ function checkServerForUpdates(syncObject){
             n.height = params.note.height;
             n.zorder = params.note.zorder;
             thisgraph.notes.push(n);
-            n.redraw();
+            n.createDiv();
             thisgraph.runningZ = thisgraph.runningZ < n.zorder ? n.zorder : thisgraph.runningZ;
           }
           else{
@@ -698,7 +698,7 @@ Sync.prototype.getViewportNotes = function(x, y, w, h){
           // TODO: Check timestamps to see if update is in order.
           if(!thisgraph.getNoteById(tmp.id)){
             thisgraph.notes.push(tmp);
-            tmp.redraw();
+            tmp.createDiv();
             thisgraph.runningZ = thisgraph.runningZ < tmp.zorder ? tmp.zorder : thisgraph.runningZ;
           }
 

@@ -300,7 +300,10 @@ Viewport.prototype.scaleToWorld = function(x) {
 }
 
 Viewport.prototype.scaleByOrigin = function(x, y, scale) {
-  /* Quick and dirty. */
+  /* This is a form of zoom where point (x, y) in view coords 
+     projects to same world coords after scaling has been applied.
+     In other words, translate (x, y) to world, scale and adjust to meet this condition.
+  */
   var xMove = this.toWorldX(x) - this.x;
   var yMove = this.toWorldY(y) - this.y;
 

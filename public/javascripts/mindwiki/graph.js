@@ -769,7 +769,7 @@ Graph.prototype.createNoteAt = function(name, x, y)
     tmp.y -= tmp.height / 2;
     
     tmp.newID();
-    tmp.redraw();
+    tmp.createDiv();
     tmp.center(); // Center on create regardless of user preferences
     // Let's select the new note right away, too.
     this.notes.push(tmp);

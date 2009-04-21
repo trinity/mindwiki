@@ -433,7 +433,7 @@ Note.prototype.syncErrorDrag = function() {
 
 // This function (re)constructs the whole div!
 // Use after loading a Note with data.
-Note.prototype.redraw = function() {
+Note.prototype.createDiv = function() {
   var thisgraph = this.graph;
   var thisnote = this; // To be used in submethods, e.g. click-handlers.
 
