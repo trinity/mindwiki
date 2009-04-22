@@ -414,11 +414,11 @@ Sync.prototype.tryNoteSync = function(note){
   if (note.setNoteSizeDirty)
     this.setNoteSize(note, note.width, note.height);
 
-  if (note.setNoteNameDirty) // n.name is set on success so this does not work
-    this.setNoteName(note, "Argh!");
+  if (note.setNoteNameDirty)
+    this.setNoteName(note, note.name);
 
-  if (note.setNoteContentDirty) // Same here
-    this.setNoteContent(note, "Argh!");
+  if (note.setNoteContentDirty) // n.content is set on success so this does not work
+    this.setNoteContent(note, note.content);
     
   if (note.createNoteDirty)
     failed.push("new");
@@ -563,14 +563,16 @@ Sync.prototype.setNoteName = function(note, newName){
   var t = this;
   var n = note;
   note.setNoteNameDirty = true;
+
+  n.name=newName;
+  n.update();
+
   $.ajax({
     url: "/notes/update/"+n.id,
     dataType: "html",
     data: { "note[name]" : newName, "clientId" : t.uniqueId },
     success: function(data){
       note.setNoteNameDirty = false;
-      n.name=newName;
-      n.update();
     },
     error: function(a,b,c){
       if (t.noteSyncFailure != null)

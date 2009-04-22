@@ -72,6 +72,9 @@ Note.prototype.updateCSS = function() {
 
   // Color change
   $(this.articleDiv).css({"backgroundColor": this.color});
+
+  // This is for every note unlike dragControls that is for active note only
+  this.syncErrorDrag();
 }
 
 Note.prototype.scaleChanged = function() {
@@ -408,8 +411,10 @@ Note.prototype.syncError = function(content) {
     $("#mindwiki_world").append(this.syncErrorDiv);
   }
   if (content == null) {
-    $(this.syncErrorDiv).hide("slow");
-    // TODO: destroy this.syncErrorDiv
+    //$(this.syncErrorDiv).hide("slow");
+    document.getElementById("mindwiki_world").removeChild(this.syncErrorDiv);
+    this.syncErrorDiv = null;
+    return;
   }
   
   $(this.syncErrorDiv).html(content);
